@@ -98,11 +98,7 @@ _#HPAResource: {
 					}
 					spec: {
 						"serviceAccountName": serviceAccountName
-						restartPolicy:        [
-									if restart == "always" {"Always"},
-									if restart == "onfail" {"OnFailure"},
-									if restart == "never" {"Never"},
-						][0]
+						restartPolicy:        "Always"
 						"containers": [
 							for k, container in containers {
 								{
