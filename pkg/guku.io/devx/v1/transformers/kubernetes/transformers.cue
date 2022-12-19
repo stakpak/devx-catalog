@@ -166,16 +166,20 @@ _#HPAResource: {
 	$metadata: _
 	endpoints: _
 
-	appName: string | *$metadata.id
-	endpoints: default: host: appName
-	$resources: "\(appName)-svc": _#ServiceResource & {
-		metadata: name: "\(appName)"
+	appName:     string | *$metadata.id
+	serviceName: string | *$metadata.id
+	endpoints: default: host: serviceName
+	$resources: "\(serviceName)-svc": _#ServiceResource & {
+		metadata: name: serviceName
 		spec: {
 			selector: app: "\(appName)"
 			ports: [
 				for p in endpoints.default.ports {
 					{
-						name: "\(p.port)"
+						name: [
+							if p.name != _|_ {p.name},
+							"\(p.port)",
+						][0]
 						port: p.port
 					}
 				},

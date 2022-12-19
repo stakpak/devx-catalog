@@ -48,6 +48,7 @@ _#Container: {
 
 _#Endpoint: {
 	ports: [...{
+		name?:  string
 		port:   uint
 		target: uint | *port
 	}] & list.MinItems(0)
