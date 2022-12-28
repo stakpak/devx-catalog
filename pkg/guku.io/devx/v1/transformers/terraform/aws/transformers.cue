@@ -98,13 +98,13 @@ _#ECSService: {
 				_cpu: list.Sum([
 					0,
 					for _, container in containers if container.resources.requests.cpu != _|_ {
-						strconv.Atoi(container.resources.requests.cpu)
+						strconv.Atoi(strings.TrimSuffix(container.resources.requests.cpu, "m"))
 					},
 				])
 				_memory: list.Sum([
 						0,
 						for _, container in containers if container.resources.requests.memory != _|_ {
-						strconv.Atoi(container.resources.requests.memory)
+						strconv.Atoi(strings.TrimSuffix(container.resources.requests.memory, "M"))
 					},
 				])
 				if _cpu > 0 {
@@ -140,20 +140,30 @@ _#ECSService: {
 							}
 
 							if container.resources.requests.cpu != _|_ {
-								cpu: strconv.Atoi(container.resources.requests.cpu)
+								cpu: strconv.Atoi(
+									strings.TrimSuffix(container.resources.requests.cpu, "m"),
+									)
 							}
 							if container.resources.limits.cpu != _|_ {
 								ulimits: [{
 									name:      "cpu"
-									softLimit: strconv.Atoi(container.resources.limits.cpu)
-									hardLimit: strconv.Atoi(container.resources.limits.cpu)
+									softLimit: strconv.Atoi(
+											strings.TrimSuffix(container.resources.limits.cpu, "m"),
+											)
+									hardLimit: strconv.Atoi(
+											strings.TrimSuffix(container.resources.limits.cpu, "m"),
+											)
 								}]
 							}
 							if container.resources.requests.memory != _|_ {
-								memoryReservation: strconv.Atoi(container.resources.requests.memory)
+								memoryReservation: strconv.Atoi(
+											strings.TrimSuffix(container.resources.requests.memory, "M"),
+											)
 							}
 							if container.resources.limits.memory != _|_ {
-								memory: strconv.Atoi(container.resources.limits.memory)
+								memory: strconv.Atoi(
+									strings.TrimSuffix(container.resources.limits.memory, "M"),
+									)
 							}
 						}
 					},

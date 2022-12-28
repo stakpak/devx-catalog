@@ -20,8 +20,8 @@ _addService: v1.#TestCase & {
 			args: ["-text", "hello world"]
 			resources: {
 				requests: {
-					cpu:    "256"
-					memory: "512"
+					cpu:    "256m"
+					memory: "512M"
 				}
 			}
 			env: ENV: "prod"
