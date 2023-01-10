@@ -1,6 +1,9 @@
 package v1
 
-import "list"
+import (
+	"list"
+	"encoding/json"
+)
 
 #Secret: {
 	$metadata: secret: null
@@ -101,6 +104,7 @@ import "list"
 	enforced: bool | *false
 	disabled: bool | *false
 	pipeline: [...#GlobalPolicyPipelineStage]
+	pipelineJSON: json.Marshal(pipeline)
 }
 
 #GlobalPolicyPipelineStage: [string]: _
