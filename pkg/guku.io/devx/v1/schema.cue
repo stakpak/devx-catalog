@@ -92,3 +92,15 @@ import "list"
 	expect: output
 	assert: [string]: true
 }
+
+#GlobalPolicy: {
+	$metadata: policy: name
+
+	name: string
+	environments: [...string]
+	enforced: bool | *false
+	disabled: bool | *false
+	pipeline: [...#GlobalPolicyPipelineStage]
+}
+
+#GlobalPolicyPipelineStage: [string]: _
