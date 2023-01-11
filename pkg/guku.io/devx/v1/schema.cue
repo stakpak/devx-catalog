@@ -28,7 +28,9 @@ import (
 }
 
 #Stack: {
-	$metadata: "Stack"
+	$metadata: *"Stack" | {
+		stack: string
+	}
 	components: [Id=string]: #Component & {
 		$metadata: id: Id
 	}
