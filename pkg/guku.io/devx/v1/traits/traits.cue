@@ -1,38 +1,53 @@
 package traits
 
-import (
-	"list"
-	"guku.io/devx/v1"
-)
-
-_#Container: {
-	image: string @guku(required)
-	command: [...string]
-	args: [...string]
-	env: [string]: string | v1.#Secret
-	mounts: [...{
-		volume:   _#VolumeSpec
-		path:     string
-		readOnly: bool | *true
-	}]
-	resources: {
-		requests?: {
-			cpu?:    string
-			memory?: string
-		}
-		limits?: {
-			cpu?:    string
-			memory?: string
-		}
-	}
-}
+import "guku.io/devx/v1"
 
 // a component that runs containers
 #Workload: v1.#Trait & {
 	$metadata: traits: Workload: null
 
-	containers: [string]: _#Container
-	containers: default:  _#Container
+	containers: [string]: {
+		image: string @guku(required)
+		command: [...string]
+		args: [...string]
+		env: [string]: string | v1.#Secret
+		mounts: [...{
+			volume: _#VolumeSpec & {
+				local:       string
+				secret?:     _|_
+				ephemeral?:  _|_
+				persistent?: _|_
+			} | {
+				ephemeral:   string
+				local?:      _|_
+				secret?:     _|_
+				persistent?: _|_
+			} | {
+				persistent: string
+				ephemeral?: _|_
+				local?:     _|_
+				secret?:    _|_
+			} | {
+				secret:      v1.#Secret
+				ephemeral?:  _|_
+				local?:      _|_
+				persistent?: _|_
+			}
+			path:     string
+			readOnly: bool | *true
+		}]
+		resources: {
+			requests?: {
+				cpu?:    string
+				memory?: string
+			}
+			limits?: {
+				cpu?:    string
+				memory?: string
+			}
+		}
+	}
+	containers: default: _
 	restart: "onfail" | "never" | *"always"
 }
 
@@ -46,21 +61,19 @@ _#Container: {
 	}
 }
 
-_#Endpoint: {
-	ports: [...{
-		name?:  string
-		port:   uint
-		target: uint | *port
-	}] & list.MinItems(0)
-	host: string
-}
-
 // a component that has endpoints that can be exposed
 #Exposable: v1.#Trait & {
 	$metadata: traits: Exposable: null
 
-	endpoints: [string]: _#Endpoint
-	endpoints: default:  _#Endpoint
+	endpoints: [string]: {
+		ports: [...{
+			name?:  string
+			port:   uint
+			target: uint | *port
+		}]
+		host: string
+	}
+	endpoints: default: _
 }
 
 // work around ambiguous disjunctions by disallowing fields
@@ -90,7 +103,27 @@ _#VolumeSpec: {
 #Volume: v1.#Trait & {
 	$metadata: traits: Volume: null
 
-	volumes: [string]: _#VolumeSpec
+	volumes: [string]: _#VolumeSpec & {
+		local:       string
+		secret?:     _|_
+		ephemeral?:  _|_
+		persistent?: _|_
+	} | {
+		ephemeral:   string
+		local?:      _|_
+		secret?:     _|_
+		persistent?: _|_
+	} | {
+		persistent: string
+		ephemeral?: _|_
+		local?:     _|_
+		secret?:    _|_
+	} | {
+		secret:      v1.#Secret
+		ephemeral?:  _|_
+		local?:      _|_
+		persistent?: _|_
+	}
 }
 
 // a postgres database
@@ -119,24 +152,44 @@ _#HelmCommon: {
 // a helm chart using helm repo
 #Helm: v1.#Trait & {
 	$metadata: traits: Helm: null
-	_#HelmCommon
+	_#HelmCommon & {
+		chart:     string @guku(required)
+		url:       string @guku(required)
+		version:   string @guku(required)
+		values:    _ | *{}
+		namespace: string
+	}
 }
 
 // a helm chart using git
 #HelmGit: v1.#Trait & {
 	$metadata: traits: HelmGit: null
-	_#HelmCommon
+	_#HelmCommon & {
+		chart:     string @guku(required)
+		url:       string @guku(required)
+		version:   string @guku(required)
+		values:    _ | *{}
+		namespace: string
+	}
 }
 
 // a helm chart using oci
 #HelmOCI: v1.#Trait & {
 	$metadata: traits: HelmOCI: null
-	_#HelmCommon
+	_#HelmCommon & {
+		chart:     string @guku(required)
+		url:       string @guku(required)
+		version:   string @guku(required)
+		values:    _ | *{}
+		namespace: string
+	}
 }
 
 // an automation workflow
 #Workflow: v1.#Trait & {
 	$metadata: traits: Workflow: null
+	// the plan can be anything depending on the implementation
+	// this field should be validated by transformers
 	plan: _
 }
 
