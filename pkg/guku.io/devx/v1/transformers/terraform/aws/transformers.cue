@@ -14,8 +14,8 @@ _#TerraformResource: {
 		driver: "terraform"
 		type:   ""
 	}
-	data: [string]:     _
-	resource: [string]: _
+	data?: [string]:     _
+	resource?: [string]: _
 }
 _#ECSTaskDefinition: {
 	family:       string
@@ -273,6 +273,35 @@ _#ECSService: {
 	$resources: terraform: _#TerraformResource & {
 		resource: aws_ecs_service: "\(appName)": _#ECSService & {
 			desired_count: replicas.min
+		}
+	}
+}
+
+// Add S3 bucket
+#AddS3Bucket: v1.#Transformer & {
+	traits.#S3CompatibleBucket
+
+	$metadata: _
+	s3:        _
+	$resources: terraform: _#TerraformResource & {
+		resource: {
+			aws_s3_bucket: "\($metadata.id)": bucket: s3.fullBucketName
+			if s3.objectLocking {
+				aws_s3_bucket_object_lock_configuration: "\($metadata.id)": bucket: "${aws_s3_bucket.\($metadata.id).bucket}"
+			}
+			if s3.versioning {
+				aws_s3_bucket_versioning: "\($metadata.id)": {
+					bucket: "${aws_s3_bucket.\($metadata.id).bucket}"
+					versioning_configuration: status: "Enabled"
+				}
+			}
+			if s3.policy != _|_ {
+				aws_s3_bucket_policy: "\($metadata.id)": {
+					bucket: "${aws_s3_bucket.\($metadata.id).bucket}"
+					policy: json.Marshal(s3.policy)
+				}
+			}
+
 		}
 	}
 }

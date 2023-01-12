@@ -181,3 +181,31 @@ _#ComposeResource: {
 		services: "\($metadata.id)": "build": build
 	}
 }
+
+// add s3 bucket using minio, requires components.#Minio from  "guku.io/devx/v1/components"
+#AddS3Bucket: v1.#Transformer & {
+	traits.#S3CompatibleBucket
+
+	$metadata:     _
+	$dependencies: _
+
+	s3: _
+	$resources: compose: {
+		"$metadata": labels: {
+			driver: "compose"
+			type:   ""
+		}
+		services: "create\($metadata.id)": {
+			image:      "minio/mc"
+			depends_on: $dependencies
+			entrypoint: #"""
+				/bin/sh -c "
+				/usr/bin/mc alias set myminio \#(s3.url) \#(s3.accessKey) \#(s3.accessSecret);
+				/usr/bin/mc mb myminio/\#(s3.fullBucketName);
+				/usr/bin/mc policy set public myminio/\#(s3.fullBucketName);
+				exit 0;
+				"
+				"""#
+		}
+	}
+}
