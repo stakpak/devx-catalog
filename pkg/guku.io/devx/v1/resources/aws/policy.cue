@@ -1,6 +1,6 @@
 package aws
 
-_#IAMPolicy: {
+#IAMPolicy: {
 	Version?: "2008-10-17" | "2012-10-17"
 	Id?:      string
 	Statement: [..._#Statement]

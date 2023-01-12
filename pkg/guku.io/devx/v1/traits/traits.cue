@@ -1,6 +1,9 @@
 package traits
 
-import "guku.io/devx/v1"
+import (
+	"guku.io/devx/v1"
+	"guku.io/devx/v1/resources/aws"
+)
 
 // a component that runs containers
 #Workload: v1.#Trait & {
@@ -198,4 +201,21 @@ _#HelmCommon: {
 	$metadata: traits: Secret: null
 
 	secrets: [string]: v1.#Secret
+}
+
+#S3CompatibleBucket: v1.#Trait & {
+	$metadata: traits: S3Bucket: null
+	s3: {
+		prefix:         string | *""
+		name:           string
+		fullBucketName: "\(prefix)\(name)"
+
+		objectLocking: bool | *false
+		versioning:    bool | *true
+
+		policy?:       aws.#IAMPolicy
+		url?:          string
+		accessKey?:    string | v1.#Secret
+		accessSecret?: string | v1.#Secret
+	}
 }
