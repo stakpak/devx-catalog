@@ -25,7 +25,7 @@ _#ComposeResource: {
 		environment?: [string]: string
 		command?: [...string]
 		volumes?: [...string]
-		restart: string
+		restart: "always" | "on-failure" | *"no"
 	}
 }
 
