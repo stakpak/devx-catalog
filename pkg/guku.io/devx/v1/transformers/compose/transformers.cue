@@ -24,6 +24,7 @@ _#ComposeResource: {
 		ports?: [...string]
 		environment?: [string]: string
 		command?: [...string]
+		entrypoint?: string
 		volumes?: [...string]
 		restart: "always" | "on-failure" | *"no"
 	}
@@ -190,14 +191,12 @@ _#ComposeResource: {
 	$dependencies: _
 
 	s3: _
-	$resources: compose: {
-		"$metadata": labels: {
-			driver: "compose"
-			type:   ""
-		}
-		services: "create\($metadata.id)": {
-			image:      "minio/mc"
-			depends_on: $dependencies
+	$resources: compose: _#ComposeResource & {
+		services: "\($metadata.id)": {
+			image: "minio/mc"
+			depends_on: [
+				for id in $dependencies if services[id] != _|_ {id},
+			]
 			entrypoint: #"""
 				/bin/sh -c "
 				/usr/bin/mc alias set myminio \#(s3.url) \#(s3.accessKey) \#(s3.accessSecret);
