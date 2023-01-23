@@ -1,1 +1,0 @@
-../cue.mod/pkg/k8s.io
