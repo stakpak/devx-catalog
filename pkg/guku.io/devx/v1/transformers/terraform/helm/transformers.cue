@@ -15,26 +15,27 @@ _#TerraformResource: {
 
 // add a helm release
 #AddHelmRelease: v1.#Transformer & {
-	v1.#Component
 	traits.#Helm
-	$dependencies: [...string]
 	$metadata: _
-	namespace: string
-	url:       _
-	chart:     _
-	version:   _
-	values:    _
+	helm:      _
 	$resources: terraform: {
 		_#TerraformResource
 		resource: helm_release: "\($metadata.id)": {
 			name:             $metadata.id
-			"namespace":      namespace
-			repository:       url
-			"chart":          chart
-			"version":        version
-			create_namespace: true
-			"values": [
-				yaml.Marshal(values),
+			namespace:        helm.namespace
+			repository:       helm.url
+			chart:            helm.chart
+			version:          helm.version
+			timeout:          helm.timeout
+			atomic:           helm.atomic
+			create_namespace: helm.createNamespace
+			values: [
+				yaml.Marshal(helm.values),
+			]
+			depends_on: [
+				for item in helm.dependsOn {
+					"helm_release.\(item.$metadata.id)"
+				},
 			]
 		}
 	}

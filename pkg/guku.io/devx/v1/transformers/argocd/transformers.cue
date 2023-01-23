@@ -20,19 +20,13 @@ _#ArgoCDApplicationResource: {
 
 // add a helm release
 #AddHelmRelease: v1.#Transformer & {
-	$dependencies: [...string]
-	v1.#Component
 	traits.#Helm
 	$metadata: _
-	namespace: string
-	chart:     _
-	url:       _
-	version:   _
-	values:    _
+	helm:      _
 	$resources: "\($metadata.id)": _#ArgoCDApplicationResource & {
 		metadata: {
-			name:        $metadata.id
-			"namespace": namespace
+			name:      $metadata.id
+			namespace: helm.namespace
 			finalizers: [
 				"resources-finalizer.argocd.argoproj.io",
 			]
@@ -40,18 +34,18 @@ _#ArgoCDApplicationResource: {
 		spec: {
 			source: {
 
-				"chart": chart
+				chart: helm.chart
 
-				repoURL:        url
-				targetRevision: version
+				repoURL:        helm.url
+				targetRevision: helm.version
 
-				helm: {
+				"helm": {
 					releaseName: $metadata.id
-					"values":    yaml.Marshal(values)
+					values:      yaml.Marshal(helm.values)
 				}
 			}
 			destination: {
-				"namespace": namespace
+				namespace: helm.namespace
 			}
 
 			syncPolicy: argoapp.#SyncPolicy & {
