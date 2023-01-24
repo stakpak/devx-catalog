@@ -1,8 +1,8 @@
 package traits
 
 import (
+	"list"
 	"guku.io/devx/v1"
-	"guku.io/devx/v1/resources/aws"
 )
 
 // a component that runs containers
@@ -129,97 +129,6 @@ _#VolumeSpec: {
 	}
 }
 
-// a postgres database
-#Postgres: v1.#Trait & {
-	$metadata: traits: Postgres: null
-
-	version:    string @guku(required)
-	persistent: bool | *true
-	port:       uint | *5432
-	database:   string | *"default"
-
-	host:     string
-	username: string
-	password: string
-	url:      "postgresql://\(username):\(password)@\(host):\(port)/\(database)"
-}
-
-_#HelmCommon: {
-	k8s: version: {
-		major: uint | *1
-		minor: uint
-	}
-	chart:   string @guku(required)
-	url:     string @guku(required)
-	version: string @guku(required)
-	values: [string]: _
-	namespace:       string
-	timeout:         uint | *600
-	atomic:          bool | *true
-	createNamespace: bool | *true
-	dependsOn: [...#Helm]
-}
-
-// a helm chart using helm repo
-#Helm: v1.#Trait & {
-	$metadata: traits: Helm: null
-	helm: _#HelmCommon & {
-		k8s: version: {
-			major: uint | *1
-			minor: uint
-		}
-		chart:   string @guku(required)
-		url:     string @guku(required)
-		version: string @guku(required)
-		values: [string]: _
-		namespace:       string
-		timeout:         uint | *600
-		atomic:          bool | *true
-		createNamespace: bool | *true
-		dependsOn: [...#Helm]
-	}
-}
-
-// a helm chart using git
-#HelmGit: v1.#Trait & {
-	$metadata: traits: HelmGit: null
-	helm: _#HelmCommon & {
-		k8s: version: {
-			major: uint | *1
-			minor: uint
-		}
-		chart:   string @guku(required)
-		url:     string @guku(required)
-		version: string @guku(required)
-		values: [string]: _
-		namespace:       string
-		timeout:         uint | *600
-		atomic:          bool | *true
-		createNamespace: bool | *true
-		dependsOn: [...#Helm]
-	}
-}
-
-// a helm chart using oci
-#HelmOCI: v1.#Trait & {
-	$metadata: traits: HelmOCI: null
-	helm: _#HelmCommon & {
-		k8s: version: {
-			major: uint | *1
-			minor: uint
-		}
-		chart:   string @guku(required)
-		url:     string @guku(required)
-		version: string @guku(required)
-		values: [string]: _
-		namespace:       string
-		timeout:         uint | *600
-		atomic:          bool | *true
-		createNamespace: bool | *true
-		dependsOn: [...#Helm]
-	}
-}
-
 // an automation workflow
 #Workflow: v1.#Trait & {
 	$metadata: traits: Workflow: null
@@ -235,19 +144,17 @@ _#HelmCommon: {
 	secrets: [string]: v1.#Secret
 }
 
-#S3CompatibleBucket: v1.#Trait & {
-	$metadata: traits: S3Bucket: null
-	s3: {
-		prefix:         string | *""
-		name:           string
-		fullBucketName: "\(prefix)\(name)"
-
-		objectLocking: bool | *false
-		versioning:    bool | *true
-
-		policy?:       aws.#IAMPolicy
-		url?:          string
-		accessKey?:    string | v1.#Secret
-		accessSecret?: string | v1.#Secret
+// a network ingress for web traffic
+#Gateway: v1.#Trait & {
+	$metadata: traits: Gateway: null
+	gateway: {
+		name:   string
+		public: bool
+		listeners: [string]: {
+			host:     string
+			port:     uint & <65536
+			protocol: *"HTTP" | "HTTPS" | "TCP" | "TLS"
+		}
+		_validate: [ for _, l in listeners {"\(l.host)/\(l.port)/\(l.protocol)"}] & list.UniqueItems()
 	}
 }
