@@ -124,7 +124,7 @@ import (
 						Effect: "Allow"
 						Principal: Service: "kafka.amazonaws.com"
 						Action: ["secretsmanager:getSecretValue"]
-						Resource: ["${aws_secretsmanager_secret.msk_user_\(secret.name).arn}"]
+						Resource: [secret_arn]
 					}]
 				})
 			}
