@@ -57,6 +57,7 @@ _addService: v1.#TestCase & {
 							name:  "ENV"
 							value: "prod"
 						}]
+						secrets: []
 						healthCheck: {
 							command: ["CMD-SHELL", "exit 0"]
 						}
