@@ -93,7 +93,7 @@ import (
 	for _, secret in secrets {
 		$resources: terraform: schema.#Terraform & {
 			data: aws_kms_alias: "msk_scram_\(kafka.name)": name:     "alias/msk-scram-\(kafka.name)"
-			data: aws_msk_cluster: "msk_\(kafka.name)": cluster_name: "msk_\(kafka.name)"
+			data: aws_msk_cluster: "msk_\(kafka.name)": cluster_name: kafka.name
 			resource: aws_msk_scram_secret_association: "msk_user_\(secret.name)": {
 				cluster_arn: "${data.aws_msk_cluster.msk_\(kafka.name).arn}"
 				secret_arn_list: ["${aws_secretsmanager_secret.msk_user_\(secret.name).arn}"]
