@@ -21,7 +21,8 @@ import (
 			"kafka.m5.16xlarge" |
 			"kafka.m5.24xlarge"
 	}
-	$resources: terraform: schema.#Terraform & {
+	kafka: bootstrapServers: "<unknown>"
+	$resources: terraform:   schema.#Terraform & {
 		resource: aws_kms_key: "msk_\(kafka.name)": {
 			description:             "msk_\(kafka.name) encryption key"
 			deletion_window_in_days: 7
