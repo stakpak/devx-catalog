@@ -14,6 +14,7 @@ import (
 			count:  uint | *3
 			sizeGB: uint | *1
 		}
+		bootstrapServers: string
 	}
 }
 
