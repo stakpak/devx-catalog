@@ -52,8 +52,8 @@ _addMSKUsers: v1.#TestCase & {
 						Sid:    "AWSKafkaResourcePolicy"
 						Effect: "Allow"
 						Principal: Service: "kafka.amazonaws.com"
-						Action: ["secretsmanager:getSecretValue"]
-						Resource: ["${aws_secretsmanager_secret.msk_user_usera.arn}"]
+						Action:   "secretsmanager:getSecretValue"
+						Resource: "${aws_secretsmanager_secret.msk_user_usera.arn}"
 					}]
 				})
 			}
