@@ -98,7 +98,7 @@ import (
 				cluster_arn: "${data.aws_msk_cluster.msk_\(kafka.name).arn}"
 				secret_arn_list: ["${aws_secretsmanager_secret.msk_user_\(secret.name).arn}"]
 
-				depends_on: ["${aws_secretsmanager_secret.msk_user_\(secret.name)}"]
+				depends_on: ["aws_secretsmanager_secret.msk_user_\(secret.name)"]
 			}
 			resource: aws_secretsmanager_secret: "msk_user_\(secret.name)": {
 				name:       "AmazonMSK_\(secret.name)"
