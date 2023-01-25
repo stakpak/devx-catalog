@@ -69,7 +69,7 @@ import (
 				network_mode: "awsvpc"
 				requires_compatibilities: [launchType]
 
-				execution_role_arn: "${aws_iam_role.task_execution_\(appName).name}"
+				execution_role_arn: "${aws_iam_role.task_execution_\(appName).arn}"
 				task_role_arn?:     string
 
 				_cpu: list.Sum([

@@ -79,7 +79,7 @@ _addService: v1.#TestCase & {
 					family:       "obi"
 					network_mode: "awsvpc"
 					requires_compatibilities: ["FARGATE"]
-					execution_role_arn:    "${aws_iam_role.task_execution_obi.name}"
+					execution_role_arn:    "${aws_iam_role.task_execution_obi.arn}"
 					cpu:                   "256"
 					memory:                "512"
 					container_definitions: json.Marshal([{
