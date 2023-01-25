@@ -1,8 +1,10 @@
 package aws
 
 import (
+	"encoding/json"
 	"guku.io/devx/v1"
 	"guku.io/devx/v1/traits"
+	"guku.io/devx/v1/resources/aws"
 	schema "guku.io/devx/v1/transformers/terraform"
 )
 
@@ -29,6 +31,11 @@ import (
 			tags: {
 				terraform: "true"
 			}
+		}
+		resource: aws_kms_key: "msk_scram_\(kafka.name)": description: "Key for MSK Cluster Scram Secret Association"
+		resource: aws_kms_alias: "msk_scram_\(kafka.name)": {
+			name:          "msk-scram-\(kafka.name)"
+			target_key_id: "${aws_kms_key.msk_scram_\(kafka.name).key_id}"
 		}
 		resource: aws_msk_cluster: "msk_\(kafka.name)": {
 			cluster_name:  kafka.name
@@ -75,5 +82,52 @@ import (
 			}
 		}
 		output: "msk_\(kafka.name)_bootstrap_brokers": value: "${aws_msk_cluster.msk_\(kafka.name).bootstrap_brokers_sasl_scram}"
+	}
+}
+
+#AddMSKUser: v1.#Transformer & {
+	traits.#Kafka
+	traits.#Secret
+	kafka:   _
+	secrets: _
+	for _, secret in secrets {
+		$resources: terraform: schema.#Terraform & {
+			data: aws_kms_alias: "msk_scram_\(kafka.name)": name:     "msk-scram-\(kafka.name)"
+			data: aws_msk_cluster: "msk_\(kafka.name)": cluster_name: "msk_\(kafka.name)"
+			resource: aws_msk_scram_secret_association: "msk_user_\(secret.name)": {
+				cluster_arn: "${data.aws_msk_cluster.msk_\(kafka.name).arn}"
+				secret_arn_list: ["${aws_secretsmanager_secret.msk_user_\(secret.name).arn}"]
+
+				depends_on: ["${aws_secretsmanager_secret.msk_user_\(secret.name)}"]
+			}
+			resource: aws_secretsmanager_secret: "msk_user_\(secret.name)": {
+				name:       "AmazonMSK_\(secret.name)"
+				kms_key_id: "${data.aws_kms_alias.msk_scram_\(kafka.name).target_key_id}"
+			}
+			resource: random_password: "secret_msk_user_\(secret.name)": {
+				length:  32
+				special: false
+			}
+			resource: aws_secretsmanager_secret_version: "msk_user_\(secret.name)": {
+				secret_id:     "${aws_secretsmanager_secret.msk_user_\(secret.name).id}"
+				secret_string: json.Marshal({
+					username: secret.name
+					password: "${random_password.secret_msk_user_\(secret.name).result}"
+				})
+			}
+			resource: aws_secretsmanager_secret_policy: "msk_user_\(secret.name)": {
+				secret_arn: "${aws_secretsmanager_secret.msk_user_\(secret.name).arn}"
+				policy:     json.Marshal(aws.IAMPolicy & {
+					Version: "2012-10-17"
+					Statement: [ {
+						Sid:    "AWSKafkaResourcePolicy"
+						Effect: "Allow"
+						Principal: Service: "kafka.amazonaws.com"
+						Action: ["secretsmanager:getSecretValue"]
+						Resource: ["${aws_secretsmanager_secret.msk_user_\(secret.name).arn}"]
+					}]
+				})
+			}
+		}
 	}
 }
