@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"guku.io/devx/v1"
 	"guku.io/devx/v1/traits"
+	"guku.io/devx/v1/resources/aws"
 	schema "guku.io/devx/v1/transformers/terraform"
 )
 
@@ -23,6 +24,40 @@ import (
 	$resources: terraform: schema.#Terraform & {
 		data: aws_ecs_cluster: "\(clusterName)": cluster_name: clusterName
 		resource: {
+			aws_iam_role: "task_execution_\(appName)": {
+				name:               "task-execution-\(appName)"
+				assume_role_policy: json.Marshal(aws.#IAMPolicy &
+					{
+						Version: "2012-10-17"
+						Statement: [{
+							Sid:    "ECSTask"
+							Effect: "Allow"
+							Principal: Service: "ecs-tasks.amazonaws.com"
+							Action: "sts:AssumeRole"
+						}]
+					})
+			}
+			aws_iam_role_policy: "task_execution_\(appName)_default": {
+				name:   "task-execution-\(appName)-default"
+				role:   "${aws_iam_role.task_execution_\(appName).name}"
+				policy: json.Marshal(aws.#IAMPolicy &
+					{
+						Version: "2012-10-17"
+						Statement: [{
+							Sid:    "ECSTaskDefault"
+							Effect: "Allow"
+							Action: [
+								"ecr:GetAuthorizationToken",
+								"ecr:BatchCheckLayerAvailability",
+								"ecr:GetDownloadUrlForLayer",
+								"ecr:BatchGetImage",
+								"logs:CreateLogStream",
+								"logs:PutLogEvents",
+							]
+							Resource: "*"
+						}]
+					})
+			}
 			aws_ecs_service: "\(appName)": _#ECSService & {
 				name:            appName
 				cluster:         "${data.aws_ecs_cluster.\(clusterName).id}"
@@ -33,6 +68,10 @@ import (
 				family:       appName
 				network_mode: "awsvpc"
 				requires_compatibilities: [launchType]
+
+				execution_role_arn: "${aws_iam_role.task_execution_\(appName).name}"
+				task_role_arn?:     string
+
 				_cpu: list.Sum([
 					0,
 					for _, container in containers if container.resources.requests.cpu != _|_ {
@@ -223,11 +262,13 @@ import (
 }
 
 _#ECSTaskDefinition: {
-	family:       string
-	network_mode: *"bridge" | "host" | "awsvpc" | "none"
+	family:             string
+	network_mode:       *"bridge" | "host" | "awsvpc" | "none"
+	execution_role_arn: string
 	requires_compatibilities?: [..."EC2" | "FARGATE"]
-	cpu?:    string
-	memory?: string
+	cpu?:           string
+	memory?:        string
+	task_role_arn?: string
 	_container_definitions: [..._#ContainerDefinition]
 	container_definitions: json.Marshal(_container_definitions)
 }
