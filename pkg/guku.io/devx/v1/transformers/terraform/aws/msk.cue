@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"guku.io/devx/v1"
 	"guku.io/devx/v1/traits"
-	"guku.io/devx/v1/resources/aws"
+	resources "guku.io/devx/v1/resources/aws"
 	schema "guku.io/devx/v1/transformers/terraform"
 )
 
@@ -117,7 +117,7 @@ import (
 			}
 			resource: aws_secretsmanager_secret_policy: "msk_user_\(secret.name)": {
 				secret_arn: "${aws_secretsmanager_secret.msk_user_\(secret.name).arn}"
-				policy:     json.Marshal(aws.IAMPolicy & {
+				policy:     json.Marshal(resources.IAMPolicy & {
 					Version: "2012-10-17"
 					Statement: [ {
 						Sid:    "AWSKafkaResourcePolicy"
