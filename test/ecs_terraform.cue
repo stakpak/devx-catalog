@@ -74,6 +74,7 @@ _addService: v1.#TestCase & {
 									Resource: "*"
 								},
 								{
+									Sid:    "ECSTaskSecret"
 									Effect: "Allow"
 									Action: [
 										"ssm:GetParameters",

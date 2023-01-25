@@ -58,16 +58,15 @@ import (
 								Resource: "*"
 							},
 							{
+								Sid:    "ECSTaskSecret"
 								Effect: "Allow"
 								Action: [
 									"ssm:GetParameters",
 									"secretsmanager:GetSecretValue",
 								]
 								Resource: [
-									for _, container in containers {
-										for k, v in container.env if (v & v1.#Secret) != _|_ {
-											v.key
-										}
+									for _, container in containers for _, v in container.env if (v & v1.#Secret) != _|_ {
+										v.key
 									},
 								]
 							},
