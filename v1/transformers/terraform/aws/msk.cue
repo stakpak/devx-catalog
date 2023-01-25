@@ -117,17 +117,16 @@ import (
 			}
 			resource: aws_secretsmanager_secret_policy: "msk_user_\(secret.name)": {
 				secret_arn: "${aws_secretsmanager_secret.msk_user_\(secret.name).arn}"
-				_policy:    resources.IAMPolicy & {
+				policy:     json.Marshal(resources.#IAMPolicy & {
 					Version: "2012-10-17"
-					Statement: [{
+					Statement: [ {
 						Sid:    "AWSKafkaResourcePolicy"
 						Effect: "Allow"
 						Principal: Service: "kafka.amazonaws.com"
 						Action:   "secretsmanager:getSecretValue"
 						Resource: secret_arn
 					}]
-				}
-				policy: json.Marshal(_policy)
+				})
 			}
 		}
 	}
