@@ -25,7 +25,12 @@ _addService: v1.#TestCase & {
 					memory: "512M"
 				}
 			}
-			env: ENV: "prod"
+			env: {
+				ENV: "prod"
+				SEC: v1.#Secret & {
+					name: "arn:aws:secretsmanager:balabzio"
+				}
+			}
 		}
 	}
 	output: _
@@ -54,19 +59,30 @@ _addService: v1.#TestCase & {
 					policy: json.Marshal(resources.#IAMPolicy &
 						{
 							Version: "2012-10-17"
-							Statement: [{
-								Sid:    "ECSTaskDefault"
-								Effect: "Allow"
-								Action: [
-									"ecr:GetAuthorizationToken",
-									"ecr:BatchCheckLayerAvailability",
-									"ecr:GetDownloadUrlForLayer",
-									"ecr:BatchGetImage",
-									"logs:CreateLogStream",
-									"logs:PutLogEvents",
-								]
-								Resource: "*"
-							}]
+							Statement: [
+								{
+									Sid:    "ECSTaskDefault"
+									Effect: "Allow"
+									Action: [
+										"ecr:GetAuthorizationToken",
+										"ecr:BatchCheckLayerAvailability",
+										"ecr:GetDownloadUrlForLayer",
+										"ecr:BatchGetImage",
+										"logs:CreateLogStream",
+										"logs:PutLogEvents",
+									]
+									Resource: "*"
+								},
+								{
+									Effect: "Allow"
+									Action: [
+										"ssm:GetParameters",
+										"secretsmanager:GetSecretValue",
+									]
+									Resource: [
+										"arn:aws:secretsmanager:balabzio",
+									]
+								}]
 						})
 				}
 				aws_ecs_service: "obi": {
@@ -93,7 +109,10 @@ _addService: v1.#TestCase & {
 							name:  "ENV"
 							value: "prod"
 						}]
-						secrets: []
+						secrets: [{
+							name:      "SEC"
+							valueFrom: "arn:aws:secretsmanager:balabzio"
+						}]
 						healthCheck: {
 							command: ["CMD-SHELL", "exit 0"]
 						}

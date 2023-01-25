@@ -43,19 +43,35 @@ import (
 				policy: json.Marshal(aws.#IAMPolicy &
 					{
 						Version: "2012-10-17"
-						Statement: [{
-							Sid:    "ECSTaskDefault"
-							Effect: "Allow"
-							Action: [
-								"ecr:GetAuthorizationToken",
-								"ecr:BatchCheckLayerAvailability",
-								"ecr:GetDownloadUrlForLayer",
-								"ecr:BatchGetImage",
-								"logs:CreateLogStream",
-								"logs:PutLogEvents",
-							]
-							Resource: "*"
-						}]
+						Statement: [
+							{
+								Sid:    "ECSTaskDefault"
+								Effect: "Allow"
+								Action: [
+									"ecr:GetAuthorizationToken",
+									"ecr:BatchCheckLayerAvailability",
+									"ecr:GetDownloadUrlForLayer",
+									"ecr:BatchGetImage",
+									"logs:CreateLogStream",
+									"logs:PutLogEvents",
+								]
+								Resource: "*"
+							},
+							{
+								Effect: "Allow"
+								Action: [
+									"ssm:GetParameters",
+									"secretsmanager:GetSecretValue",
+								]
+								Resource: [
+									for _, container in containers {
+										for k, v in container.env if (v & v1.#Secret) != _|_ {
+											v.key
+										}
+									},
+								]
+							},
+						]
 					})
 			}
 			aws_ecs_service: "\(appName)": _#ECSService & {
