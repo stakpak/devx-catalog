@@ -35,3 +35,16 @@ import (
 		}
 	}
 }
+
+// set secret key to SSM parameter store arn
+#AddSSMSecretKey: v1.#Transformer & {
+	traits.#Secret
+	aws: {
+		region:  string
+		account: string
+	}
+	secrets: [string]: {
+		name: _
+		key:  "arn:aws:ssm:\(aws.region):\(aws.account):parameter/\(name)"
+	}
+}
