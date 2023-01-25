@@ -21,7 +21,7 @@ _addMSKUsers: v1.#TestCase & {
 	}
 	output: {
 		$resources: terraform: schema.#Terraform & {
-			data: aws_kms_alias: "msk_scram_main": name:     "msk-scram-main"
+			data: aws_kms_alias: "msk_scram_main": name:     "alias/msk-scram-main"
 			data: aws_msk_cluster: "msk_main": cluster_name: "msk_main"
 			resource: aws_msk_scram_secret_association: "msk_user_usera": {
 				cluster_arn: "${data.aws_msk_cluster.msk_main.arn}"

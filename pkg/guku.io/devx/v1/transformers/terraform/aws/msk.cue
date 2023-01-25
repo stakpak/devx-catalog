@@ -34,7 +34,7 @@ import (
 		}
 		resource: aws_kms_key: "msk_scram_\(kafka.name)": description: "Key for MSK Cluster Scram Secret Association"
 		resource: aws_kms_alias: "msk_scram_\(kafka.name)": {
-			name:          "msk-scram-\(kafka.name)"
+			name:          "alias/msk-scram-\(kafka.name)"
 			target_key_id: "${aws_kms_key.msk_scram_\(kafka.name).key_id}"
 		}
 		resource: aws_msk_cluster: "msk_\(kafka.name)": {
@@ -92,7 +92,7 @@ import (
 	secrets: _
 	for _, secret in secrets {
 		$resources: terraform: schema.#Terraform & {
-			data: aws_kms_alias: "msk_scram_\(kafka.name)": name:     "msk-scram-\(kafka.name)"
+			data: aws_kms_alias: "msk_scram_\(kafka.name)": name:     "alias/msk-scram-\(kafka.name)"
 			data: aws_msk_cluster: "msk_\(kafka.name)": cluster_name: "msk_\(kafka.name)"
 			resource: aws_msk_scram_secret_association: "msk_user_\(secret.name)": {
 				cluster_arn: "${data.aws_msk_cluster.msk_\(kafka.name).arn}"
