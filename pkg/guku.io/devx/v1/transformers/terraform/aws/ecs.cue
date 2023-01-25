@@ -67,9 +67,16 @@ import (
 							]
 
 							environment: [
-								for k, v in container.env {
+								for k, v in container.env if (v & string) != _|_ {
 									name:  k
 									value: v
+								},
+							]
+
+							secrets: [
+								for k, v in container.env if (v & v1.#Secret) != _|_ {
+									name:      k
+									valueFrom: v.key
 								},
 							]
 
