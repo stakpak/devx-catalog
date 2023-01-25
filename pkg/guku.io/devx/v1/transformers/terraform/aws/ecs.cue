@@ -7,70 +7,8 @@ import (
 	"strconv"
 	"guku.io/devx/v1"
 	"guku.io/devx/v1/traits"
+	schema "guku.io/devx/v1/transformers/terraform"
 )
-
-_#TerraformResource: {
-	$metadata: labels: {
-		driver: "terraform"
-		type:   ""
-	}
-	data?: [string]:     _
-	resource?: [string]: _
-}
-_#ECSTaskDefinition: {
-	family:       string
-	network_mode: *"bridge" | "host" | "awsvpc" | "none"
-	requires_compatibilities?: [..."EC2" | "FARGATE"]
-	cpu?:    string
-	memory?: string
-	_container_definitions: [..._#ContainerDefinition]
-	container_definitions: json.Marshal(_container_definitions)
-}
-_#ECSService: {
-	name:            string
-	cluster:         string
-	task_definition: string
-	desired_count:   uint | *1
-	launch_type:     "EC2" | "FARGATE"
-	network_configuration?: {
-		security_groups: [...string]
-		subnets: [...string]
-	}
-	load_balancer?: [...{
-		target_group_arn: string
-		container_name:   string
-		container_port:   uint
-	}]
-}
-
-// add a parameter store secret
-#AddSSMSecretParameter: v1.#Transformer & {
-	v1.#Component
-	traits.#Secret
-	$metadata: _
-	secrets:   _
-	$resources: terraform: _#TerraformResource & {
-		resource: {
-			aws_ssm_parameter: {
-				for key, secret in secrets {
-					"\(strings.ToLower($metadata.id))_\(strings.ToLower(key))": {
-						name:  secret.key
-						type:  "SecureString"
-						value: "${random_password.\(strings.ToLower($metadata.id))_\(strings.ToLower(key)).result}"
-					}
-				}
-			}
-			random_password: {
-				for key, _ in secrets {
-					"\(strings.ToLower($metadata.id))_\(strings.ToLower(key))": {
-						length:  32
-						special: false
-					}
-				}
-			}
-		}
-	}
-}
 
 // add an ECS service and task definition
 #AddECSService: v1.#Transformer & {
@@ -82,7 +20,7 @@ _#ECSService: {
 	clusterName: string
 	launchType:  "FARGATE" | "ECS"
 	appName:     string | *$metadata.id
-	$resources: terraform: _#TerraformResource & {
+	$resources: terraform: schema.#Terraform & {
 		data: aws_ecs_cluster: "\(clusterName)": cluster_name: clusterName
 		resource: {
 			aws_ecs_service: "\(appName)": _#ECSService & {
@@ -188,7 +126,7 @@ _#ECSService: {
 	lbHost:              string
 	appName:             string | *$metadata.id
 	endpoints: default: host: lbHost
-	$resources: terraform: _#TerraformResource & {
+	$resources: terraform: schema.#Terraform & {
 		data: {
 			aws_lb_target_group: "\(lbTargetGroupName)": name:  lbTargetGroupName
 			aws_security_group: "\(lbSecurityGroupName)": name: lbSecurityGroupName
@@ -270,38 +208,90 @@ _#ECSService: {
 	$metadata: _
 	replicas:  _
 	appName:   string | *$metadata.id
-	$resources: terraform: _#TerraformResource & {
+	$resources: terraform: schema.#Terraform & {
 		resource: aws_ecs_service: "\(appName)": _#ECSService & {
 			desired_count: replicas.min
 		}
 	}
 }
 
-// Add S3 bucket
-#AddS3Bucket: v1.#Transformer & {
-	traits.#S3CompatibleBucket
+_#ECSTaskDefinition: {
+	family:       string
+	network_mode: *"bridge" | "host" | "awsvpc" | "none"
+	requires_compatibilities?: [..."EC2" | "FARGATE"]
+	cpu?:    string
+	memory?: string
+	_container_definitions: [..._#ContainerDefinition]
+	container_definitions: json.Marshal(_container_definitions)
+}
+_#ECSService: {
+	name:            string
+	cluster:         string
+	task_definition: string
+	desired_count:   uint | *1
+	launch_type:     "EC2" | "FARGATE"
+	network_configuration?: {
+		security_groups: [...string]
+		subnets: [...string]
+	}
+	load_balancer?: [...{
+		target_group_arn: string
+		container_name:   string
+		container_port:   uint
+	}]
+}
 
-	$metadata: _
-	s3:        _
-	$resources: terraform: _#TerraformResource & {
-		resource: {
-			aws_s3_bucket: "\($metadata.id)": bucket: s3.fullBucketName
-			if s3.objectLocking {
-				aws_s3_bucket_object_lock_configuration: "\($metadata.id)": bucket: "${aws_s3_bucket.\($metadata.id).bucket}"
-			}
-			if s3.versioning {
-				aws_s3_bucket_versioning: "\($metadata.id)": {
-					bucket: "${aws_s3_bucket.\($metadata.id).bucket}"
-					versioning_configuration: status: "Enabled"
-				}
-			}
-			if s3.policy != _|_ {
-				aws_s3_bucket_policy: "\($metadata.id)": {
-					bucket: "${aws_s3_bucket.\($metadata.id).bucket}"
-					policy: json.Marshal(s3.policy)
-				}
-			}
-
+#AddECS: v1.#Transformer & {
+	traits.#ECS
+	ecs: _
+	_tags: {
+		if ecs.environment != _|_ {
+			environment: ecs.environment
 		}
+		terraform: "true"
+	}
+	$resources: terraform: schema.#Terraform & {
+		if ecs.logging.enabled {
+			resource: aws_kms_key: "ecs_\(ecs.name)": {
+				description:             "ecs_\(ecs.name) log encryption key"
+				deletion_window_in_days: 7
+				tags:                    _tags
+			}
+			resource: aws_cloudwatch_log_group: "ecs_\(ecs.name)": {
+				name:              "/aws/ecs/\(ecs.name)"
+				retention_in_days: ecs.logging.retentionInDays
+				tags:              _tags
+			}
+		}
+		module: "ecs_\(ecs.name)": {
+			source:  "terraform-aws-modules/ecs/aws"
+			version: string | *"4.1.2"
+
+			cluster_name: ecs.name
+			if ecs.logging.enabled {
+				cluster_configuration: execute_command_configuration: {
+					kms_key_id: "${aws_kms_key.ecs_\(ecs.name).arn}"
+					logging:    "OVERRIDE"
+
+					log_configuration: {
+						cloud_watch_encryption_enabled: true
+						cloud_watch_log_group_name:     "${aws_cloudwatch_log_group.ecs_\(ecs.name).name}"
+					}
+				}
+			}
+
+			if ecs.capacityProviders.fargate.enabled {
+				fargate_capacity_providers: FARGATE: default_capacity_provider_strategy: ecs.capacityProviders.fargate.defaultStrategy
+			}
+
+			if ecs.capacityProviders.fargateSpot.enabled {
+				fargate_capacity_providers: FARGATE_SPOT: default_capacity_provider_strategy: ecs.capacityProviders.fargate.defaultStrategy
+			}
+
+			// autoscaling_capacity_providers: {}
+
+			tags: _tags
+		}
+		output: "ecs_\(ecs.name)_cluster_id": value: "${module.ecs_\(ecs.name).cluster_id}"
 	}
 }

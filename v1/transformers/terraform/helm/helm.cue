@@ -4,22 +4,15 @@ import (
 	"encoding/yaml"
 	"guku.io/devx/v1"
 	"guku.io/devx/v1/traits"
+	schema "guku.io/devx/v1/transformers/terraform"
 )
-
-_#TerraformResource: {
-	$metadata: labels: {
-		driver: "terraform"
-		type:   ""
-	}
-}
 
 // add a helm release
 #AddHelmRelease: v1.#Transformer & {
 	traits.#Helm
 	$metadata: _
 	helm:      _
-	$resources: terraform: {
-		_#TerraformResource
+	$resources: terraform: schema.#Terraform & {
 		resource: helm_release: "\($metadata.id)": {
 			name:             $metadata.id
 			namespace:        helm.namespace
