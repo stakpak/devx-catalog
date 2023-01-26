@@ -31,14 +31,14 @@ import (
 			if (database.username & string) != _|_ {
 				_username: database.username
 			}
-			if (database.password & string) != _|_ {
-				_password: database.password
-			}
 			if (database.username & v1.#Secret) != _|_ {
 				_username: database.username.name
 			}
+			if (database.password & string) != _|_ {
+				_password: database.password
+			}
 			if (database.password & v1.#Secret) != _|_ {
-				_password: "\(database.username.name)-password"
+				_password: "\(database.password.name)-password"
 			}
 
 			if database.engine == "postgres" {
