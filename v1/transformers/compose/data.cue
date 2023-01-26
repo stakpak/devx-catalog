@@ -57,19 +57,19 @@ import (
 	$dependencies: [...string]
 
 	kafka: {
-		name: $metadata.id
+		name: string | *$metadata.id
 		brokers: count: 1
-		bootstrapServers: "\($metadata.id)-kafka:9096"
+		bootstrapServers: "\(kafka.name)-kafka:9096"
 	}
 
 	$resources: compose: #Compose & {
-		volumes: "\($metadata.id)-kafka-config": null
+		volumes: "\(kafka.name)-kafka-config": null
 
 		services: {
-			"\($metadata.id)-zookeeper": {
+			"\(kafka.name)-zookeeper": {
 				image: "confluentinc/cp-zookeeper:3.3.1"
 				depends_on: [
-					"\($metadata.id)-config-files",
+					"\(kafka.name)-config-files",
 					for id in $dependencies if services[id] != _|_ {id},
 				]
 				ports: [
@@ -81,14 +81,14 @@ import (
 					KAFKA_OPTS:            "-Djava.security.auth.login.config=/etc/config/zookeeper.jaas.conf -Dzookeeper.authProvider.1=org.apache.zookeeper.server.auth.SASLAuthenticationProvider -Dzookeeper.allowSaslFailedClients=false -Dzookeeper.requireClientAuthScheme=sasl"
 				}
 				volumes: [
-					"\($metadata.id)-kafka-config:/etc/config",
+					"\(kafka.name)-kafka-config:/etc/config",
 				]
 			}
 
-			"\($metadata.id)-broker": {
+			"\(kafka.name)-broker": {
 				image: "confluentinc/cp-kafka:3.3.1"
 				depends_on: [
-					"\($metadata.id)-config-files",
+					"\(kafka.name)-config-files",
 					for id in $dependencies if services[id] != _|_ {id},
 				]
 				ports: [
@@ -97,10 +97,10 @@ import (
 				]
 				environment: {
 					KAFKA_BROKER_ID:                            1
-					KAFKA_ZOOKEEPER_CONNECT:                    "\($metadata.id)-zookeeper:2181"
+					KAFKA_ZOOKEEPER_CONNECT:                    "\(kafka.name)-zookeeper:2181"
 					KAFKA_LISTENERS:                            "SASL_PLAINTEXT://:9092"
 					KAFKA_LISTENER_SECURITY_PROTOCOL_MAP:       "SASL_PLAINTEXT:SASL_PLAINTEXT"
-					KAFKA_ADVERTISED_LISTENERS:                 "SASL_PLAINTEXT://\($metadata.id)-broker:9092"
+					KAFKA_ADVERTISED_LISTENERS:                 "SASL_PLAINTEXT://\(kafka.name)-broker:9092"
 					KAFKA_SASL_ENABLED_MECHANISMS:              "SCRAM-SHA-256"
 					KAFKA_SASL_MECHANISM_INTER_BROKER_PROTOCOL: "SCRAM-SHA-256"
 					KAFKA_INTER_BROKER_LISTENER_NAME:           "SASL_PLAINTEXT"
@@ -108,23 +108,23 @@ import (
 					KAFKA_OPTS:                                 "-Djava.security.auth.login.config=/etc/config/kafka.jaas.conf"
 				}
 				volumes: [
-					"\($metadata.id)-kafka-config:/etc/config",
+					"\(kafka.name)-kafka-config:/etc/config",
 				]
 			}
 
-			"\($metadata.id)-add-kafka-users": {
+			"\(kafka.name)-add-kafka-users": {
 				image: "confluentinc/cp-kafka:3.3.1"
 				depends_on: [
-					"\($metadata.id)-zookeeper",
-					"\($metadata.id)-config-files",
+					"\(kafka.name)-zookeeper",
+					"\(kafka.name)-config-files",
 					for id in $dependencies if services[id] != _|_ {id},
 				]
 				command: [
 					"/bin/bash",
 					"-c",
-					"cub zk-ready \($metadata.id)-zookeeper:2181 120",
+					"cub zk-ready \(kafka.name)-zookeeper:2181 120",
 					"&&",
-					"kafka-configs --zookeeper \($metadata.id)-zookeeper:2181 --alter --add-config 'SCRAM-SHA-256=[iterations=4096,password=broker]' --entity-type users --entity-name broker",
+					"kafka-configs --zookeeper \(kafka.name)-zookeeper:2181 --alter --add-config 'SCRAM-SHA-256=[iterations=4096,password=broker]' --entity-type users --entity-name broker",
 				]
 				environment: {
 					KAFKA_BROKER_ID:         "ignored"
@@ -132,11 +132,11 @@ import (
 					KAFKA_OPTS:              "-Djava.security.auth.login.config=/etc/kafka/kafka.jaas.conf"
 				}
 				volumes: [
-					"\($metadata.id)-kafka-config:/etc/kafka",
+					"\(kafka.name)-kafka-config:/etc/kafka",
 				]
 			}
 
-			"\($metadata.id)-config-files": {
+			"\(kafka.name)-config-files": {
 				image: "alpine:3.14"
 				depends_on: [
 					for id in $dependencies if services[id] != _|_ {id},
@@ -165,7 +165,7 @@ import (
 						    EOL
 						""",
 				]
-				volumes: ["\($metadata.id)-kafka-config:/etc/config"]
+				volumes: ["\(kafka.name)-kafka-config:/etc/config"]
 			}
 		}
 	}
@@ -178,13 +178,13 @@ import (
 	secrets:   _
 	$metadata: _
 	$resources: compose: #Compose & {
-		services: "\($metadata.id)-add-kafka-users": command: [
+		services: "\(kafka.name)-add-kafka-users": command: [
 			string,
 			string,
 			string,
 			string,
 			for _, secret in secrets {
-				"&& kafka-configs --zookeeper \($metadata.id)-zookeeper:2181 --alter --add-config 'SCRAM-SHA-256=[iterations=4096,password=\(secret.name)]' --entity-type users --entity-name \(secret.name)"
+				"&& kafka-configs --zookeeper \(kafka.name)-zookeeper:2181 --alter --add-config 'SCRAM-SHA-256=[iterations=4096,password=\(secret.name)]' --entity-type users --entity-name \(secret.name)"
 			},
 		]
 	}
