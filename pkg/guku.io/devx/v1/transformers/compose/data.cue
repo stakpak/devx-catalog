@@ -1,6 +1,7 @@
 package compose
 
 import (
+	"strings"
 	"guku.io/devx/v1"
 	"guku.io/devx/v1/traits"
 )
@@ -132,12 +133,7 @@ import (
 				command: [
 					"/bin/bash",
 					"-c",
-					"""
-                    set -x
-                    cub zk-ready \($metadata.id)-zookeeper:2181 120
-					kafka-configs --zookeeper \($metadata.id)-zookeeper:2181 --alter --add-config 'SCRAM-SHA-256=[iterations=4096,password=broker]' --entity-type users --entity-name broker
-					""",
-					...string,
+					string | *"cub zk-ready \($metadata.id)-zookeeper:2181 120 && kafka-configs --zookeeper \($metadata.id)-zookeeper:2181 --alter --add-config 'SCRAM-SHA-256=[iterations=4096,password=broker]' --entity-type users --entity-name broker",
 				]
 				environment: {
 					KAFKA_BROKER_ID:         "ignored"
@@ -194,10 +190,13 @@ import (
 		services: "\($metadata.id)-add-users": command: [
 			string,
 			string,
-			string,
-			for _, secret in secrets {
-				"&& kafka-configs --zookeeper \($metadata.id)-zookeeper:2181 --alter --add-config 'SCRAM-SHA-256=[iterations=4096,password=\(secret.name)]' --entity-type users --entity-name \(secret.name)"
-			},
+			strings.Join([
+				"cub zk-ready \($metadata.id)-zookeeper:2181 120",
+				"kafka-configs --zookeeper \($metadata.id)-zookeeper:2181 --alter --add-config 'SCRAM-SHA-256=[iterations=4096,password=broker]' --entity-type users --entity-name broker",
+				for _, secret in secrets {
+					"kafka-configs --zookeeper \($metadata.id)-zookeeper:2181 --alter --add-config 'SCRAM-SHA-256=[iterations=4096,password=\(secret.name)]' --entity-type users --entity-name \(secret.name)"
+				},
+			], "&&"),
 		]
 	}
 }
