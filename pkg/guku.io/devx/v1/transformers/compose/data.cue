@@ -133,8 +133,7 @@ import (
 					"/bin/bash",
 					"-c",
 					"cub zk-ready \($metadata.id)-zookeeper:2181 120",
-					"&&",
-					"kafka-configs --zookeeper \($metadata.id)-zookeeper:2181 --alter --add-config 'SCRAM-SHA-256=[iterations=4096,password=broker]' --entity-type users --entity-name broker",
+					"&& kafka-configs --zookeeper \($metadata.id)-zookeeper:2181 --alter --add-config 'SCRAM-SHA-256=[iterations=4096,password=broker]' --entity-type users --entity-name broker",
 					...string,
 				]
 				environment: {
@@ -156,24 +155,24 @@ import (
 					"/bin/sh",
 					"-c",
 					"""
-						    cat > /etc/config/kafka.jaas.conf <<EOL
-						    KafkaServer {
-						        org.apache.kafka.common.security.scram.ScramLoginModule required
-						        username=\"broker\"
-						        password=\"broker\";
-						    };
-						    Client {
-						        org.apache.zookeeper.server.auth.DigestLoginModule required
-						        username=\"kafka\"
-						        password=\"kafka\";
-						    };
-						    EOL
-						    cat > /etc/config/zookeeper.jaas.conf <<EOL
-						    Server {
-						        org.apache.zookeeper.server.auth.DigestLoginModule required
-						        user_kafka=\"kafka\";
-						    };
-						    EOL
+						cat > /etc/config/kafka.jaas.conf <<EOL
+						KafkaServer {
+						    org.apache.kafka.common.security.scram.ScramLoginModule required
+						    username=\"broker\"
+						    password=\"broker\";
+						};
+						Client {
+						    org.apache.zookeeper.server.auth.DigestLoginModule required
+						    username=\"kafka\"
+						    password=\"kafka\";
+						};
+						EOL
+						cat > /etc/config/zookeeper.jaas.conf <<EOL
+						Server {
+						    org.apache.zookeeper.server.auth.DigestLoginModule required
+						    user_kafka=\"kafka\";
+						};
+						EOL
 						""",
 				]
 				volumes: ["\($metadata.id)-kafka-config:/etc/config"]
@@ -190,7 +189,6 @@ import (
 	$metadata: _
 	$resources: compose: #Compose & {
 		services: "\($metadata.id)-add-kafka-users": command: [
-			string,
 			string,
 			string,
 			string,
