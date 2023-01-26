@@ -26,6 +26,8 @@ import (
 				}
 			}
 
+			_username: string
+			_password: string
 			if (database.username & string) != _|_ {
 				_username: database.username
 			}
