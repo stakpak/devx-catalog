@@ -20,6 +20,7 @@ import (
 			context: string
 			args: [string]: string
 		}
+		container_name?: string
 		depends_on?: [...string]
 		ports?: [...string]
 		environment?: [string]: string
@@ -79,6 +80,7 @@ import (
 					][0]
 					"\(_mapping)\(_suffix)"
 				},
+				...string,
 			]
 		}
 	}
