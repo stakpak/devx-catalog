@@ -39,7 +39,7 @@ import (
 				_password: database.password
 			}
 			if (database.password & v1.#Secret) != _|_ {
-				_password: "\(database.password.name)-password"
+				_password: database.password.name
 			}
 
 			if database.engine == "postgres" {

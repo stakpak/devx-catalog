@@ -48,10 +48,7 @@ import (
 							value
 						}
 						if (value & v1.#Secret) != _|_ {
-							[
-								if value.version == _|_ {"SECRET[\(value.name)]"},
-								if value.version != _|_ {"SECRET[\(value.name):\(value.version)]"},
-							][0]
+							value.name
 						}
 					}
 				}
