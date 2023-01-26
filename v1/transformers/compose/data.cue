@@ -125,6 +125,7 @@ import (
 					"cub zk-ready \(kafka.name)-zookeeper:2181 120",
 					"&&",
 					"kafka-configs --zookeeper \(kafka.name)-zookeeper:2181 --alter --add-config 'SCRAM-SHA-256=[iterations=4096,password=broker]' --entity-type users --entity-name broker",
+					...string,
 				]
 				environment: {
 					KAFKA_BROKER_ID:         "ignored"
