@@ -59,7 +59,7 @@ import (
 	kafka: {
 		name: string | *$metadata.id
 		brokers: count: 1
-		bootstrapServers: "\(kafka.name)-kafka:9096"
+		bootstrapServers: "\(kafka.name)-broker:9092"
 	}
 
 	$resources: compose: #Compose & {
@@ -76,8 +76,8 @@ import (
 					"2181:2181",
 				]
 				environment: {
-					ZOOKEEPER_CLIENT_PORT: 2181
-					ZOOKEEPER_TICK_TIME:   2000
+					ZOOKEEPER_CLIENT_PORT: "2181"
+					ZOOKEEPER_TICK_TIME:   "2000"
 					KAFKA_OPTS:            "-Djava.security.auth.login.config=/etc/config/zookeeper.jaas.conf -Dzookeeper.authProvider.1=org.apache.zookeeper.server.auth.SASLAuthenticationProvider -Dzookeeper.allowSaslFailedClients=false -Dzookeeper.requireClientAuthScheme=sasl"
 				}
 				volumes: [
@@ -96,7 +96,7 @@ import (
 					"29092:29092",
 				]
 				environment: {
-					KAFKA_BROKER_ID:                            1
+					KAFKA_BROKER_ID:                            "1"
 					KAFKA_ZOOKEEPER_CONNECT:                    "\(kafka.name)-zookeeper:2181"
 					KAFKA_LISTENERS:                            "SASL_PLAINTEXT://:9092"
 					KAFKA_LISTENER_SECURITY_PROTOCOL_MAP:       "SASL_PLAINTEXT:SASL_PLAINTEXT"
@@ -104,7 +104,7 @@ import (
 					KAFKA_SASL_ENABLED_MECHANISMS:              "SCRAM-SHA-256"
 					KAFKA_SASL_MECHANISM_INTER_BROKER_PROTOCOL: "SCRAM-SHA-256"
 					KAFKA_INTER_BROKER_LISTENER_NAME:           "SASL_PLAINTEXT"
-					KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR:     1
+					KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR:     "1"
 					KAFKA_OPTS:                                 "-Djava.security.auth.login.config=/etc/config/kafka.jaas.conf"
 				}
 				volumes: [
