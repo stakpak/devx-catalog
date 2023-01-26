@@ -48,7 +48,7 @@ import (
 							value
 						}
 						if (value & v1.#Secret) != _|_ {
-							value.name
+							value.key
 						}
 					}
 				}
@@ -71,7 +71,7 @@ import (
 							if m.volume.local != _|_ {"\(m.volume.local):\(m.path)"},
 							if m.volume.persistent != _|_ {"\(m.volume.persistent):\(m.path)"},
 							if m.volume.ephemeral != _|_ {"\(m.volume.ephemeral):\(m.path)"},
-							if m.volume.secret != _|_ {"\(m.volume.secret.name):\(m.path)"},
+							if m.volume.secret != _|_ {"\(m.volume.secret.key):\(m.path)"},
 					][0]
 					_suffix: [
 							if m.readOnly {":ro"},

@@ -40,10 +40,7 @@ import (
 				_password: database.password
 			}
 			if (database.password & v1.#Secret) != _|_ {
-				_password: json.Marshal({
-					"username": database.password.name
-					"password": database.password.name
-				})
+				_password: database.password.name
 			}
 
 			if database.engine == "postgres" {
@@ -190,6 +187,14 @@ import (
 	kafka:     _
 	secrets:   _
 	$metadata: _
+
+	secrets: [string]: {
+		name: _
+		key:  json.Marshal({
+			"username": name
+			"password": name
+		})
+	}
 	$resources: compose: #Compose & {
 		services: "\($metadata.id)-add-users": command: [
 			string,
