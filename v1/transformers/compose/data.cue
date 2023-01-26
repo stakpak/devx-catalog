@@ -132,8 +132,11 @@ import (
 				command: [
 					"/bin/bash",
 					"-c",
-					"cub zk-ready \($metadata.id)-zookeeper:2181 120",
-					"&& kafka-configs --zookeeper \($metadata.id)-zookeeper:2181 --alter --add-config 'SCRAM-SHA-256=[iterations=4096,password=broker]' --entity-type users --entity-name broker",
+					"""
+                    set -x
+                    cub zk-ready \($metadata.id)-zookeeper:2181 120
+					kafka-configs --zookeeper \($metadata.id)-zookeeper:2181 --alter --add-config 'SCRAM-SHA-256=[iterations=4096,password=broker]' --entity-type users --entity-name broker
+					""",
 					...string,
 				]
 				environment: {
@@ -189,7 +192,6 @@ import (
 	$metadata: _
 	$resources: compose: #Compose & {
 		services: "\($metadata.id)-add-users": command: [
-			string,
 			string,
 			string,
 			string,
