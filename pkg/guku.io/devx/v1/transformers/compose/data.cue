@@ -73,13 +73,13 @@ import (
 	}
 
 	$resources: compose: #Compose & {
-		volumes: "\($metadata.id)-kafka-config": null
+		volumes: "\($metadata.id)-config": null
 
 		services: {
 			"\($metadata.id)-zookeeper": {
 				image: "confluentinc/cp-zookeeper:3.3.1"
 				depends_on: [
-					"\($metadata.id)-config-files",
+					"\($metadata.id)-config",
 					for id in $dependencies if services[id] != _|_ {id},
 				]
 				ports: [
@@ -91,14 +91,14 @@ import (
 					KAFKA_OPTS:            "-Djava.security.auth.login.config=/etc/config/zookeeper.jaas.conf -Dzookeeper.authProvider.1=org.apache.zookeeper.server.auth.SASLAuthenticationProvider -Dzookeeper.allowSaslFailedClients=false -Dzookeeper.requireClientAuthScheme=sasl"
 				}
 				volumes: [
-					"\($metadata.id)-kafka-config:/etc/config",
+					"\($metadata.id)-config:/etc/config",
 				]
 			}
 
 			"\($metadata.id)": {
 				image: "confluentinc/cp-kafka:3.3.1"
 				depends_on: [
-					"\($metadata.id)-config-files",
+					"\($metadata.id)-config",
 					for id in $dependencies if services[id] != _|_ {id},
 				]
 				ports: [
@@ -118,15 +118,15 @@ import (
 					KAFKA_OPTS:                                 "-Djava.security.auth.login.config=/etc/config/kafka.jaas.conf"
 				}
 				volumes: [
-					"\($metadata.id)-kafka-config:/etc/config",
+					"\($metadata.id)-config:/etc/config",
 				]
 			}
 
-			"\($metadata.id)-add-kafka-users": {
+			"\($metadata.id)-add-users": {
 				image: "confluentinc/cp-kafka:3.3.1"
 				depends_on: [
 					"\($metadata.id)-zookeeper",
-					"\($metadata.id)-config-files",
+					"\($metadata.id)-config",
 					for id in $dependencies if services[id] != _|_ {id},
 				]
 				command: [
@@ -142,11 +142,11 @@ import (
 					KAFKA_OPTS:              "-Djava.security.auth.login.config=/etc/kafka/kafka.jaas.conf"
 				}
 				volumes: [
-					"\($metadata.id)-kafka-config:/etc/kafka",
+					"\($metadata.id)-config:/etc/kafka",
 				]
 			}
 
-			"\($metadata.id)-config-files": {
+			"\($metadata.id)-config": {
 				image: "alpine:3.14"
 				depends_on: [
 					for id in $dependencies if services[id] != _|_ {id},
@@ -175,7 +175,7 @@ import (
 						EOL
 						""",
 				]
-				volumes: ["\($metadata.id)-kafka-config:/etc/config"]
+				volumes: ["\($metadata.id)-config:/etc/config"]
 			}
 		}
 	}
@@ -188,7 +188,7 @@ import (
 	secrets:   _
 	$metadata: _
 	$resources: compose: #Compose & {
-		services: "\($metadata.id)-add-kafka-users": command: [
+		services: "\($metadata.id)-add-users": command: [
 			string,
 			string,
 			string,
