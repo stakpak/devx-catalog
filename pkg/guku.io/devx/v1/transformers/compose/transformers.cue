@@ -6,7 +6,7 @@ import (
 	"guku.io/devx/v1/traits"
 )
 
-_#ComposeResource: {
+#Compose: {
 	$metadata: labels: {
 		driver: "compose"
 		type:   ""
@@ -38,7 +38,7 @@ _#ComposeResource: {
 	containers: _
 	$metadata:  _
 	$dependencies: [...string]
-	$resources: compose: _#ComposeResource & {
+	$resources: compose: #Compose & {
 		services: "\($metadata.id)": {
 			image: containers.default.image
 			environment: {
@@ -93,7 +93,7 @@ _#ComposeResource: {
 	traits.#Volume
 	volumes: _
 	$dependencies: [...string]
-	$resources: compose: _#ComposeResource & {
+	$resources: compose: #Compose & {
 		for k, v in volumes {
 			if v.persistent != _|_ {
 				volumes: "\(v.persistent)": null
@@ -118,7 +118,7 @@ _#ComposeResource: {
 	$metadata: _
 	$dependencies: [...string]
 	endpoints: default: host: "\($metadata.id)"
-	$resources: compose: _#ComposeResource & {
+	$resources: compose: #Compose & {
 		services: "\($metadata.id)": {
 			ports: [
 				for p in endpoints.default.ports {
@@ -142,7 +142,7 @@ _#ComposeResource: {
 	host:       "\($metadata.id)"
 	username:   string @guku(generate)
 	password:   string @guku(generate,secret)
-	$resources: compose: _#ComposeResource & {
+	$resources: compose: #Compose & {
 		services: "\($metadata.id)": {
 			image: "postgres:\(version)-alpine"
 			ports: [
@@ -178,7 +178,7 @@ _#ComposeResource: {
 		args: [string]: string
 	}
 	$metadata: _
-	$resources: compose: _#ComposeResource & {
+	$resources: compose: #Compose & {
 		services: "\($metadata.id)": "build": build
 	}
 }
@@ -191,7 +191,7 @@ _#ComposeResource: {
 	$dependencies: _
 
 	s3: _
-	$resources: compose: _#ComposeResource & {
+	$resources: compose: #Compose & {
 		services: "\($metadata.id)": {
 			image: "minio/mc"
 			depends_on: [
