@@ -183,6 +183,7 @@ import (
 			string,
 			string,
 			string,
+			string,
 			for _, secret in secrets {
 				"&& kafka-configs --zookeeper \(kafka.name)-zookeeper:2181 --alter --add-config 'SCRAM-SHA-256=[iterations=4096,password=\(secret.name)]' --entity-type users --entity-name \(secret.name)"
 			},
