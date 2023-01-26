@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"guku.io/devx/v1"
 	"guku.io/devx/v1/traits"
-	"guku.io/devx/v1/resources/aws"
+	resources "guku.io/devx/v1/resources/aws"
 	schema "guku.io/devx/v1/transformers/terraform"
 )
 
@@ -18,6 +18,10 @@ import (
 	$metadata:  _
 	containers: _
 
+	aws: {
+		region:  string
+		account: string
+	}
 	clusterName: string
 	launchType:  "FARGATE" | "ECS"
 	appName:     string | *$metadata.id
@@ -26,7 +30,7 @@ import (
 		resource: {
 			aws_iam_role: "task_execution_\(appName)": {
 				name:               "task-execution-\(appName)"
-				assume_role_policy: json.Marshal(aws.#IAMPolicy &
+				assume_role_policy: json.Marshal(resources.#IAMPolicy &
 					{
 						Version: "2012-10-17"
 						Statement: [{
@@ -40,7 +44,7 @@ import (
 			aws_iam_role_policy: "task_execution_\(appName)_default": {
 				name:   "task-execution-\(appName)-default"
 				role:   "${aws_iam_role.task_execution_\(appName).name}"
-				policy: json.Marshal(aws.#IAMPolicy &
+				policy: json.Marshal(resources.#IAMPolicy &
 					{
 						Version: "2012-10-17"
 						Statement: [
@@ -63,8 +67,10 @@ import (
 								Action: [
 									"ssm:GetParameters",
 									"secretsmanager:GetSecretValue",
+									"kms:Decrypt",
 								]
 								Resource: [
+									"arn:aws:kms:\(aws.region):\(aws.account):key/*",
 									for _, container in containers for _, v in container.env if (v & v1.#Secret) != _|_ {
 										v.key
 									},

@@ -1,6 +1,7 @@
 package compose
 
 import (
+	"encoding/json"
 	"strings"
 	"guku.io/devx/v1"
 	"guku.io/devx/v1/traits"
@@ -39,7 +40,10 @@ import (
 				_password: database.password
 			}
 			if (database.password & v1.#Secret) != _|_ {
-				_password: database.password.name
+				_password: json.Marshal({
+					"username": database.password.name
+					"password": database.password.name
+				})
 			}
 
 			if database.engine == "postgres" {
