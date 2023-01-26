@@ -11,12 +11,7 @@ import (
 	$metadata: _
 	$dependencies: [...string]
 
-	database: {
-		host:     "\($metadata.id)"
-		username: string | *"root"
-		password: string | *"password"
-	}
-
+	database: host:      "\($metadata.id)"
 	$resources: compose: #Compose & {
 		services: "\($metadata.id)": {
 			if database.engine == "postgres" {
@@ -31,10 +26,23 @@ import (
 				}
 			}
 
+			if (database.username & string) != _|_ {
+				_username: database.username
+			}
+			if (database.password & string) != _|_ {
+				_password: database.password
+			}
+			if (database.username & v1.#Secret) != _|_ {
+				_username: database.username.name
+			}
+			if (database.password & v1.#Secret) != _|_ {
+				_password: "\(database.username.name)-password"
+			}
+
 			if database.engine == "postgres" {
 				environment: {
-					POSTGRES_USER:     database.username
-					POSTGRES_PASSWORD: database.password
+					POSTGRES_USER:     _username
+					POSTGRES_PASSWORD: _password
 					POSTGRES_DB:       database.database
 				}
 			}
