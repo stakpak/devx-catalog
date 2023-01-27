@@ -1,4 +1,4 @@
-package builders
+package environments
 
 import (
 	"guku.io/devx/v2alpha1"
@@ -6,6 +6,7 @@ import (
 )
 
 #Compose: v2alpha1.#StackBuilder & {
+	drivers: compose: output: dir: ["."]
 	flows: {
 		"compose/add-service": pipeline: [compose.#AddComposeService]
 		"compose/expose-service": pipeline: [compose.#ExposeComposeService]
