@@ -16,11 +16,11 @@ import (
 	drivers: {
 		[Driver=string]: output: dir: [...string] | *["build", environment, Driver]
 
-		terraform: output: file:   string | *"generated.tf.json"
-		gitlab: output: file:      string | *".gitlab-ci.yml"
-		compose: output: file:     string | *"docker-compose.yml"
-		github: output: file?:     string
-		kubernetes: output: file?: string
+		terraform: output: file:  string | *"generated.tf.json"
+		gitlab: output: file:     string | *".gitlab-ci.yml"
+		compose: output: file:    string | *"docker-compose.yml"
+		github: output: file:     string | *""
+		kubernetes: output: file: string | *""
 	}
 
 	config?: [string]:        _
