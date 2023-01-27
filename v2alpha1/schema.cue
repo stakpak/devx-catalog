@@ -19,7 +19,7 @@ import (
 		terraform: output: file:   string | *"generated.tf.json"
 		gitlab: output: file:      string | *".gitlab-ci.yml"
 		compose: output: file:     string | *"docker-compose.yml"
-		github: output: file:      string
+		github: output: file?:     string
 		kubernetes: output: file?: string
 	}
 
