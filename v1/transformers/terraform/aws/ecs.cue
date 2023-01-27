@@ -239,13 +239,11 @@ import (
 					"subnets": subnets
 				}
 				load_balancer: [
-					for k, _ in containers {
-						for p in endpoints.default.ports {
-							{
-								target_group_arn: "${data.aws_lb_target_group.\(lbTargetGroupName).arn}"
-								container_name:   k
-								container_port:   p.port
-							}
+					for k, _ in containers for p in endpoints.default.ports {
+						{
+							target_group_arn: "${data.aws_lb_target_group.\(lbTargetGroupName).arn}"
+							container_name:   k
+							container_port:   p.port
 						}
 					},
 				]
