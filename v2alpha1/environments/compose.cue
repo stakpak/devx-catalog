@@ -6,6 +6,8 @@ import (
 )
 
 #Compose: v2alpha1.#StackBuilder & {
+	$metadata: builder: "Compose"
+
 	drivers: compose: output: dir: ["."]
 	flows: {
 		"compose/add-service": pipeline: [compose.#AddComposeService]

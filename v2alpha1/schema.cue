@@ -11,6 +11,8 @@ import (
 }
 
 #StackBuilder: {
+	$metadata: builder: string | *environment
+
 	environment: string
 	flows: [string]: v1.#Flow
 	drivers: {
