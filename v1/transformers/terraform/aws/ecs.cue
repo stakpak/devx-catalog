@@ -88,6 +88,7 @@ import (
 				network_configuration: {
 					"subnets": subnets
 				}
+				wait_for_steady_state: true
 			}
 			aws_ecs_task_definition: "\(appName)": _#ECSTaskDefinition & {
 				family:       appName
