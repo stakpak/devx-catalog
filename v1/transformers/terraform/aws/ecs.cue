@@ -86,8 +86,7 @@ import (
 				launch_type:     launchType
 			}
 			aws_ecs_task_definition: "\(appName)": _#ECSTaskDefinition & {
-				family:       appName
-				network_mode: "awsvpc"
+				family: appName
 				requires_compatibilities: [launchType]
 
 				execution_role_arn: "${aws_iam_role.task_execution_\(appName).arn}"
