@@ -88,7 +88,6 @@ import (
 				network_configuration: {
 					"subnets": subnets
 				}
-				wait_for_steady_state: true
 			}
 			aws_ecs_task_definition: "\(appName)": _#ECSTaskDefinition & {
 				family:       appName
@@ -306,11 +305,12 @@ _#ECSTaskDefinition: {
 	container_definitions: json.Marshal(_container_definitions)
 }
 _#ECSService: {
-	name:            string
-	cluster:         string
-	task_definition: string
-	desired_count:   uint | *1
-	launch_type:     "EC2" | "FARGATE"
+	name:                  string
+	cluster:               string
+	task_definition:       string
+	desired_count:         uint | *1
+	launch_type:           "EC2" | "FARGATE"
+	wait_for_steady_state: bool | *true
 	network_configuration?: {
 		security_groups: [...string]
 		subnets: [...string]
