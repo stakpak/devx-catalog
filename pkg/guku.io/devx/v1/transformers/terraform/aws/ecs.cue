@@ -180,7 +180,7 @@ import (
 								options: {
 									"awslogs-group":         "/aws/ecs/\(clusterName)"
 									"awslogs-region":        aws.region
-									"awslogs-stream-prefix": "\(appName)-\(k)"
+									"awslogs-stream-prefix": appName
 								}
 							}
 						}
