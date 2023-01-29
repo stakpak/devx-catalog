@@ -170,6 +170,16 @@ import (
 									strings.TrimSuffix(container.resources.limits.memory, "M"),
 									)
 							}
+
+							logConfiguration: {
+								logDriver: "awslogs"
+								options: {
+									"awslogs-create-group":  "true"
+									"awslogs-group":         "/aws/ecs/\(clusterName)/services"
+									"awslogs-region":        aws.region
+									"awslogs-stream-prefix": "\(appName)-\(k)"
+								}
+							}
 						}
 					},
 				]
