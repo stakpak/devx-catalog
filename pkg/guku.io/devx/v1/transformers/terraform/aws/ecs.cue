@@ -22,6 +22,7 @@ import (
 		region:  string
 		account: string
 	}
+	subnets: [...string]
 	clusterName: string
 	launchType:  "FARGATE" | "ECS"
 	appName:     string | *$metadata.id
@@ -84,9 +85,13 @@ import (
 				cluster:         "${data.aws_ecs_cluster.\(clusterName).id}"
 				task_definition: "${aws_ecs_task_definition.\(appName).arn}"
 				launch_type:     launchType
+				network_configuration: {
+					"subnets": subnets
+				}
 			}
 			aws_ecs_task_definition: "\(appName)": _#ECSTaskDefinition & {
-				family: appName
+				family:       appName
+				network_mode: "awsvpc"
 				requires_compatibilities: [launchType]
 
 				execution_role_arn: "${aws_iam_role.task_execution_\(appName).arn}"
