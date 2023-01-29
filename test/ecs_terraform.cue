@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"guku.io/devx/v1"
+	resources "guku.io/devx/v1/resources/aws"
 	"guku.io/devx/v1/transformers/terraform/aws"
 )
 
@@ -24,7 +25,12 @@ _addService: v1.#TestCase & {
 					memory: "512M"
 				}
 			}
-			env: ENV: "prod"
+			env: {
+				ENV: "prod"
+				SEC: v1.#Secret & {
+					name: "arn:aws:secretsmanager:balabzio"
+				}
+			}
 		}
 	}
 	output: _
@@ -34,6 +40,52 @@ _addService: v1.#TestCase & {
 			data: aws_ecs_cluster: "mycluster": cluster_name: "mycluster"
 
 			resource: {
+				aws_iam_role: "task_execution_obi": {
+					name:               "task-execution-obi"
+					assume_role_policy: json.Marshal(resources.#IAMPolicy &
+						{
+							Version: "2012-10-17"
+							Statement: [{
+								Sid:    "ECSTask"
+								Effect: "Allow"
+								Principal: Service: "ecs-tasks.amazonaws.com"
+								Action: "sts:AssumeRole"
+							}]
+						})
+				}
+				aws_iam_role_policy: "task_execution_obi_default": {
+					name:   "task-execution-obi-default"
+					role:   "${aws_iam_role.task_execution_obi.name}"
+					policy: json.Marshal(resources.#IAMPolicy &
+						{
+							Version: "2012-10-17"
+							Statement: [
+								{
+									Sid:    "ECSTaskDefault"
+									Effect: "Allow"
+									Action: [
+										"ecr:GetAuthorizationToken",
+										"ecr:BatchCheckLayerAvailability",
+										"ecr:GetDownloadUrlForLayer",
+										"ecr:BatchGetImage",
+										"logs:CreateLogStream",
+										"logs:PutLogEvents",
+									]
+									Resource: "*"
+								},
+								{
+									Sid:    "ECSTaskSecret"
+									Effect: "Allow"
+									Action: [
+										"ssm:GetParameters",
+										"secretsmanager:GetSecretValue",
+									]
+									Resource: [
+										"arn:aws:secretsmanager:balabzio",
+									]
+								}]
+						})
+				}
 				aws_ecs_service: "obi": {
 					name:            "obi"
 					cluster:         "${data.aws_ecs_cluster.mycluster.id}"
@@ -44,6 +96,7 @@ _addService: v1.#TestCase & {
 					family:       "obi"
 					network_mode: "awsvpc"
 					requires_compatibilities: ["FARGATE"]
+					execution_role_arn:    "${aws_iam_role.task_execution_obi.arn}"
 					cpu:                   "256"
 					memory:                "512"
 					container_definitions: json.Marshal([{
@@ -56,6 +109,10 @@ _addService: v1.#TestCase & {
 						environment: [{
 							name:  "ENV"
 							value: "prod"
+						}]
+						secrets: [{
+							name:      "SEC"
+							valueFrom: "arn:aws:secretsmanager:balabzio"
 						}]
 						healthCheck: {
 							command: ["CMD-SHELL", "exit 0"]
