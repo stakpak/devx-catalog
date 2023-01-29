@@ -178,7 +178,6 @@ import (
 							logConfiguration: {
 								logDriver: "awslogs"
 								options: {
-									"awslogs-create-group":  "false"
 									"awslogs-group":         "/aws/ecs/\(clusterName)"
 									"awslogs-region":        aws.region
 									"awslogs-stream-prefix": "\(appName)-\(k)"
