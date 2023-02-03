@@ -99,7 +99,7 @@ import (
 				cluster:         "${data.aws_ecs_cluster.\(clusterName).id}"
 				task_definition: "${aws_ecs_task_definition.\(appName).arn}"
 				launch_type:     launchType
-				network_configuration: subnets: aws.vpc.subnets
+				network_configuration: subnets: "${data.aws_subnet_ids.\(aws.vpc.name).ids}"
 			}
 			aws_ecs_task_definition: "\(appName)": _#ECSTaskDefinition & {
 				family:       appName
