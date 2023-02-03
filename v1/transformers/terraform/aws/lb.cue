@@ -187,17 +187,22 @@ import (
 
 					action: {
 						type: "forward"
-						forward: {
-							target_group: [
-								for backendName, backend in rule.backends {
-									{
-										arn: "${aws_lb_target_group.\(http.gateway.gateway.name)_\(http.listener)_\(backend.endpoint.host)_\(backend.endpoint.port.port).arn}"
-										if backend.weight != _|_ {
-											weight: backend.weight
+						if len(rule.backends) == 1 {
+							target_group_arn: "${aws_lb_target_group.\(http.gateway.gateway.name)_\(http.listener)_\(rule.backends[0].endpoint.host)_\(rule.backends[0].endpoint.port.port).arn}"
+						}
+						if len(rule.backends) > 1 {
+							forward: {
+								target_group: [
+									for backendName, backend in rule.backends {
+										{
+											arn: "${aws_lb_target_group.\(http.gateway.gateway.name)_\(http.listener)_\(backend.endpoint.host)_\(backend.endpoint.port.port).arn}"
+											if backend.weight != _|_ {
+												weight: backend.weight
+											}
 										}
-									}
-								},
-							]
+									},
+								]
+							}
 						}
 					}
 				}
