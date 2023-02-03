@@ -102,7 +102,7 @@ import (
 #AddHTTPRoute: v1.#Transformer & {
 	traits.#HTTPRoute
 	aws: {
-		vpc: traits.#VPC
+		vpc: name: string
 		...
 	}
 	http: _

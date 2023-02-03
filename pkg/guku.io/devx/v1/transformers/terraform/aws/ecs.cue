@@ -21,9 +21,12 @@ import (
 	aws: {
 		region:  string
 		account: string
+		vpc: {
+			subnets: [...string]
+			...
+		}
 		...
 	}
-	subnets: [...string]
 	clusterName: string
 	launchType:  "FARGATE" | "ECS"
 	appName:     string | *$metadata.id
@@ -86,9 +89,7 @@ import (
 				cluster:         "${data.aws_ecs_cluster.\(clusterName).id}"
 				task_definition: "${aws_ecs_task_definition.\(appName).arn}"
 				launch_type:     launchType
-				network_configuration: {
-					"subnets": subnets
-				}
+				network_configuration: subnets: aws.vpc.subnets
 			}
 			aws_ecs_task_definition: "\(appName)": _#ECSTaskDefinition & {
 				family:       appName
@@ -223,7 +224,6 @@ import (
 	containers: _
 	http:       _
 	appName:    _
-	subnets: [...string]
 	$resources: terraform: schema.#Terraform & {
 		data: {
 			for ruleName, rule in http.rules for backendName, backend in rule.backends {
@@ -238,7 +238,6 @@ import (
 						"${data.aws_security_group.gateway_\(http.gateway.name)_\(backend.endpoint.host)_\(backend.endpoint.port.port).id}"
 					},
 				]
-				"subnets": subnets
 			}
 			load_balancer: [
 				for ruleName, rule in http.rules for backendName, backend in rule.backends {

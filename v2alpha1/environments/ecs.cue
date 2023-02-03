@@ -14,13 +14,8 @@ import (
 			account: string
 		}
 		vpc: {
-			id: string
+			name: string
 			subnets: [...string]
-		}
-		lb: {
-			host:              string
-			securityGroupName: string
-			targetGroupName:   string
 		}
 		ecs: {
 			clusterName: string
@@ -48,20 +43,17 @@ import (
 		}
 		"terraform/add-ecs-service": pipeline: [
 			tfaws.#AddECSService & {
-				aws:         config.aws
+				aws: {
+					config.aws
+					vpc: config.vpc
+				}
 				clusterName: config.ecs.clusterName
 				launchType:  config.ecs.launchType
 			},
 		]
-		"terraform/expose-ecs-service": pipeline: [
-			tfaws.#ExposeECSService & {
-				vpcId:               config.vpc.id
-				subnets:             config.vpc.subnets
-				lbHost:              config.lb.host
-				lbSecurityGroupName: config.lb.securityGroupName
-				lbTargetGroupName:   config.lb.targetGroupName
-			},
-		]
+		"terraform/expose-ecs-service": pipeline: [tfaws.#ExposeECSService]
 		"terraform/add-ecs-replicas": pipeline: [tfaws.#AddECSReplicas]
+		"terraform/add-ecs-http-routes": pipeline: [tfaws.#AddHTTPRouteECS]
+		"terraform/add-http-route": pipeline: [tfaws.#AddHTTPRoute & {aws: vpc: config.vpc}]
 	}
 }
