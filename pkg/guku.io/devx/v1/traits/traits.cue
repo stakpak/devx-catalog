@@ -176,6 +176,7 @@ _#VolumeSpec: {
 			backends: [...{
 				weight?: uint
 				component: {
+					v1.#Component
 					#Workload
 					#Exposable
 				}
