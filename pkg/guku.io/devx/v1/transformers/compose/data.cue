@@ -79,7 +79,7 @@ import (
 
 		services: {
 			"\($metadata.id)-zookeeper": {
-				image: "confluentinc/cp-zookeeper:3.3.1"
+				image: "confluentinc/cp-zookeeper:\(kafka.version)"
 				depends_on: [
 					"\($metadata.id)-config",
 					for id in $dependencies if services[id] != _|_ {id},
@@ -98,7 +98,7 @@ import (
 			}
 
 			"\($metadata.id)": {
-				image: "confluentinc/cp-kafka:3.3.1"
+				image: "confluentinc/cp-kafka:\(kafka.version)"
 				depends_on: [
 					"\($metadata.id)-config",
 					for id in $dependencies if services[id] != _|_ {id},
@@ -125,7 +125,7 @@ import (
 			}
 
 			"\($metadata.id)-add-users": {
-				image: "confluentinc/cp-kafka:3.3.1"
+				image: "confluentinc/cp-kafka:\(kafka.version)"
 				depends_on: [
 					"\($metadata.id)-zookeeper",
 					"\($metadata.id)-config",
