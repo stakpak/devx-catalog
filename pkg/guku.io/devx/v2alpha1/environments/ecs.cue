@@ -2,6 +2,7 @@ package environments
 
 import (
 	"guku.io/devx/v2alpha1"
+	"guku.io/devx/v1/traits"
 	tfaws "guku.io/devx/v1/transformers/terraform/aws"
 )
 
@@ -20,6 +21,20 @@ import (
 		}
 		secrets: {
 			service: *"ParameterStore" | "SecretsManager"
+		}
+		gateway?: {
+			traits.#Gateway
+		}
+	}
+
+	components: {
+		if config.gateway != _|_ {
+			gateway:  config.gateway
+			[string]: this={
+				if this.http != _|_ {
+					http: "gateway": gateway
+				}
+			}
 		}
 	}
 
