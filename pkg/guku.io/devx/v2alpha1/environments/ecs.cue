@@ -15,8 +15,8 @@ import (
 		}
 		vpc: name: string
 		ecs: {
-			clusterName: string
-			launchType:  string
+			name:       string
+			launchType: string
 		}
 		secrets: {
 			service: *"ParameterStore" | "SecretsManager"
@@ -44,7 +44,7 @@ import (
 					config.aws
 					vpc: config.vpc
 				}
-				clusterName: config.ecs.clusterName
+				clusterName: config.ecs.name
 				launchType:  config.ecs.launchType
 			},
 		]
