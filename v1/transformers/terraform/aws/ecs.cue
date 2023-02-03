@@ -219,8 +219,8 @@ import (
 					for p in endpoints.default.ports {
 						{
 							protocol:  "tcp"
-							from_port: p.port
-							to_port:   p.port
+							from_port: p.target
+							to_port:   p.target
 							security_groups: [
 								"${data.aws_security_group.\(lbSecurityGroupName).id}",
 							]
@@ -256,7 +256,7 @@ import (
 						{
 							target_group_arn: "${data.aws_lb_target_group.\(lbTargetGroupName).arn}"
 							container_name:   k
-							container_port:   p.port
+							container_port:   p.target
 						}
 					},
 				]
@@ -268,7 +268,7 @@ import (
 						portMappings: [
 							for p in endpoints.default.ports {
 								{
-									containerPort: p.port
+									containerPort: p.target
 								}
 							},
 						]
