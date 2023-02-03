@@ -292,7 +292,7 @@ _#ECSService: {
 	wait_for_steady_state: bool | *true
 	network_configuration?: {
 		security_groups: [...string]
-		subnets: [...string]
+		subnets: string | [...string]
 	}
 	load_balancer?: [...{
 		target_group_arn: string
