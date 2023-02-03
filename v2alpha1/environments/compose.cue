@@ -25,5 +25,10 @@ import (
 			match: traits: Replicable: null
 			pipeline: []
 		}
+
+		"ignore-http-route": {
+			match: traits: HTTPRoute: null
+			pipeline: []
+		}
 	}
 }
