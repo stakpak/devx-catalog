@@ -85,9 +85,14 @@ import (
 				protocol:          listener.protocol
 
 				default_action: {
-					target_group_arn: "${resource.aws_lb_target_group.gateway_\(gateway.name)_\(name).arn}"
-					type:             "forward"
+					type: "fixed-response"
+					fixed_response: {
+						content_type: "text/plain"
+						message_body: "Not Found"
+						status_code:  "404"
+					}
 				}
+
 				tags: {
 					terraform: "true"
 				}
