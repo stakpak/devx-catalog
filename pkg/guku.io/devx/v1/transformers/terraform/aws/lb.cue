@@ -111,24 +111,24 @@ import (
 	http: _
 	$resources: terraform: schema.#Terraform & {
 		data: aws_vpc: "\(aws.vpc.name)": tags: Name: aws.vpc.vpc.name
-		data: aws_lb: "gateway_\(http.gateway.name)": name:             http.gateway.name
-		data: aws_security_group: "gateway_\(http.gateway.name)": name: "gateway-\(http.gateway.name)"
-		data: aws_lb_listener: "gateway_\(http.gateway.name)_\(http.listener)": {
-			load_balancer_arn: "${data.aws_lb.gateway_\(http.gateway.name).arn}"
-			port:              http.gateway.listeners[http.listener].port
+		data: aws_lb: "gateway_\(http.gateway.gateway.name)": name:             http.gateway.gateway.name
+		data: aws_security_group: "gateway_\(http.gateway.gateway.name)": name: "gateway-\(http.gateway.gateway.name)"
+		data: aws_lb_listener: "gateway_\(http.gateway.gateway.name)_\(http.listener)": {
+			load_balancer_arn: "${data.aws_lb.gateway_\(http.gateway.gateway.name).arn}"
+			port:              http.gateway.gateway.listeners[http.listener].port
 		}
 		resource: {
 			for ruleName, rule in http.rules {
 				for backendName, backend in rule.backends {
-					aws_security_group: "gateway_\(http.gateway.name)_\(backend.endpoint.host)_\(backend.endpoint.port.port)": {
-						name:   "gateway-\(http.gateway.name)-\(backend.endpoint.host)-\(backend.endpoint.port.port)"
+					aws_security_group: "gateway_\(http.gateway.gateway.name)_\(backend.endpoint.host)_\(backend.endpoint.port.port)": {
+						name:   "gateway-\(http.gateway.gateway.name)-\(backend.endpoint.host)-\(backend.endpoint.port.port)"
 						vpc_id: "${data.aws_vpc.\(aws.vpc.name).id}"
 						ingress: [{
 							protocol:  "tcp"
 							from_port: backend.endpoint.port.port
 							to_port:   backend.endpoint.port.port
 							security_groups: [
-								"${data.aws_security_group.gateway_\(http.gateway.name).id}",
+								"${data.aws_security_group.gateway_\(http.gateway.gateway.name).id}",
 							]
 							description:      null
 							ipv6_cidr_blocks: null
@@ -148,16 +148,16 @@ import (
 							self:             null
 						}]
 					}
-					aws_lb_target_group: "\(http.gateway.name)_\(http.listener)_\(backend.endpoint.host)_\(backend.endpoint.port.port)": {
-						"name":      "\(http.gateway.name)-\(http.listener)-\(backend.endpoint.host)-\(backend.endpoint.port.port)"
-						port:        http.gateway.listeners[http.listener].port
-						protocol:    http.gateway.listeners[http.listener].protocol
+					aws_lb_target_group: "\(http.gateway.gateway.name)_\(http.listener)_\(backend.endpoint.host)_\(backend.endpoint.port.port)": {
+						"name":      "\(http.gateway.gateway.name)-\(http.listener)-\(backend.endpoint.host)-\(backend.endpoint.port.port)"
+						port:        http.gateway.gateway.listeners[http.listener].port
+						protocol:    http.gateway.gateway.listeners[http.listener].protocol
 						vpc_id:      "${data.aws_vpc.\(aws.vpc.name).id}"
 						target_type: "ip"
 					}
 				}
-				aws_lb_listener_rule: "\(http.gateway.name)_\(ruleName)": {
-					listener_arn: "${data.aws_lb_listener.gateway_\(http.gateway.name)_\(http.listener).arn}"
+				aws_lb_listener_rule: "\(http.gateway.gateway.name)_\(ruleName)": {
+					listener_arn: "${data.aws_lb_listener.gateway_\(http.gateway.gateway.name)_\(http.listener).arn}"
 					priority:     uint | *100
 					condition: [
 						{
@@ -189,7 +189,7 @@ import (
 							target_group: [
 								for backendName, backend in rule.backends {
 									{
-										arn: "${aws_lb_target_group.\(http.gateway.name)_\(http.listener)_\(backend.endpoint.host)_\(backend.endpoint.port.port).arn}"
+										arn: "${aws_lb_target_group.\(http.gateway.gateway.name)_\(http.listener)_\(backend.endpoint.host)_\(backend.endpoint.port.port).arn}"
 										if backend.weight != _|_ {
 											weight: backend.weight
 										}
