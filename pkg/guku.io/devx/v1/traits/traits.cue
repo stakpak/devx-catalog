@@ -158,3 +158,33 @@ _#VolumeSpec: {
 		_validate: [ for _, l in listeners {"\(l.host)/\(l.port)/\(l.protocol)"}] & list.UniqueItems()
 	}
 }
+
+// an HTTP ingress route
+#HTTPRoute: v1.#Trait & {
+	$metadata: traits: HTTPRoute: null
+	http: {
+		gateway:  #Gateway
+		listener: string
+
+		hostnames: [...string]
+		rules: [...{
+			match: {
+				path:    string | *"/*"
+				method?: string
+				headers?: [string]: string
+			}
+			backends: [...{
+				weight?: uint
+				// #Exposable.endpoints[*]
+				endpoint: {
+					host: string
+					port: {
+						name?:  string
+						port:   uint
+						target: uint | *port
+					}
+				}
+			}]
+		}]
+	}
+}

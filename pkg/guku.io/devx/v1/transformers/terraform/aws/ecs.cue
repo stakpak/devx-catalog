@@ -193,88 +193,63 @@ import (
 
 // expose an ECS service through a load balancer
 #ExposeECSService: v1.#Transformer & {
-	v1.#Component
 	traits.#Exposable
-	$metadata:  _
-	containers: _
-	endpoints:  _
+	$metadata: _
+	endpoints: _
+	appName:   string | *$metadata.id
+	endpoints: default: host: appName
+	$resources: terraform: schema.#Terraform & {
+		resource: aws_ecs_task_definition: "\(appName)": _#ECSTaskDefinition & {
+			network_mode: "awsvpc"
+			_container_definitions: [
+				...{
+					portMappings: [
+						for p in endpoints.default.ports {
+							{
+								containerPort: p.port
+							}
+						},
+					]
+				},
+			]
+		}
+	}
+}
 
-	vpcId: string
+#AddHTTPRouteECS: v1.#Transformer & {
+	traits.#Exposable
+	traits.#HTTPRoute
+	containers: _
+	http:       _
+	appName:    _
 	subnets: [...string]
-	lbTargetGroupName:   string
-	lbSecurityGroupName: string
-	lbHost:              string
-	appName:             string | *$metadata.id
-	endpoints: default: host: lbHost
 	$resources: terraform: schema.#Terraform & {
 		data: {
-			aws_lb_target_group: "\(lbTargetGroupName)": name:  lbTargetGroupName
-			aws_security_group: "\(lbSecurityGroupName)": name: lbSecurityGroupName
+			for ruleName, rule in http.rules for backendName, backend in rule.backends {
+				aws_security_group: "gateway_\(http.gateway.name)_\(backend.endpoint.host)_\(backend.endpoint.port.port)": name:           "gateway-\(http.gateway.name)-\(backend.endpoint.host)-\(backend.endpoint.port.port)"
+				aws_lb_target_group: "\(http.gateway.name)_\(http.listener)_\(backend.endpoint.host)_\(backend.endpoint.port.port)": name: "\(http.gateway.name)-\(http.listener)-\(backend.endpoint.host)-\(backend.endpoint.port.port)"
+			}
 		}
-		resource: {
-			aws_security_group: "\(appName)": {
-				name:   appName
-				vpc_id: vpcId
-				ingress: [
-					for p in endpoints.default.ports {
-						{
-							protocol:  "tcp"
-							from_port: p.port
-							to_port:   p.port
-							security_groups: [
-								"${data.aws_security_group.\(lbSecurityGroupName).id}",
-							]
-							description:      null
-							ipv6_cidr_blocks: null
-							cidr_blocks:      null
-							prefix_list_ids:  null
-							self:             null
-						}
+		resource: aws_ecs_service: "\(appName)": _#ECSService & {
+			network_configuration: {
+				security_groups: [
+					for ruleName, rule in http.rules for backendName, backend in rule.backends {
+						"${data.aws_security_group.gateway_\(http.gateway.name)_\(backend.endpoint.host)_\(backend.endpoint.port.port).id}"
 					},
 				]
-				egress: [{
-					protocol:  "-1"
-					from_port: 0
-					to_port:   0
-					cidr_blocks: ["0.0.0.0/0"]
-					security_groups:  null
-					description:      null
-					ipv6_cidr_blocks: null
-					prefix_list_ids:  null
-					self:             null
-				}]
+				"subnets": subnets
 			}
-			aws_ecs_service: "\(appName)": _#ECSService & {
-				network_configuration: {
-					security_groups: [
-						"${aws_security_group.\(appName).id}",
-					]
-					"subnets": subnets
-				}
-				load_balancer: [
-					for k, _ in containers for p in endpoints.default.ports {
+			load_balancer: [
+				for ruleName, rule in http.rules for backendName, backend in rule.backends {
+					for k, _ in containers {
 						{
-							target_group_arn: "${data.aws_lb_target_group.\(lbTargetGroupName).arn}"
+							target_group_arn: "${data.aws_lb_target_group.\(http.gateway.name)_\(http.listener)_\(backend.endpoint.host)_\(backend.endpoint.port.port).arn}"
 							container_name:   k
-							container_port:   p.port
+							container_port:   backend.endpoint.port.port
 						}
-					},
-				]
-			}
-			aws_ecs_task_definition: "\(appName)": _#ECSTaskDefinition & {
-				network_mode: "awsvpc"
-				_container_definitions: [
-					...{
-						portMappings: [
-							for p in endpoints.default.ports {
-								{
-									containerPort: p.port
-								}
-							},
-						]
-					},
-				]
-			}
+					}
+				},
+			]
 		}
 	}
 }
