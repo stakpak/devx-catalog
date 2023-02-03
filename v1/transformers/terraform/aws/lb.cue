@@ -110,12 +110,14 @@ import (
 	}
 	http: _
 	$resources: terraform: schema.#Terraform & {
-		data: aws_vpc: "\(aws.vpc.name)": tags: Name: aws.vpc.vpc.name
-		data: aws_lb: "gateway_\(http.gateway.gateway.name)": name:             http.gateway.gateway.name
-		data: aws_security_group: "gateway_\(http.gateway.gateway.name)": name: "gateway-\(http.gateway.gateway.name)"
-		data: aws_lb_listener: "gateway_\(http.gateway.gateway.name)_\(http.listener)": {
-			load_balancer_arn: "${data.aws_lb.gateway_\(http.gateway.gateway.name).arn}"
-			port:              http.gateway.gateway.listeners[http.listener].port
+		data: {
+			aws_vpc: "\(aws.vpc.name)": tags: Name: aws.vpc.vpc.name
+			aws_lb: "gateway_\(http.gateway.gateway.name)": name:             http.gateway.gateway.name
+			aws_security_group: "gateway_\(http.gateway.gateway.name)": name: "gateway-\(http.gateway.gateway.name)"
+			aws_lb_listener: "gateway_\(http.gateway.gateway.name)_\(http.listener)": {
+				load_balancer_arn: "${data.aws_lb.gateway_\(http.gateway.gateway.name).arn}"
+				port:              http.gateway.gateway.listeners[http.listener].port
+			}
 		}
 		resource: {
 			for ruleName, rule in http.rules {

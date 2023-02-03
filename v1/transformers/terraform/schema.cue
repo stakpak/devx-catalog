@@ -5,9 +5,13 @@ package terraform
 		driver: "terraform"
 		type:   ""
 	}
-	data?: [string]:     _
+	data?: [string]: {
+		...
+	}
 	provider?: [string]: _
 	module?: [string]:   _
-	resource?: [string]: _
+	resource?: [string]: {
+		...
+	}
 	output?: [string]: value: _
 }
