@@ -38,7 +38,7 @@ import (
 				vpc_id: "${data.aws_vpc.\(aws.vpc.name).id}"
 				filter: [{
 					name: "mapPublicIpOnLaunch"
-					values: ["true"]
+					values: ["false"]
 				}]
 			}
 		}
