@@ -169,9 +169,9 @@ _#VolumeSpec: {
 		hostnames: [...string]
 		rules: [...{
 			match: {
-				path:    string | *"/*"
+				path: string | *"/*"
+				headers: [string]: string
 				method?: string
-				headers?: [string]: string
 			}
 			backends: [...{
 				weight?: uint

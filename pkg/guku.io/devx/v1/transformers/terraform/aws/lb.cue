@@ -111,7 +111,7 @@ import (
 	http: _
 	$resources: terraform: schema.#Terraform & {
 		data: {
-			aws_vpc: "\(aws.vpc.name)": tags: Name: aws.vpc.vpc.name
+			aws_vpc: "\(aws.vpc.name)": tags: Name: aws.vpc.name
 			aws_lb: "gateway_\(http.gateway.gateway.name)": name:             http.gateway.gateway.name
 			aws_security_group: "gateway_\(http.gateway.gateway.name)": name: "gateway-\(http.gateway.gateway.name)"
 			aws_lb_listener: "gateway_\(http.gateway.gateway.name)_\(http.listener)": {
