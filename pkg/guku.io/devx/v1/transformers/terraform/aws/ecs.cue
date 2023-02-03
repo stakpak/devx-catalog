@@ -22,7 +22,7 @@ import (
 		region:  string
 		account: string
 		vpc: {
-			subnets: [...string]
+			name: string
 			...
 		}
 		...
@@ -31,7 +31,17 @@ import (
 	launchType:  "FARGATE" | "ECS"
 	appName:     string | *$metadata.id
 	$resources: terraform: schema.#Terraform & {
-		data: aws_ecs_cluster: "\(clusterName)": cluster_name: clusterName
+		data: {
+			aws_vpc: "\(aws.vpc.name)": tags: Name: aws.vpc.name
+			aws_ecs_cluster: "\(clusterName)": cluster_name: clusterName
+			aws_subnet_ids: "\(aws.vpc.name)": {
+				vpc_id: "${data.aws_vpc.\(aws.vpc.name).id}"
+				filter: [{
+					name: "mapPublicIpOnLaunch"
+					values: ["true"]
+				}]
+			}
+		}
 		resource: {
 			aws_iam_role: "task_execution_\(appName)": {
 				name:               "task-execution-\(appName)"

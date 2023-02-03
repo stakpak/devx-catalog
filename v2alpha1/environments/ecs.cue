@@ -13,10 +13,7 @@ import (
 			region:  string
 			account: string
 		}
-		vpc: {
-			name: string
-			subnets: [...string]
-		}
+		vpc: name: string
 		ecs: {
 			clusterName: string
 			launchType:  string
