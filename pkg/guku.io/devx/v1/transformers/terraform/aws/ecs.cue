@@ -21,6 +21,7 @@ import (
 	aws: {
 		region:  string
 		account: string
+		...
 	}
 	subnets: [...string]
 	clusterName: string

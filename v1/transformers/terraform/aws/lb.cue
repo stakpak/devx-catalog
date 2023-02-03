@@ -101,7 +101,10 @@ import (
 
 #AddHTTPRoute: v1.#Transformer & {
 	traits.#HTTPRoute
-	aws: vpc: traits.#VPC
+	aws: {
+		vpc: traits.#VPC
+		...
+	}
 	http: _
 	$resources: terraform: schema.#Terraform & {
 		data: aws_vpc: "\(aws.vpc.name)": tags: Name: aws.vpc.vpc.name
