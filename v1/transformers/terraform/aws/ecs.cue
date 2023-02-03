@@ -233,7 +233,8 @@ import (
 	http: _
 	$resources: terraform: schema.#Terraform & {
 		for rule in http.rules for backend in rule.backends {
-			resource: aws_ecs_service: "\(backend.component.appName)": _#ECSService & {
+			_name: backend.component.appName | *backend.component.$metadata.id
+			resource: aws_ecs_service: "\(_name)": _#ECSService & {
 				network_configuration: {
 					security_groups: [
 						"${aws_security_group.gateway_\(http.gateway.gateway.name)_\(backend.component.$metadata.id)_\(backend.port).id}",
