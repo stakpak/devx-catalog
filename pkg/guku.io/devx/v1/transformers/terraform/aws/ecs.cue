@@ -225,11 +225,9 @@ import (
 	http:       _
 	appName:    _
 	$resources: terraform: schema.#Terraform & {
-		data: {
-			for ruleName, rule in http.rules for backendName, backend in rule.backends {
-				aws_security_group: "gateway_\(http.gateway.gateway.name)_\(backend.endpoint.host)_\(backend.endpoint.port.port)": name:           "gateway-\(http.gateway.gateway.name)-\(backend.endpoint.host)-\(backend.endpoint.port.port)"
-				aws_lb_target_group: "\(http.gateway.gateway.name)_\(http.listener)_\(backend.endpoint.host)_\(backend.endpoint.port.port)": name: "\(http.gateway.gateway.name)-\(http.listener)-\(backend.endpoint.host)-\(backend.endpoint.port.port)"
-			}
+		for ruleName, rule in http.rules for backendName, backend in rule.backends {
+			data: aws_security_group: "gateway_\(http.gateway.gateway.name)_\(backend.endpoint.host)_\(backend.endpoint.port.port)": name:           "gateway-\(http.gateway.gateway.name)-\(backend.endpoint.host)-\(backend.endpoint.port.port)"
+			data: aws_lb_target_group: "\(http.gateway.gateway.name)_\(http.listener)_\(backend.endpoint.host)_\(backend.endpoint.port.port)": name: "\(http.gateway.gateway.name)-\(http.listener)-\(backend.endpoint.host)-\(backend.endpoint.port.port)"
 		}
 		resource: aws_ecs_service: "\(appName)": _#ECSService & {
 			network_configuration: {
