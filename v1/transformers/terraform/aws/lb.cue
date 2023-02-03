@@ -126,14 +126,14 @@ import (
 		}
 		resource: {
 			for ruleName, rule in http.rules {
-				for backendName, backend in rule.backends {
-					aws_security_group: "gateway_\(http.gateway.gateway.name)_\(backend.endpoint.host)_\(backend.endpoint.port.target)": {
-						name:   "gateway-\(http.gateway.gateway.name)-\(backend.endpoint.host)-\(backend.endpoint.port.target)"
+				for _, backend in rule.backends {
+					aws_security_group: "gateway_\(http.gateway.gateway.name)_\(backend.component.$metadata.id)_\(backend.port)": {
+						name:   "gateway-\(http.gateway.gateway.name)-\(backend.component.$metadata.id)-\(backend.port)"
 						vpc_id: "${data.aws_vpc.\(aws.vpc.name).id}"
 						ingress: [{
 							protocol:  "tcp"
-							from_port: backend.endpoint.port.target
-							to_port:   backend.endpoint.port.target
+							from_port: backend.port
+							to_port:   backend.port
 							security_groups: [
 								"${data.aws_security_group.gateway_\(http.gateway.gateway.name).id}",
 							]
@@ -155,8 +155,8 @@ import (
 							self:             null
 						}]
 					}
-					aws_lb_target_group: "\(http.gateway.gateway.name)_\(http.listener)_\(backend.endpoint.host)_\(backend.endpoint.port.target)": {
-						"name":      "\(http.gateway.gateway.name)-\(http.listener)-\(backend.endpoint.host)-\(backend.endpoint.port.target)"
+					aws_lb_target_group: "\(http.gateway.gateway.name)_\(http.listener)_\(backend.component.$metadata.id)_\(backend.port)": {
+						"name":      "\(http.gateway.gateway.name)-\(http.listener)-\(backend.component.$metadata.id)-\(backend.port)"
 						port:        http.gateway.gateway.listeners[http.listener].port
 						protocol:    http.gateway.gateway.listeners[http.listener].protocol
 						vpc_id:      "${data.aws_vpc.\(aws.vpc.name).id}"
@@ -193,14 +193,14 @@ import (
 					action: {
 						type: "forward"
 						if len(rule.backends) == 1 {
-							target_group_arn: "${aws_lb_target_group.\(http.gateway.gateway.name)_\(http.listener)_\(rule.backends[0].endpoint.host)_\(rule.backends[0].endpoint.port.target).arn}"
+							target_group_arn: "${aws_lb_target_group.\(http.gateway.gateway.name)_\(http.listener)_\(rule.backends[0].component.$metadata.id)_\(rule.backends[0].port).arn}"
 						}
 						if len(rule.backends) > 1 {
 							forward: {
 								target_group: [
-									for backendName, backend in rule.backends {
+									for _, backend in rule.backends {
 										{
-											arn: "${aws_lb_target_group.\(http.gateway.gateway.name)_\(http.listener)_\(backend.endpoint.host)_\(backend.endpoint.port.target).arn}"
+											arn: "${aws_lb_target_group.\(http.gateway.gateway.name)_\(http.listener)_\(backend.component.$metadata.id)_\(backend.port).arn}"
 											if backend.weight != _|_ {
 												weight: backend.weight
 											}

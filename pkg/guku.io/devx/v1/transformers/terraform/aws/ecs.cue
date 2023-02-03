@@ -229,31 +229,26 @@ import (
 }
 
 #AddHTTPRouteECS: v1.#Transformer & {
-	traits.#Exposable
 	traits.#HTTPRoute
-	containers: _
-	http:       _
-	appName:    _
+	http: _
 	$resources: terraform: schema.#Terraform & {
-		resource: aws_ecs_service: "\(appName)": _#ECSService & {
-			network_configuration: {
-				security_groups: [
-					for ruleName, rule in http.rules for backendName, backend in rule.backends {
-						"${aws_security_group.gateway_\(http.gateway.gateway.name)_\(backend.endpoint.host)_\(backend.endpoint.port.target).id}"
+		for rule in http.rules for backend in rule.backends {
+			resource: aws_ecs_service: "\(backend.component.appName)": _#ECSService & {
+				network_configuration: {
+					security_groups: [
+						"${aws_security_group.gateway_\(http.gateway.gateway.name)_\(backend.component.$metadata.id)_\(backend.port).id}",
+					]
+				}
+				load_balancer: [
+					for k, _ in backend.component.containers {
+						{
+							target_group_arn: "${aws_lb_target_group.\(http.gateway.gateway.name)_\(http.listener)_\(backend.component.$metadata.id)_\(backend.port).arn}"
+							container_name:   k
+							container_port:   backend.port
+						}
 					},
 				]
 			}
-			load_balancer: [
-				for ruleName, rule in http.rules for backendName, backend in rule.backends {
-					for k, _ in containers {
-						{
-							target_group_arn: "${aws_lb_target_group.\(http.gateway.gateway.name)_\(http.listener)_\(backend.endpoint.host)_\(backend.endpoint.port.target).arn}"
-							container_name:   k
-							container_port:   backend.endpoint.port.target
-						}
-					}
-				},
-			]
 		}
 	}
 }

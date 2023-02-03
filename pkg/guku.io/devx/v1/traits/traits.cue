@@ -175,15 +175,16 @@ _#VolumeSpec: {
 			}
 			backends: [...{
 				weight?: uint
-				// #Exposable.endpoints[*]
-				endpoint: {
-					host: string
-					port: {
-						name?:  string
-						port:   uint
-						target: uint | *port
-					}
+				component: {
+					#Workload
+					#Exposable
 				}
+				endpoint:                 string
+				port:                     uint
+				"_port not in endpoints": list.Contains(
+								[ for p in component.endpoints[endpoint].ports {p.target}],
+								port,
+								) & true
 			}]
 		}]
 	}
