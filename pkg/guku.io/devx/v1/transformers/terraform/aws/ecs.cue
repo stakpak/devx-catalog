@@ -218,7 +218,7 @@ import (
 					portMappings: [
 						for p in endpoints.default.ports {
 							{
-								containerPort: p.port
+								containerPort: p.target
 							}
 						},
 					]
@@ -239,7 +239,7 @@ import (
 			network_configuration: {
 				security_groups: [
 					for ruleName, rule in http.rules for backendName, backend in rule.backends {
-						"${aws_security_group.gateway_\(http.gateway.gateway.name)_\(backend.endpoint.host)_\(backend.endpoint.port.port).id}"
+						"${aws_security_group.gateway_\(http.gateway.gateway.name)_\(backend.endpoint.host)_\(backend.endpoint.port.target).id}"
 					},
 				]
 			}
@@ -247,9 +247,9 @@ import (
 				for ruleName, rule in http.rules for backendName, backend in rule.backends {
 					for k, _ in containers {
 						{
-							target_group_arn: "${aws_lb_target_group.\(http.gateway.gateway.name)_\(http.listener)_\(backend.endpoint.host)_\(backend.endpoint.port.port).arn}"
+							target_group_arn: "${aws_lb_target_group.\(http.gateway.gateway.name)_\(http.listener)_\(backend.endpoint.host)_\(backend.endpoint.port.target).arn}"
 							container_name:   k
-							container_port:   backend.endpoint.port.port
+							container_port:   backend.endpoint.port.target
 						}
 					}
 				},
