@@ -170,8 +170,12 @@ _#VolumeSpec: {
 #HTTPRoute: v1.#Trait & {
 	$metadata: traits: HTTPRoute: null
 	http: {
-		gateway:  #Gateway
-		listener: string
+		gateway:   #Gateway
+		listener?: string
+		port?:     uint & <65536
+		if port != _|_ && listener != _|_ {
+			"_listener port doesn't match": gateway.listeners[listener].port & port
+		}
 
 		hostnames: [...string]
 		rules: [...{

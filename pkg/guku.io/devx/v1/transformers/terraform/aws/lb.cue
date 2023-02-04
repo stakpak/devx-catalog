@@ -1,6 +1,8 @@
 package aws
 
 import (
+	"list"
+	"strings"
 	"guku.io/devx/v1"
 	"guku.io/devx/v1/traits"
 	schema "guku.io/devx/v1/transformers/terraform"
@@ -10,14 +12,26 @@ import (
 	traits.#Gateway
 	gateway: _
 	aws: {
-		lbType: "application"
-		vpc:    traits.#VPC
+		vpc: traits.#VPC
+		...
 	}
 	$resources: terraform: schema.#Terraform & {
 		resource: aws_lb: "gateway_\(gateway.name)": {
-			name:               gateway.name
-			internal:           !gateway.public
-			load_balancer_type: aws.lbType
+			name:     gateway.name
+			internal: !gateway.public
+
+			_protocols: [
+				for _, listener in gateway.listeners {
+					listener.protocol
+				},
+			]
+			if list.Contains(_protocols, "HTTP") || list.Contains(_protocols, "HTTPS") {
+				load_balancer_type: "application"
+			}
+			if list.Contains(_protocols, "TCP") || list.Contains(_protocols, "TLS") {
+				load_balancer_type: "network"
+			}
+
 			security_groups: [
 				"${aws_security_group.gateway_\(gateway.name).id}",
 			]
@@ -78,11 +92,80 @@ import (
 			}
 		}
 
-		for name, listener in gateway.listeners {
-			resource: aws_lb_listener: "gateway_\(gateway.name)_\(name)": {
+		_groupedListeners: {
+			for _, listener in gateway.listeners {
+				"\(listener.port)": {
+					hostnames: "\(listener.hostname)": null
+					protocol: listener.protocol
+					if protocol == "TLS" || protocol == "HTTPS" {
+						tls: listener.tls
+					}
+				}
+			}
+		}
+
+		for _, listener in _groupedListeners {
+			_hostnames: [ for hostname, _ in listener.hostnames {hostname}]
+			if listener.protocol == "TLS" || listener.protocol == "HTTPS" {
+				for index, hostname in _hostnames {
+					resource: aws_acm_certificate: "\(gateway.name)_\(listener.port)_\(index)": {
+						domain_name:       hostname
+						validation_method: "DNS"
+					}
+					data: aws_route53_zone: "zone_\(listener.port)_\(index)": {
+						name:         strings.TrimPrefix(hostname, "*.")
+						private_zone: gateway.public
+					}
+					resource: aws_route53_record: "zone_\(listener.port)_\(index)": {
+						for_each: """
+                            ${{
+                            for dvo in aws_acm_certificate.example.domain_validation_options : dvo.domain_name => {
+                                name   = dvo.resource_record_name
+                                record = dvo.resource_record_value
+                                type   = dvo.resource_record_type
+                            }
+                            }}"""
+
+						// _validationOptionPath: "aws_acm_certificate.\(gateway.name)_\(listener.port)_\(index).domain_validation_options[\(hostname)]"
+						allow_overwrite: true
+						name:            "${each.value.name}"
+						records: [
+							"${each.value.record}",
+						]
+						ttl:     60
+						type:    "${each.value.type}"
+						zone_id: "${data.aws_route53_zone.zone_\(listener.port)_\(index).zone_id}"
+					}
+					resource: aws_acm_certificate_validation: "\(gateway.name)_\(listener.port)_\(index)": {
+						certificate_arn:         "${aws_acm_certificate.\(gateway.name)_\(listener.port)_\(index).arn}"
+						validation_record_fqdns: "${[for record in aws_route53_record.zone_\(listener.port)_\(index) : record.fqdn]}"
+					}
+					resource: aws_lb_listener_certificate: "\(gateway.name)_\(listener.port)_\(index)": {
+						certificate_arn: "${aws_acm_certificate_validation.\(gateway.name)_\(listener.port)_\(index).certificate_arn}"
+						listener_arn:    "${aws_lb_listener.gateway_\(gateway.name)_\(listener.port).arn}"
+					}
+				}
+
+				// resource: aws_acm_certificate: "gateway_\(gateway.name)_\(listener.port)": {
+				//  domain_name: _hostnames[0]
+				//  subject_alternative_names: [
+				//   for hostname in list.Drop(_hostnames, 1) {hostname},
+				//  ]
+				//  validation_method: "DNS"
+				// }
+			}
+			resource: aws_lb_listener: "gateway_\(gateway.name)_\(listener.port)": {
 				load_balancer_arn: "${resource.aws_lb.gateway_\(gateway.name).arn}"
 				port:              listener.port
 				protocol:          listener.protocol
+
+				if protocol == "TLS" || protocol == "HTTPS" {
+					ssl_policy: string | *"ELBSecurityPolicy-TLS-1-1-2017-01"
+					// certificate_arn: string
+				}
+				if protocol == "TLS" {
+					alpn_policy: string | *"HTTP2Preferred"
+				}
 
 				default_action: {
 					type: "fixed-response"
@@ -114,14 +197,17 @@ import (
 		...
 	}
 	http: _
+	if http.listener != _|_ {
+		http: port: http.gateway.listeners[http.listener].port
+	}
 	$resources: terraform: schema.#Terraform & {
 		data: {
 			aws_vpc: "\(aws.vpc.name)": tags: Name: aws.vpc.name
 			aws_lb: "gateway_\(http.gateway.gateway.name)": name:             http.gateway.gateway.name
 			aws_security_group: "gateway_\(http.gateway.gateway.name)": name: "gateway-\(http.gateway.gateway.name)"
-			aws_lb_listener: "gateway_\(http.gateway.gateway.name)_\(http.listener)": {
+			aws_lb_listener: "gateway_\(http.gateway.gateway.name)_\(http.port)": {
 				load_balancer_arn: "${data.aws_lb.gateway_\(http.gateway.gateway.name).arn}"
-				port:              http.gateway.gateway.listeners[http.listener].port
+				port:              http.port
 			}
 		}
 		resource: {
@@ -164,7 +250,7 @@ import (
 					}
 				}
 				aws_lb_listener_rule: "\(http.gateway.gateway.name)_\(ruleName)": {
-					listener_arn: "${data.aws_lb_listener.gateway_\(http.gateway.gateway.name)_\(http.listener).arn}"
+					listener_arn: "${data.aws_lb_listener.gateway_\(http.gateway.gateway.name)_\(http.port).arn}"
 					priority:     uint | *100
 					condition: [
 						{
