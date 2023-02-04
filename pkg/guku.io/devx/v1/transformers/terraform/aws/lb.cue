@@ -119,12 +119,12 @@ import (
 					}
 					resource: aws_route53_record: "zone_\(listener.port)_\(index)": {
 						allow_overwrite: true
-						name:            "${aws_acm_certificate.\(gateway.name)_\(listener.port)_\(index).domain_validation_options.resource_record_name}"
+						name:            "${aws_acm_certificate.\(gateway.name)_\(listener.port)_\(index).domain_validation_options[0].resource_record_name}"
 						records: [
-							"${aws_acm_certificate.\(gateway.name)_\(listener.port)_\(index).domain_validation_options.resource_record_value}",
+							"${aws_acm_certificate.\(gateway.name)_\(listener.port)_\(index).domain_validation_options[0].resource_record_value}",
 						]
 						ttl:     60
-						type:    "${aws_acm_certificate.\(gateway.name)_\(listener.port)_\(index).domain_validation_options.resource_record_type}"
+						type:    "${aws_acm_certificate.\(gateway.name)_\(listener.port)_\(index).domain_validation_options[0].resource_record_type}"
 						zone_id: "${data.aws_route53_zone.zone_\(listener.port)_\(index).zone_id}"
 					}
 					resource: aws_acm_certificate_validation: "\(gateway.name)_\(listener.port)_\(index)": {
