@@ -190,8 +190,4 @@ _#VolumeSpec: {
 			}]
 		}]
 	}
-
-	for rule in http.rules for backend in rule.backends {
-		$resources: backend.component.$resources
-	}
 }

@@ -231,6 +231,9 @@ import (
 #AddHTTPRouteECS: v1.#Transformer & {
 	traits.#HTTPRoute
 	http: _
+	for rule in http.rules for backend in rule.backends {
+		$resources: backend.component.$resources
+	}
 	$resources: terraform: schema.#Terraform & {
 		for rule in http.rules for backend in rule.backends {
 			_name: backend.component.appName | *backend.component.$metadata.id
