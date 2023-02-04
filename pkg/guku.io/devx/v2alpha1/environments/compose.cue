@@ -25,10 +25,17 @@ import (
 			match: traits: Replicable: null
 			pipeline: []
 		}
-
 		"ignore-http-route": {
 			match: traits: HTTPRoute: null
-			pipeline: []
+			pipeline: [v1.#Transformer & {
+				gateway: {
+					$metadata: id: "empty"
+					gateway: {
+						name:   "empty"
+						public: false
+					}
+				}
+			}]
 		}
 	}
 }
