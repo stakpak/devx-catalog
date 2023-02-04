@@ -162,7 +162,7 @@ _#VolumeSpec: {
 				}
 			}
 		}
-		_validate: [ for _, l in listeners {"\(l.host)/\(l.port)/\(l.protocol)"}] & list.UniqueItems()
+		_validate: [ for _, l in listeners {"\(l.hostname)/\(l.port)/\(l.protocol)"}] & list.UniqueItems()
 	}
 }
 
