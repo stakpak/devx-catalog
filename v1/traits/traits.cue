@@ -180,12 +180,13 @@ _#VolumeSpec: {
 					#Workload
 					#Exposable
 				}
-				endpoint:                 string
-				port:                     uint
-				"_port not in endpoints": list.Contains(
-								[ for p in component.endpoints[endpoint].ports {p.target}],
-								port,
-								) & true
+				endpoint: string
+				port:     uint
+				_ports: [
+					for p in component.endpoints[endpoint].ports {p.port},
+					for p in component.endpoints[endpoint].ports {p.target},
+				]
+				"_port not in endpoints": list.Contains(_ports, port) & true
 			}]
 		}]
 	}
