@@ -154,6 +154,13 @@ _#VolumeSpec: {
 			host:     string
 			port:     uint & <65536
 			protocol: *"HTTP" | "HTTPS" | "TCP" | "TLS"
+
+			if protocol == "TLS" || protocol == "HTTPS" {
+				tls: {
+					mode: *"TERMINATE" | "PASSTHROUGH"
+					options: [string]: string
+				}
+			}
 		}
 		_validate: [ for _, l in listeners {"\(l.host)/\(l.port)/\(l.protocol)"}] & list.UniqueItems()
 	}
