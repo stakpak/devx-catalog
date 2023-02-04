@@ -29,7 +29,7 @@ import (
 		"ignore-http-route": {
 			match: traits: HTTPRoute: null
 			pipeline: [v1.#Transformer & {
-				gateway: {
+				http: gateway: {
 					$metadata: id: "empty"
 					gateway: {
 						name:   "empty"
