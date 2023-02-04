@@ -115,7 +115,7 @@ import (
 					}
 					data: aws_route53_zone: "zone_\(listener.port)_\(index)": {
 						name:         strings.TrimPrefix(hostname, "*.")
-						private_zone: gateway.public
+						private_zone: !gateway.public
 					}
 					resource: aws_route53_record: "zone_\(listener.port)_\(index)": {
 						for_each: """
