@@ -151,7 +151,7 @@ _#VolumeSpec: {
 		name:   string
 		public: bool
 		listeners: [string]: {
-			host:     string
+			hostname: string
 			port:     uint & <65536
 			protocol: *"HTTP" | "HTTPS" | "TCP" | "TLS"
 
