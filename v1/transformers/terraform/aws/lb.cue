@@ -97,6 +97,7 @@ import (
 				"\(listener.port)": {
 					hostnames: "\(listener.hostname)": null
 					protocol: listener.protocol
+					port:     listener.port
 					if protocol == "TLS" || protocol == "HTTPS" {
 						tls: listener.tls
 					}
