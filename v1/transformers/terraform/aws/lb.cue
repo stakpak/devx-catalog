@@ -113,7 +113,7 @@ import (
 				for index, hostname in _hostnames {
 					_hostnameParts:  strings.Split(hostname, ".")
 					_apexDomain:     strings.Join(list.Drop(_hostnameParts, len(_hostnameParts)-apexDomainLength), ".") & net.FQDN
-					_apexDomainName: strings.Replace(_apexDomain, ".", "_")
+					_apexDomainName: strings.Replace(_apexDomain, ".", "_", -1)
 					resource: aws_acm_certificate: "\(gateway.name)_\(listener.port)_\(index)": {
 						domain_name:       hostname
 						validation_method: "DNS"
