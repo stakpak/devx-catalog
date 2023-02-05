@@ -175,11 +175,11 @@ _#VolumeSpec: {
 
 		hostnames: [...string]
 		rules: [...{
-			matches: [...{
+			match: {
 				path: string | *"/*"
 				headers: [string]: string
 				method?: string
-			}]
+			}
 			filters: [...{
 				type:      "Redirect"
 				scheme?:   string
