@@ -16,6 +16,7 @@ import (
 		vpc: traits.#VPC
 		...
 	}
+	createDNS:        bool | *true
 	apexDomainLength: uint | *2
 	$resources: terraform: schema.#Terraform & {
 		resource: aws_lb: "gateway_\(gateway.name)": {
@@ -113,18 +114,20 @@ import (
 				_hostnameParts:  strings.Split(hostname, ".")
 				_apexDomain:     strings.Join(list.Drop(_hostnameParts, len(_hostnameParts)-apexDomainLength), ".") & net.FQDN
 				_apexDomainName: strings.Replace(_apexDomain, ".", "_", -1)
-				data: aws_route53_zone: "\(_apexDomainName)": {
-					name:         _apexDomain
-					private_zone: !gateway.public
-				}
-				resource: aws_route53_record: "\(gateway.name)_\(index)": {
-					zone_id: "${data.aws_route53_zone.\(_apexDomainName).zone_id}"
-					name:    hostname
-					type:    "A"
-					alias: {
-						name:                   "${aws_lb.gateway_\(gateway.name).dns_name}"
-						zone_id:                "${aws_lb.gateway_\(gateway.name).zone_id}"
-						evaluate_target_health: true
+				if createDNS {
+					data: aws_route53_zone: "\(_apexDomainName)": {
+						name:         _apexDomain
+						private_zone: !gateway.public
+					}
+					resource: aws_route53_record: "\(gateway.name)_\(index)": {
+						zone_id: "${data.aws_route53_zone.\(_apexDomainName).zone_id}"
+						name:    hostname
+						type:    "A"
+						alias: {
+							name:                   "${aws_lb.gateway_\(gateway.name).dns_name}"
+							zone_id:                "${aws_lb.gateway_\(gateway.name).zone_id}"
+							evaluate_target_health: true
+						}
 					}
 				}
 				if listener.protocol == "TLS" || listener.protocol == "HTTPS" {
