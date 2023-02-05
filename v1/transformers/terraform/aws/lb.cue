@@ -109,18 +109,33 @@ import (
 
 		for _, listener in _groupedListeners {
 			_hostnames: list.SortStrings([ for hostname, _ in listener.hostnames {hostname}])
+
+			for index, hostname in _hostnames {
+				_hostnameParts:  strings.Split(hostname, ".")
+				_apexDomain:     strings.Join(list.Drop(_hostnameParts, len(_hostnameParts)-apexDomainLength), ".") & net.FQDN
+				_apexDomainName: strings.Replace(_apexDomain, ".", "_", -1)
+				data: aws_route53_zone: "\(_apexDomainName)": {
+					name:         _apexDomain
+					private_zone: !gateway.public
+				}
+
+				resource: aws_route53_record: "\(gateway.name)_\(index)": {
+					zone_id: "${data.aws_route53_zone.\(_apexDomainName).zone_id}"
+					name:    hostname
+					type:    "A"
+					alias: {
+						name:                   "${aws_lb.gateway_\(gateway.name).dns_name}"
+						zone_id:                "${aws_lb.gateway_\(gateway.name).zone_id}"
+						evaluate_target_health: true
+					}
+				}
+			}
+
 			if listener.protocol == "TLS" || listener.protocol == "HTTPS" {
 				for index, hostname in _hostnames {
-					_hostnameParts:  strings.Split(hostname, ".")
-					_apexDomain:     strings.Join(list.Drop(_hostnameParts, len(_hostnameParts)-apexDomainLength), ".") & net.FQDN
-					_apexDomainName: strings.Replace(_apexDomain, ".", "_", -1)
 					resource: aws_acm_certificate: "\(gateway.name)_\(listener.port)_\(index)": {
 						domain_name:       hostname
 						validation_method: "DNS"
-					}
-					data: aws_route53_zone: "\(_apexDomainName)": {
-						name:         _apexDomain
-						private_zone: !gateway.public
 					}
 					resource: aws_route53_record: "zone_\(listener.port)_\(index)": {
 						for_each:        "${{for dvo in aws_acm_certificate.\(gateway.name)_\(listener.port)_\(index).domain_validation_options : dvo.domain_name => {name=dvo.resource_record_name, record=dvo.resource_record_value, type=dvo.resource_record_type}}}"
