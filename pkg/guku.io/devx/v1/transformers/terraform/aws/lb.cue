@@ -272,25 +272,37 @@ import (
 				aws_lb_listener_rule: "\(http.gateway.gateway.name)_\(ruleName)": {
 					listener_arn: "${data.aws_lb_listener.gateway_\(http.gateway.gateway.name)_\(http.gateway.gateway.listeners[http.listener].port).arn}"
 					priority:     uint | *100
+
+					_headers: [string]: [string]: null
+					for match in rule.matches for header, value in match.headers {
+						_headers: "\(header)": "\(value)": null
+					}
+					_methods: [
+						for match in rule.matches if match.method != _|_ {match.method},
+					]
 					condition: [
 						{
-							path_pattern: values: [rule.match.path]
+							path_pattern: values: [
+								for match in rule.matches {match.path},
+							]
 						},
 						if len(http.hostnames) > 0 {
 							{
 								host_header: values: http.hostnames
 							}
 						},
-						if rule.match.method != _|_ {
+						if len(_methods) > 0 {
 							{
-								http_request_method: values: [rule.match.method]
+								http_request_method: values: _methods
 							}
 						},
-						for header, value in rule.match.headers {
+						for header, values in _headers {
 							{
 								http_header: {
 									http_header_name: header
-									values: [value]
+									values: [
+										for value, _ in values {value},
+									]
 								}
 							}
 						},

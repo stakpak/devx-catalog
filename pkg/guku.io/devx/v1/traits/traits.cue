@@ -175,11 +175,27 @@ _#VolumeSpec: {
 
 		hostnames: [...string]
 		rules: [...{
-			match: {
+			matches: [...{
 				path: string | *"/*"
 				headers: [string]: string
 				method?: string
-			}
+			}]
+			filters: [...{
+				type:      "Redirect"
+				scheme?:   string
+				hostname?: string
+				path?:     {
+					type:  "Full"
+					value: string
+				} | {
+					type:  "Prefix"
+					value: string
+				}
+				port?:       string
+				statusCode?: 301 | *302
+
+				"_at least one parameter should be set": (scheme != _|_ || hostname != _|_ || path != _|_ || port != _|_ || statusCode != _|_) & true
+			}]
 			backends: [...{
 				weight?: uint
 				component: {
