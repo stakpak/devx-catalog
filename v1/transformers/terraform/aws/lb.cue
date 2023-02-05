@@ -249,13 +249,19 @@ import (
 						target_type: "ip"
 
 						_protocol: http.gateway.gateway.listeners[http.listener].protocol
-						if _protocol == "HTTP" || _protocol == "HTTPS" && http.gateway.gateway.listeners[http.listener].tls != _|_ && http.gateway.gateway.listeners[http.listener].tls.mode == "TERMINATE" {
+						if _protocol == "HTTP" {
 							protocol: "HTTP"
 							health_check: protocol: "HTTP"
 						}
-						if _protocol == "HTTPS" && http.gateway.gateway.listeners[http.listener].tls != _|_ && http.gateway.gateway.listeners[http.listener].tls.mode == "PASSTHROUGH" {
-							protocol: "HTTPS"
-							health_check: protocol: "HTTPS"
+						if _protocol == "HTTPS" {
+							if http.gateway.gateway.listeners[http.listener].tls.mode == "TERMINATE" {
+								protocol: "HTTP"
+								health_check: protocol: "HTTP"
+							}
+							if http.gateway.gateway.listeners[http.listener].tls.mode == "PASSTHROUGH" {
+								protocol: "HTTPS"
+								health_check: protocol: "HTTPS"
+							}
 						}
 						if _protocol == "TCP" || _protocol == "TLS" {
 							protocol: "TCP"
