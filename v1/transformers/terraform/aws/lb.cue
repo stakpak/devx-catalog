@@ -296,23 +296,51 @@ import (
 						},
 					]
 
-					action: {
-						type: "forward"
-						if len(rule.backends) == 1 {
-							target_group_arn: "${aws_lb_target_group.\(http.gateway.gateway.name)_\(http.listener)_\(rule.backends[0].component.$metadata.id)_\(rule.backends[0].port).arn}"
+					if rule.redirect != _|_ {
+						action: {
+							type: "redirect"
+							redirect: {
+								if rule.redirect.scheme != _|_ {
+									if rule.redirect.scheme == "http" {
+										protocol: "HTTP"
+									}
+									if rule.redirect.scheme == "https" {
+										protocol: "HTTPS"
+									}
+								}
+								if rule.redirect.hostname != _|_ {
+									host: rule.redirect.hostname
+								}
+								if rule.redirect.path != _|_ {
+									path: rule.redirect.path
+								}
+								if rule.redirect.port != _|_ {
+									port: "\(rule.redirect.port)"
+								}
+								status_code: "HTTP_\(rule.redirect.statusCode)"
+							}
 						}
-						if len(rule.backends) > 1 {
-							forward: {
-								target_group: [
-									for _, backend in rule.backends {
-										{
-											arn: "${aws_lb_target_group.\(http.gateway.gateway.name)_\(http.listener)_\(backend.component.$metadata.id)_\(backend.port).arn}"
-											if backend.weight != _|_ {
-												weight: backend.weight
+					}
+
+					if rule.redirect == _|_ {
+						action: {
+							type: "forward"
+							if len(rule.backends) == 1 {
+								target_group_arn: "${aws_lb_target_group.\(http.gateway.gateway.name)_\(http.listener)_\(rule.backends[0].component.$metadata.id)_\(rule.backends[0].port).arn}"
+							}
+							if len(rule.backends) > 1 {
+								forward: {
+									target_group: [
+										for _, backend in rule.backends {
+											{
+												arn: "${aws_lb_target_group.\(http.gateway.gateway.name)_\(http.listener)_\(backend.component.$metadata.id)_\(backend.port).arn}"
+												if backend.weight != _|_ {
+													weight: backend.weight
+												}
 											}
-										}
-									},
-								]
+										},
+									]
+								}
 							}
 						}
 					}

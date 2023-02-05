@@ -181,13 +181,13 @@ _#VolumeSpec: {
 				method?: string
 			}
 			redirect?: {
-				scheme?:                                 string
+				scheme?:                                 "http" | "https"
 				hostname?:                               string
 				path?:                                   string
 				port?:                                   uint & <65536
-				statusCode?:                             301 | *302
+				statusCode:                              301 | *302
 				pathPrefixOnly:                          bool | *false
-				"_at least one parameter should be set": (scheme != _|_ || hostname != _|_ || path != _|_ || port != _|_ || statusCode != _|_) & true
+				"_at least one parameter should be set": (scheme != _|_ || hostname != _|_ || path != _|_ || port != _|_) & true
 			}
 			backends: [...{
 				weight?: uint
