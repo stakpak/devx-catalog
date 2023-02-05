@@ -172,7 +172,6 @@ _#VolumeSpec: {
 	http: {
 		gateway:  #Gateway
 		listener: string
-		port:     gateway.gateway.listeners[listener].port
 
 		hostnames: [...string]
 		rules: [...{

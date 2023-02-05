@@ -206,9 +206,9 @@ import (
 			aws_vpc: "\(aws.vpc.name)": tags: Name: aws.vpc.name
 			aws_lb: "gateway_\(http.gateway.gateway.name)": name:             http.gateway.gateway.name
 			aws_security_group: "gateway_\(http.gateway.gateway.name)": name: "gateway-\(http.gateway.gateway.name)"
-			aws_lb_listener: "gateway_\(http.gateway.gateway.name)_\(http.port)": {
+			aws_lb_listener: "gateway_\(http.gateway.gateway.name)_\(http.gateway.gateway.listeners[http.listener].port)": {
 				load_balancer_arn: "${data.aws_lb.gateway_\(http.gateway.gateway.name).arn}"
-				port:              http.port
+				port:              http.gateway.gateway.listeners[http.listener].port
 			}
 		}
 		resource: {
@@ -264,7 +264,7 @@ import (
 					}
 				}
 				aws_lb_listener_rule: "\(http.gateway.gateway.name)_\(ruleName)": {
-					listener_arn: "${data.aws_lb_listener.gateway_\(http.gateway.gateway.name)_\(http.port).arn}"
+					listener_arn: "${data.aws_lb_listener.gateway_\(http.gateway.gateway.name)_\(http.gateway.gateway.listeners[http.listener].port).arn}"
 					priority:     uint | *100
 					condition: [
 						{
