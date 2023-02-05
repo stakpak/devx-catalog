@@ -174,7 +174,7 @@ _#VolumeSpec: {
 		listener?: string
 		port?:     uint & <65536
 		if port != _|_ && listener != _|_ {
-			"_listener port doesn't match": gateway.listeners[listener].port & port
+			"_listener port doesn't match": gateway.gateway.listeners[listener].port & port
 		}
 
 		hostnames: [...string]

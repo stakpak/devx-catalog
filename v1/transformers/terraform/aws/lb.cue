@@ -202,7 +202,7 @@ import (
 	}
 	http: _
 	if http.listener != _|_ {
-		http: port: http.gateway.listeners[http.listener].port
+		http: port: http.gateway.gateway.listeners[http.listener].port
 	}
 	$resources: terraform: schema.#Terraform & {
 		data: {
