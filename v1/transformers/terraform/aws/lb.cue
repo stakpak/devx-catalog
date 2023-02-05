@@ -109,7 +109,6 @@ import (
 
 		for _, listener in _groupedListeners {
 			_hostnames: list.SortStrings([ for hostname, _ in listener.hostnames {hostname}])
-
 			for index, hostname in _hostnames {
 				_hostnameParts:  strings.Split(hostname, ".")
 				_apexDomain:     strings.Join(list.Drop(_hostnameParts, len(_hostnameParts)-apexDomainLength), ".") & net.FQDN
@@ -118,7 +117,6 @@ import (
 					name:         _apexDomain
 					private_zone: !gateway.public
 				}
-
 				resource: aws_route53_record: "\(gateway.name)_\(index)": {
 					zone_id: "${data.aws_route53_zone.\(_apexDomainName).zone_id}"
 					name:    hostname
@@ -129,10 +127,7 @@ import (
 						evaluate_target_health: true
 					}
 				}
-			}
-
-			if listener.protocol == "TLS" || listener.protocol == "HTTPS" {
-				for index, hostname in _hostnames {
+				if listener.protocol == "TLS" || listener.protocol == "HTTPS" {
 					resource: aws_acm_certificate: "\(gateway.name)_\(listener.port)_\(index)": {
 						domain_name:       hostname
 						validation_method: "DNS"
@@ -159,8 +154,10 @@ import (
 							listener_arn:    "${aws_lb_listener.gateway_\(gateway.name)_\(listener.port).arn}"
 						}
 					}
+
 				}
 			}
+
 			resource: aws_lb_listener: "gateway_\(gateway.name)_\(listener.port)": {
 				load_balancer_arn: "${resource.aws_lb.gateway_\(gateway.name).arn}"
 				port:              listener.port
