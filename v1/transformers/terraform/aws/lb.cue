@@ -248,22 +248,17 @@ import (
 						vpc_id:      "${data.aws_vpc.\(aws.vpc.name).id}"
 						target_type: "ip"
 
-						protocol: "HTTP"
-						// _protocol: http.gateway.gateway.listeners[http.listener].protocol
-						// if _protocol == "HTTP" {
-						//  protocol: "HTTP"
-						//  health_check: protocol: "HTTP"
-						// }
-
-						// if _protocol == "HTTPS" {
-						//  protocol: "HTTP"
-						//  health_check: protocol: "HTTP"
-						// }
-
-						if protocol == "HTTPS" && http.gateway.gateway.listeners[http.listener].tls.mode == "TERMINATE" {
+						_protocol: http.gateway.gateway.listeners[http.listener].protocol
+						if _protocol == "HTTP" || _protocol == "HTTPS" && http.gateway.gateway.listeners[http.listener].tls.mode == "TERMINATE" {
+							protocol: "HTTP"
 							health_check: protocol: "HTTP"
 						}
-						if protocol == "TLS" {
+						if _protocol == "HTTPS" && http.gateway.gateway.listeners[http.listener].tls.mode == "PASSTHROUGH" {
+							protocol: "HTTPS"
+							health_check: protocol: "HTTPS"
+						}
+						if _protocol == "TLS" {
+							protocol: "TCP"
 							health_check: protocol: "TCP"
 						}
 					}
