@@ -241,7 +241,7 @@ import (
 			_backends: "\(_name)": {
 				component: backend.component
 				ports: "\(backend.port)": {
-					sg: "${aws_security_group.gateway_\(http.gateway.gateway.name)_\(backend.component.$metadata.id)_\(backend.port).id}"
+					sg: "${aws_security_group.gateway_\(http.gateway.gateway.name)_\(http.listener)_\(backend.component.$metadata.id)_\(backend.port).id}"
 					tg: "${aws_lb_target_group.\(http.gateway.gateway.name)_\(http.listener)_\(backend.component.$metadata.id)_\(backend.port).arn}"
 				}
 			}
