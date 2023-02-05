@@ -245,9 +245,21 @@ import (
 					aws_lb_target_group: "\(http.gateway.gateway.name)_\(http.listener)_\(backend.component.$metadata.id)_\(backend.port)": {
 						"name":      "\(http.gateway.gateway.name)-\(http.listener)-\(backend.component.$metadata.id)-\(backend.port)"
 						port:        http.gateway.gateway.listeners[http.listener].port
-						protocol:    http.gateway.gateway.listeners[http.listener].protocol
 						vpc_id:      "${data.aws_vpc.\(aws.vpc.name).id}"
 						target_type: "ip"
+
+						protocol: "HTTP"
+						// _protocol: http.gateway.gateway.listeners[http.listener].protocol
+						// if _protocol == "HTTP" {
+						//  protocol: "HTTP"
+						//  health_check: protocol: "HTTP"
+						// }
+
+						// if _protocol == "HTTPS" {
+						//  protocol: "HTTP"
+						//  health_check: protocol: "HTTP"
+						// }
+
 						if protocol == "HTTPS" && http.gateway.gateway.listeners[http.listener].tls.mode == "TERMINATE" {
 							health_check: protocol: "HTTP"
 						}
