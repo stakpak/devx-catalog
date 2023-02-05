@@ -214,8 +214,8 @@ import (
 		resource: {
 			for ruleName, rule in http.rules {
 				for _, backend in rule.backends {
-					aws_security_group: "gateway_\(http.gateway.gateway.name)_\(backend.component.$metadata.id)_\(backend.port)": {
-						name:   "gateway-\(http.gateway.gateway.name)-\(backend.component.$metadata.id)-\(backend.port)"
+					aws_security_group: "gateway_\(http.gateway.gateway.name)_\(http.listener)_\(backend.component.$metadata.id)_\(backend.port)": {
+						name:   "gateway-\(http.gateway.gateway.name)-\(http.listener)-\(backend.component.$metadata.id)-\(backend.port)"
 						vpc_id: "${data.aws_vpc.\(aws.vpc.name).id}"
 						ingress: [{
 							protocol:  "tcp"
@@ -269,7 +269,7 @@ import (
 						}
 					}
 				}
-				aws_lb_listener_rule: "\(http.gateway.gateway.name)_\(ruleName)": {
+				aws_lb_listener_rule: "\(http.gateway.gateway.name)_\(http.listener)_\(ruleName)": {
 					listener_arn: "${data.aws_lb_listener.gateway_\(http.gateway.gateway.name)_\(http.gateway.gateway.listeners[http.listener].port).arn}"
 					priority:     uint | *100
 					condition: [
