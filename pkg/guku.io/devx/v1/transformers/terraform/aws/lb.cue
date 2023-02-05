@@ -201,9 +201,6 @@ import (
 		...
 	}
 	http: _
-	if http.listener != _|_ {
-		http: port: http.gateway.gateway.listeners[http.listener].port
-	}
 	$resources: terraform: schema.#Terraform & {
 		data: {
 			aws_vpc: "\(aws.vpc.name)": tags: Name: aws.vpc.name
