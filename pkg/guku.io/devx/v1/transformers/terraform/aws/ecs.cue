@@ -240,19 +240,22 @@ import (
 			_name: backend.component.appName | *backend.component.$metadata.id
 			_backends: "\(_name)": {
 				component: backend.component
-				ports: "\(backend.port)":                                                                                                                   null
-				securityGroups: "${aws_security_group.gateway_\(http.gateway.gateway.name)_\(backend.component.$metadata.id)_\(backend.port).id}":          null
-				targetGroups: "${aws_lb_target_group.\(http.gateway.gateway.name)_\(http.listener)_\(backend.component.$metadata.id)_\(backend.port).arn}": null
+				ports: "\(backend.port)": {
+					sg: "${aws_security_group.gateway_\(http.gateway.gateway.name)_\(backend.component.$metadata.id)_\(backend.port).id}":            null
+					tg: "${aws_lb_target_group.\(http.gateway.gateway.name)_\(http.listener)_\(backend.component.$metadata.id)_\(backend.port).arn}": null
+				}
 			}
 		}
 
 		for name, backend in _backends {
 			resource: aws_ecs_service: "\(name)": _#ECSService & {
-				network_configuration: security_groups: [ for sg, _ in backend.securityGroups {sg}]
+				network_configuration: security_groups: [
+					for _, groups in backend.ports {groups.sg},
+				]
 				load_balancer: [
-					for k, _ in backend.component.containers for tg, _ in backend.targetGroups for port, _ in backend.ports {
+					for port, groups in backend.ports for k, _ in backend.component.containers {
 						{
-							target_group_arn: tg
+							target_group_arn: groups.tg
 							container_name:   k
 							container_port:   strconv.Atoi(port)
 						}
