@@ -239,6 +239,7 @@ import (
 		for rule in http.rules for backend in rule.backends {
 			_name: backend.component.appName | *backend.component.$metadata.id
 			_backends: "\(_name)": {
+				backend
 				securityGroups: "${aws_security_group.gateway_\(http.gateway.gateway.name)_\(backend.component.$metadata.id)_\(backend.port).id}":          null
 				targetGroups: "${aws_lb_target_group.\(http.gateway.gateway.name)_\(http.listener)_\(backend.component.$metadata.id)_\(backend.port).arn}": null
 			}
