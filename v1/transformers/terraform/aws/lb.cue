@@ -1,6 +1,7 @@
 package aws
 
 import (
+	"net"
 	"list"
 	"strings"
 	"guku.io/devx/v1"
@@ -15,6 +16,7 @@ import (
 		vpc: traits.#VPC
 		...
 	}
+	apexDomainLength: uint | *2
 	$resources: terraform: schema.#Terraform & {
 		resource: aws_lb: "gateway_\(gateway.name)": {
 			name:     gateway.name
@@ -109,12 +111,15 @@ import (
 			_hostnames: list.SortStrings([ for hostname, _ in listener.hostnames {hostname}])
 			if listener.protocol == "TLS" || listener.protocol == "HTTPS" {
 				for index, hostname in _hostnames {
+					_hostnameParts:  strings.Split(hostname, ".")
+					_apexDomain:     strings.Join(list.Drop(_hostnameParts, len(_hostnameParts)-apexDomainLength), ".") & net.FQDN
+					_apexDomainName: strings.Replace(_apexDomain, ".", "_")
 					resource: aws_acm_certificate: "\(gateway.name)_\(listener.port)_\(index)": {
 						domain_name:       hostname
 						validation_method: "DNS"
 					}
-					data: aws_route53_zone: "zone_\(listener.port)_\(index)": {
-						name:         strings.TrimPrefix(hostname, "*.")
+					data: aws_route53_zone: "\(_apexDomainName)": {
+						name:         _apexDomain
 						private_zone: !gateway.public
 					}
 					resource: aws_route53_record: "zone_\(listener.port)_\(index)": {
@@ -126,7 +131,7 @@ import (
 						]
 						ttl:     60
 						type:    "${each.value.type}"
-						zone_id: "${data.aws_route53_zone.zone_\(listener.port)_\(index).zone_id}"
+						zone_id: "${data.aws_route53_zone.\(_apexDomainName).zone_id}"
 					}
 					resource: aws_acm_certificate_validation: "\(gateway.name)_\(listener.port)_\(index)": {
 						certificate_arn:         "${aws_acm_certificate.\(gateway.name)_\(listener.port)_\(index).arn}"
