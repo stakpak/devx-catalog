@@ -3,6 +3,7 @@ package aws
 import (
 	"list"
 	"strings"
+	"strconv"
 	"encoding/json"
 	"strconv"
 	"guku.io/devx/v1"
@@ -239,7 +240,7 @@ import (
 		for rule in http.rules for backend in rule.backends {
 			_name: backend.component.appName | *backend.component.$metadata.id
 			_backends: "\(_name)": {
-				backend
+				ports: "\(backend.port)":                                                                                                                   null
 				securityGroups: "${aws_security_group.gateway_\(http.gateway.gateway.name)_\(backend.component.$metadata.id)_\(backend.port).id}":          null
 				targetGroups: "${aws_lb_target_group.\(http.gateway.gateway.name)_\(http.listener)_\(backend.component.$metadata.id)_\(backend.port).arn}": null
 			}
@@ -249,11 +250,11 @@ import (
 			resource: aws_ecs_service: "\(name)": _#ECSService & {
 				network_configuration: security_groups: [ for sg, _ in backend.securityGroups {sg}]
 				load_balancer: [
-					for k, _ in backend.component.containers for tg, _ in backend.targetGroups {
+					for k, _ in backend.component.containers for tg, _ in backend.targetGroups for port, _ in backend.ports {
 						{
 							target_group_arn: tg
 							container_name:   k
-							container_port:   backend.port
+							container_port:   strconv.Atoi(port)
 						}
 					},
 				]
