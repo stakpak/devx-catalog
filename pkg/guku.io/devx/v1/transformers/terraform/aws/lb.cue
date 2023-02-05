@@ -248,6 +248,12 @@ import (
 						protocol:    http.gateway.gateway.listeners[http.listener].protocol
 						vpc_id:      "${data.aws_vpc.\(aws.vpc.name).id}"
 						target_type: "ip"
+						if protocol == "HTTPS" && http.gateway.gateway.listeners[http.listener].tls.mode == "TERMINATE" {
+							health_check: protocol: "HTTP"
+						}
+						if protocol == "TLS" {
+							health_check: protocol: "TCP"
+						}
 					}
 				}
 				aws_lb_listener_rule: "\(http.gateway.gateway.name)_\(ruleName)": {
