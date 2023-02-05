@@ -257,7 +257,7 @@ import (
 							protocol: "HTTPS"
 							health_check: protocol: "HTTPS"
 						}
-						if _protocol == "TLS" {
+						if _protocol == "TCP" || _protocol == "TLS" {
 							protocol: "TCP"
 							health_check: protocol: "TCP"
 						}
