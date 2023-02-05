@@ -235,18 +235,22 @@ import (
 		$resources: backend.component.$resources
 	}
 	$resources: terraform: schema.#Terraform & {
+		_backends: [string]: _
 		for rule in http.rules for backend in rule.backends {
 			_name: backend.component.appName | *backend.component.$metadata.id
-			resource: aws_ecs_service: "\(_name)": _#ECSService & {
-				network_configuration: {
-					security_groups: [
-						"${aws_security_group.gateway_\(http.gateway.gateway.name)_\(backend.component.$metadata.id)_\(backend.port).id}",
-					]
-				}
+			_backends: "\(_name)": {
+				securityGroups: "${aws_security_group.gateway_\(http.gateway.gateway.name)_\(backend.component.$metadata.id)_\(backend.port).id}":          null
+				targetGroups: "${aws_lb_target_group.\(http.gateway.gateway.name)_\(http.listener)_\(backend.component.$metadata.id)_\(backend.port).arn}": null
+			}
+		}
+
+		for name, backend in _backends {
+			resource: aws_ecs_service: "\(name)": _#ECSService & {
+				network_configuration: security_groups: [ for sg, _ in backend.securityGroups {sg}]
 				load_balancer: [
-					for k, _ in backend.component.containers {
+					for k, _ in backend.component.containers for tg, _ in backend.targetGroups {
 						{
-							target_group_arn: "${aws_lb_target_group.\(http.gateway.gateway.name)_\(http.listener)_\(backend.component.$metadata.id)_\(backend.port).arn}"
+							target_group_arn: tg
 							container_name:   k
 							container_port:   backend.port
 						}
