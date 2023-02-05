@@ -34,6 +34,7 @@ import (
 					gateway: {
 						name:   "empty"
 						public: false
+						listeners: [string]: 80
 					}
 				}
 			}]
