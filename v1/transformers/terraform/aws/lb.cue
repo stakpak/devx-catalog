@@ -106,7 +106,7 @@ import (
 		}
 
 		for _, listener in _groupedListeners {
-			_hostnames: [ for hostname, _ in listener.hostnames {hostname}]
+			_hostnames: list.SortStrings([ for hostname, _ in listener.hostnames {hostname}])
 			if listener.protocol == "TLS" || listener.protocol == "HTTPS" {
 				for index, hostname in _hostnames {
 					resource: aws_acm_certificate: "\(gateway.name)_\(listener.port)_\(index)": {
