@@ -132,19 +132,14 @@ import (
 						certificate_arn:         "${aws_acm_certificate.\(gateway.name)_\(listener.port)_\(index).arn}"
 						validation_record_fqdns: "${[for record in aws_route53_record.zone_\(listener.port)_\(index) : record.fqdn]}"
 					}
-					resource: aws_lb_listener_certificate: "\(gateway.name)_\(listener.port)_\(index)": {
-						certificate_arn: "${aws_acm_certificate_validation.\(gateway.name)_\(listener.port)_\(index).certificate_arn}"
-						listener_arn:    "${aws_lb_listener.gateway_\(gateway.name)_\(listener.port).arn}"
+
+					if index > 0 {
+						resource: aws_lb_listener_certificate: "\(gateway.name)_\(listener.port)_\(index)": {
+							certificate_arn: "${aws_acm_certificate_validation.\(gateway.name)_\(listener.port)_\(index).certificate_arn}"
+							listener_arn:    "${aws_lb_listener.gateway_\(gateway.name)_\(listener.port).arn}"
+						}
 					}
 				}
-
-				// resource: aws_acm_certificate: "gateway_\(gateway.name)_\(listener.port)": {
-				//  domain_name: _hostnames[0]
-				//  subject_alternative_names: [
-				//   for hostname in list.Drop(_hostnames, 1) {hostname},
-				//  ]
-				//  validation_method: "DNS"
-				// }
 			}
 			resource: aws_lb_listener: "gateway_\(gateway.name)_\(listener.port)": {
 				load_balancer_arn: "${resource.aws_lb.gateway_\(gateway.name).arn}"
@@ -152,8 +147,8 @@ import (
 				protocol:          listener.protocol
 
 				if protocol == "TLS" || protocol == "HTTPS" {
-					ssl_policy: string | *"ELBSecurityPolicy-TLS-1-1-2017-01"
-					// certificate_arn: string
+					ssl_policy:      string | *"ELBSecurityPolicy-TLS-1-1-2017-01"
+					certificate_arn: "${aws_acm_certificate_validation.\(gateway.name)_\(listener.port)_0.certificate_arn}"
 				}
 				if protocol == "TLS" {
 					alpn_policy: string | *"HTTP2Preferred"
