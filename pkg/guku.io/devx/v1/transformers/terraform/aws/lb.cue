@@ -261,14 +261,6 @@ import (
 								protocol: "HTTP"
 								health_check: protocol: "HTTP"
 							}
-							if http.gateway.gateway.listeners[http.listener].tls.mode == "PASSTHROUGH" {
-								protocol: "HTTPS"
-								health_check: protocol: "HTTPS"
-							}
-						}
-						if _protocol == "TCP" || _protocol == "TLS" {
-							protocol: "TCP"
-							health_check: protocol: "TCP"
 						}
 					}
 				}

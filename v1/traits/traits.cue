@@ -170,7 +170,14 @@ _#VolumeSpec: {
 #HTTPRoute: v1.#Trait & {
 	$metadata: traits: HTTPRoute: null
 	http: {
-		gateway:  #Gateway
+		gateway: #Gateway & ({
+			gateway: listeners: "\(listener)": protocol: "HTTP"
+		} | {
+			gateway: listeners: "\(listener)": {
+				protocol: "HTTPS"
+				tls: mode: "TERMINATE"
+			}
+		})
 		listener: string
 
 		hostnames: [...string]
@@ -191,6 +198,68 @@ _#VolumeSpec: {
 			}
 			backends: [...{
 				weight?: uint
+				component: {
+					v1.#Component
+					#Workload
+					#Exposable
+				}
+				endpoint: string
+				port:     uint
+				_ports: [
+					for p in component.endpoints[endpoint].ports {p.port},
+					for p in component.endpoints[endpoint].ports {p.target},
+				]
+				"_port not in endpoints": list.Contains(_ports, port) & true
+			}]
+		}]
+	}
+}
+
+// a TCP ingress route
+#TCPRoute: v1.#Trait & {
+	$metadata: traits: TCPRoute: null
+	http: {
+		gateway: #Gateway & ({
+			gateway: listeners: "\(listener)": protocol: "TCP"
+		} | {
+			gateway: listeners: "\(listener)": {
+				protocol: "TLS"
+				tls: mode: "TERMINATE"
+			}
+		})
+		listener: string
+
+		rules: [...{
+			backends: [...{
+				component: {
+					v1.#Component
+					#Workload
+					#Exposable
+				}
+				endpoint: string
+				port:     uint
+				_ports: [
+					for p in component.endpoints[endpoint].ports {p.port},
+					for p in component.endpoints[endpoint].ports {p.target},
+				]
+				"_port not in endpoints": list.Contains(_ports, port) & true
+			}]
+		}]
+	}
+}
+
+// a TLS ingress route
+#TLSRoute: v1.#Trait & {
+	$metadata: traits: TLSRoute: null
+	http: {
+		gateway: #Gateway & {
+			gateway: listeners: "\(listener)": protocol: "HTTPS" | "TLS"
+		}
+		listener: string
+
+		hostnames: [...string]
+		rules: [...{
+			backends: [...{
 				component: {
 					v1.#Component
 					#Workload
