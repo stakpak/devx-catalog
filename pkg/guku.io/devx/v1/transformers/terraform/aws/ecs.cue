@@ -21,13 +21,27 @@ import (
 	aws: {
 		region:  string
 		account: string
+		vpc: {
+			name: string
+			...
+		}
+		...
 	}
-	subnets: [...string]
 	clusterName: string
 	launchType:  "FARGATE" | "ECS"
 	appName:     string | *$metadata.id
 	$resources: terraform: schema.#Terraform & {
-		data: aws_ecs_cluster: "\(clusterName)": cluster_name: clusterName
+		data: {
+			aws_vpc: "\(aws.vpc.name)": tags: Name: aws.vpc.name
+			aws_ecs_cluster: "\(clusterName)": cluster_name: clusterName
+			aws_subnet_ids: "\(aws.vpc.name)": {
+				vpc_id: "${data.aws_vpc.\(aws.vpc.name).id}"
+				filter: [{
+					name: "mapPublicIpOnLaunch"
+					values: ["false"]
+				}]
+			}
+		}
 		resource: {
 			aws_iam_role: "task_execution_\(appName)": {
 				name:               "task-execution-\(appName)"
@@ -85,9 +99,7 @@ import (
 				cluster:         "${data.aws_ecs_cluster.\(clusterName).id}"
 				task_definition: "${aws_ecs_task_definition.\(appName).arn}"
 				launch_type:     launchType
-				network_configuration: {
-					"subnets": subnets
-				}
+				network_configuration: subnets: "${data.aws_subnet_ids.\(aws.vpc.name).ids}"
 			}
 			aws_ecs_task_definition: "\(appName)": _#ECSTaskDefinition & {
 				family:       appName
@@ -193,85 +205,60 @@ import (
 
 // expose an ECS service through a load balancer
 #ExposeECSService: v1.#Transformer & {
-	v1.#Component
 	traits.#Exposable
-	$metadata:  _
-	containers: _
-	endpoints:  _
-
-	vpcId: string
-	subnets: [...string]
-	lbTargetGroupName:   string
-	lbSecurityGroupName: string
-	lbHost:              string
-	appName:             string | *$metadata.id
-	endpoints: default: host: lbHost
+	$metadata: _
+	endpoints: _
+	appName:   string | *$metadata.id
+	endpoints: default: host: appName
 	$resources: terraform: schema.#Terraform & {
-		data: {
-			aws_lb_target_group: "\(lbTargetGroupName)": name:  lbTargetGroupName
-			aws_security_group: "\(lbSecurityGroupName)": name: lbSecurityGroupName
-		}
-		resource: {
-			aws_security_group: "\(appName)": {
-				name:   appName
-				vpc_id: vpcId
-				ingress: [
-					for p in endpoints.default.ports {
-						{
-							protocol:  "tcp"
-							from_port: p.target
-							to_port:   p.target
-							security_groups: [
-								"${data.aws_security_group.\(lbSecurityGroupName).id}",
-							]
-							description:      null
-							ipv6_cidr_blocks: null
-							cidr_blocks:      null
-							prefix_list_ids:  null
-							self:             null
-						}
-					},
-				]
-				egress: [{
-					protocol:  "-1"
-					from_port: 0
-					to_port:   0
-					cidr_blocks: ["0.0.0.0/0"]
-					security_groups:  null
-					description:      null
-					ipv6_cidr_blocks: null
-					prefix_list_ids:  null
-					self:             null
-				}]
-			}
-			aws_ecs_service: "\(appName)": _#ECSService & {
-				network_configuration: {
-					security_groups: [
-						"${aws_security_group.\(appName).id}",
+		resource: aws_ecs_task_definition: "\(appName)": _#ECSTaskDefinition & {
+			network_mode: "awsvpc"
+			_container_definitions: [
+				...{
+					portMappings: [
+						for p in endpoints.default.ports {
+							{
+								containerPort: p.target
+							}
+						},
 					]
-					"subnets": subnets
+				},
+			]
+		}
+	}
+}
+
+#AddHTTPRouteECS: v1.#Transformer & {
+	traits.#HTTPRoute
+	http: _
+	for rule in http.rules for backend in rule.backends {
+		$resources: backend.component.$resources
+	}
+	$resources: terraform: schema.#Terraform & {
+		_backends: [string]: _
+		for rule in http.rules for backend in rule.backends {
+			_name: backend.component.appName | *backend.component.$metadata.id
+			_backends: "\(_name)": {
+				component: backend.component
+				ports: "\(backend.port)": {
+					sg: "${aws_security_group.gateway_\(http.gateway.gateway.name)_\(http.listener)_\(backend.component.$metadata.id)_\(backend.port).id}"
+					tg: "${aws_lb_target_group.\(http.gateway.gateway.name)_\(http.listener)_\(backend.component.$metadata.id)_\(backend.port).arn}"
 				}
-				load_balancer: [
-					for k, _ in containers for p in endpoints.default.ports {
-						{
-							target_group_arn: "${data.aws_lb_target_group.\(lbTargetGroupName).arn}"
-							container_name:   k
-							container_port:   p.target
-						}
-					},
-				]
 			}
-			aws_ecs_task_definition: "\(appName)": _#ECSTaskDefinition & {
-				network_mode: "awsvpc"
-				_container_definitions: [
-					...{
-						portMappings: [
-							for p in endpoints.default.ports {
-								{
-									containerPort: p.target
-								}
-							},
-						]
+		}
+
+		for name, backend in _backends {
+			resource: aws_ecs_service: "\(name)": _#ECSService & {
+				network_configuration: security_groups: [
+					for _, groups in backend.ports {groups.sg},
+				]
+				load_balancer: [
+					for port, groups in backend.ports for k, _ in backend.component.containers {
+						{
+							target_group_arn: groups.tg
+							container_name:   k
+							container_port:   strconv.Atoi(port)
+						}
 					},
 				]
 			}
@@ -313,7 +300,7 @@ _#ECSService: {
 	wait_for_steady_state: bool | *true
 	network_configuration?: {
 		security_groups: [...string]
-		subnets: [...string]
+		subnets: string | [...string]
 	}
 	load_balancer?: [...{
 		target_group_arn: string
