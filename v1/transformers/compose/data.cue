@@ -113,8 +113,8 @@ import (
 					KAFKA_LISTENERS:                            "SASL_PLAINTEXT://:9092"
 					KAFKA_LISTENER_SECURITY_PROTOCOL_MAP:       "SASL_PLAINTEXT:SASL_PLAINTEXT"
 					KAFKA_ADVERTISED_LISTENERS:                 "SASL_PLAINTEXT://\($metadata.id):9092"
-					KAFKA_SASL_ENABLED_MECHANISMS:              "SCRAM-SHA-256"
-					KAFKA_SASL_MECHANISM_INTER_BROKER_PROTOCOL: "SCRAM-SHA-256"
+					KAFKA_SASL_ENABLED_MECHANISMS:              "SCRAM-SHA-512"
+					KAFKA_SASL_MECHANISM_INTER_BROKER_PROTOCOL: "SCRAM-SHA-512"
 					KAFKA_INTER_BROKER_LISTENER_NAME:           "SASL_PLAINTEXT"
 					KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR:     "1"
 					KAFKA_OPTS:                                 "-Djava.security.auth.login.config=/etc/config/kafka.jaas.conf"
@@ -134,7 +134,7 @@ import (
 				command: [
 					"/bin/bash",
 					"-c",
-					string | *"cub zk-ready \($metadata.id)-zookeeper:2181 120 && kafka-configs --zookeeper \($metadata.id)-zookeeper:2181 --alter --add-config 'SCRAM-SHA-256=[iterations=4096,password=broker]' --entity-type users --entity-name broker",
+					string | *"cub zk-ready \($metadata.id)-zookeeper:2181 120 && kafka-configs --zookeeper \($metadata.id)-zookeeper:2181 --alter --add-config 'SCRAM-SHA-512=[iterations=4096,password=broker]' --entity-type users --entity-name broker",
 				]
 				environment: {
 					KAFKA_BROKER_ID:         "ignored"
@@ -201,9 +201,9 @@ import (
 			string,
 			strings.Join([
 				"cub zk-ready \($metadata.id)-zookeeper:2181 120",
-				"kafka-configs --zookeeper \($metadata.id)-zookeeper:2181 --alter --add-config 'SCRAM-SHA-256=[iterations=4096,password=broker]' --entity-type users --entity-name broker",
+				"kafka-configs --zookeeper \($metadata.id)-zookeeper:2181 --alter --add-config 'SCRAM-SHA-512=[iterations=4096,password=broker]' --entity-type users --entity-name broker",
 				for _, secret in secrets {
-					"kafka-configs --zookeeper \($metadata.id)-zookeeper:2181 --alter --add-config 'SCRAM-SHA-256=[iterations=4096,password=\(secret.name)]' --entity-type users --entity-name \(secret.name)"
+					"kafka-configs --zookeeper \($metadata.id)-zookeeper:2181 --alter --add-config 'SCRAM-SHA-512=[iterations=4096,password=\(secret.name)]' --entity-type users --entity-name \(secret.name)"
 				},
 			], " && "),
 		]
