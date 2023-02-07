@@ -151,10 +151,128 @@ _#VolumeSpec: {
 		name:   string
 		public: bool
 		listeners: [string]: {
-			host:     string
+			hostname: string
 			port:     uint & <65536
 			protocol: *"HTTP" | "HTTPS" | "TCP" | "TLS"
+
+			if protocol == "TLS" || protocol == "HTTPS" {
+				tls: {
+					mode: *"TERMINATE" | "PASSTHROUGH"
+					options: [string]: string
+				}
+			}
 		}
-		_validate: [ for _, l in listeners {"\(l.host)/\(l.port)/\(l.protocol)"}] & list.UniqueItems()
+		_validate: [ for _, l in listeners {"\(l.hostname)/\(l.port)/\(l.protocol)"}] & list.UniqueItems()
+	}
+}
+
+// an HTTP ingress route
+#HTTPRoute: v1.#Trait & {
+	$metadata: traits: HTTPRoute: null
+	http: {
+		gateway: #Gateway & ({
+			gateway: listeners: "\(listener)": protocol: "HTTP"
+		} | {
+			gateway: listeners: "\(listener)": {
+				protocol: "HTTPS"
+				tls: mode: "TERMINATE"
+			}
+		})
+		listener: string
+
+		hostnames: [...string]
+		rules: [...{
+			match: {
+				path: string | *"/*"
+				headers: [string]: string
+				method?: string
+			}
+			redirect?: {
+				scheme?:                                 "http" | "https"
+				hostname?:                               string
+				path?:                                   string
+				port?:                                   uint & <65536
+				statusCode:                              301 | *302
+				pathPrefixOnly:                          bool | *false
+				"_at least one parameter should be set": (scheme != _|_ || hostname != _|_ || path != _|_ || port != _|_) & true
+			}
+			backends: [...{
+				weight?: uint
+				component: {
+					v1.#Component
+					#Workload
+					#Exposable
+				}
+				endpoint: string
+				port:     uint
+				_ports: [
+					for p in component.endpoints[endpoint].ports {p.port},
+					for p in component.endpoints[endpoint].ports {p.target},
+				]
+				"_port not in endpoints": list.Contains(_ports, port) & true
+			}]
+		}]
+	}
+}
+
+// a TCP ingress route
+#TCPRoute: v1.#Trait & {
+	$metadata: traits: TCPRoute: null
+	http: {
+		gateway: #Gateway & ({
+			gateway: listeners: "\(listener)": protocol: "TCP"
+		} | {
+			gateway: listeners: "\(listener)": {
+				protocol: "TLS"
+				tls: mode: "TERMINATE"
+			}
+		})
+		listener: string
+
+		rules: [...{
+			backends: [...{
+				component: {
+					v1.#Component
+					#Workload
+					#Exposable
+				}
+				endpoint: string
+				port:     uint
+				_ports: [
+					for p in component.endpoints[endpoint].ports {p.port},
+					for p in component.endpoints[endpoint].ports {p.target},
+				]
+				"_port not in endpoints": list.Contains(_ports, port) & true
+			}]
+		}]
+	}
+}
+
+// a TLS ingress route
+#TLSRoute: v1.#Trait & {
+	$metadata: traits: TLSRoute: null
+	http: {
+		gateway: #Gateway & {
+			gateway: listeners: "\(listener)": protocol: "HTTPS" | "TLS"
+		}
+		listener: string
+
+		hostnames: [...string]
+		rules: [...{
+			backends: [...{
+				component: {
+					v1.#Component
+					#Workload
+					#Exposable
+				}
+				endpoint: string
+				port:     uint
+				_ports: [
+					for p in component.endpoints[endpoint].ports {p.port},
+					for p in component.endpoints[endpoint].ports {p.target},
+				]
+				"_port not in endpoints": list.Contains(_ports, port) & true
+			}]
+		}]
 	}
 }
