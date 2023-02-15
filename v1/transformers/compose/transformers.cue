@@ -15,7 +15,8 @@ import (
 	version: string | *"3"
 	volumes: [string]: null
 	services: [string]: {
-		image: string
+		image:     string
+		hostname?: string
 		build?: {
 			context: string
 			args: [string]: string
