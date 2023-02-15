@@ -28,7 +28,7 @@ import (
 		entrypoint?: string
 		volumes?: [...string]
 		healthcheck?: {
-			test: [...string]
+			test:          string | [...string]
 			interval?:     string
 			timeout?:      string
 			retries?:      uint
