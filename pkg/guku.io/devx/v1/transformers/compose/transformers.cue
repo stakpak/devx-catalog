@@ -27,6 +27,13 @@ import (
 		command?: [...string]
 		entrypoint?: string
 		volumes?: [...string]
+		healthcheck?: {
+			test: [...string]
+			interval?:     string
+			timeout?:      string
+			retries?:      uint
+			start_period?: string
+		}
 		restart: "always" | "on-failure" | *"no"
 	}
 }
