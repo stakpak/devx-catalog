@@ -205,6 +205,7 @@ import (
 
 // expose an ECS service through a load balancer
 #ExposeECSService: v1.#Transformer & {
+	traits.#Workload
 	traits.#Exposable
 	$metadata: _
 	endpoints: _
@@ -269,6 +270,7 @@ import (
 // Add ECS service replicas
 #AddECSReplicas: v1.#Transformer & {
 	v1.#Component
+	traits.#Workload
 	traits.#Replicable
 	$metadata: _
 	replicas:  _
