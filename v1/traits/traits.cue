@@ -150,6 +150,7 @@ _#VolumeSpec: {
 	gateway: {
 		name:   string
 		public: bool
+		addresses: [...string]
 		listeners: [string]: {
 			hostname: string
 			port:     uint & <65536

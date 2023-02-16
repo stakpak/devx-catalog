@@ -17,6 +17,7 @@ import (
 		...
 	}
 	createDNS:        bool | *true
+	createTLS:        bool | *true
 	apexDomainLength: uint | *2
 	$resources: terraform: schema.#Terraform & {
 		resource: aws_lb: "gateway_\(gateway.name)": {
@@ -108,35 +109,34 @@ import (
 			}
 		}
 
-		for _, listener in _groupedListeners {
-			_hostnames: list.SortStrings([ for hostname, _ in listener.hostnames {hostname}])
-			for index, hostname in _hostnames {
-				_hostnameParts:  strings.Split(hostname, ".")
-				_apexDomain:     strings.Join(list.Drop(_hostnameParts, len(_hostnameParts)-apexDomainLength), ".") & net.FQDN
-				_apexDomainName: strings.Replace(_apexDomain, ".", "_", -1)
-				if createDNS {
-					data: aws_route53_zone: "\(_apexDomainName)": {
-						name:         _apexDomain
-						private_zone: !gateway.public
-					}
-					resource: aws_route53_record: "\(gateway.name)_\(index)": {
-						zone_id: "${data.aws_route53_zone.\(_apexDomainName).zone_id}"
-						name:    hostname
-						type:    "A"
-						alias: {
-							name:                   "${aws_lb.gateway_\(gateway.name).dns_name}"
-							zone_id:                "${aws_lb.gateway_\(gateway.name).zone_id}"
-							evaluate_target_health: true
-						}
+		_hostnames: list.SortStrings([ for address in gateway.addresses if net.FQDN(address) {address}])
+		for index, hostname in _hostnames {
+			_hostnameParts:  strings.Split(hostname, ".")
+			_apexDomain:     strings.Join(list.Drop(_hostnameParts, len(_hostnameParts)-apexDomainLength), ".") & net.FQDN
+			_apexDomainName: strings.Replace(_apexDomain, ".", "_", -1)
+			if createDNS {
+				data: aws_route53_zone: "\(_apexDomainName)": {
+					name:         _apexDomain
+					private_zone: !gateway.public
+				}
+				resource: aws_route53_record: "\(gateway.name)_\(index)": {
+					zone_id: "${data.aws_route53_zone.\(_apexDomainName).zone_id}"
+					name:    hostname
+					type:    "A"
+					alias: {
+						name:                   "${aws_lb.gateway_\(gateway.name).dns_name}"
+						zone_id:                "${aws_lb.gateway_\(gateway.name).zone_id}"
+						evaluate_target_health: true
 					}
 				}
-				if listener.protocol == "TLS" || listener.protocol == "HTTPS" {
-					resource: aws_acm_certificate: "\(gateway.name)_\(listener.port)_\(index)": {
+
+				if createTLS {
+					resource: aws_acm_certificate: "\(gateway.name)_\(index)": {
 						domain_name:       hostname
 						validation_method: "DNS"
 					}
-					resource: aws_route53_record: "zone_\(listener.port)_\(index)": {
-						for_each:        "${{for dvo in aws_acm_certificate.\(gateway.name)_\(listener.port)_\(index).domain_validation_options : dvo.domain_name => {name=dvo.resource_record_name, record=dvo.resource_record_value, type=dvo.resource_record_type}}}"
+					resource: aws_route53_record: "zone_\(index)": {
+						for_each:        "${{for dvo in aws_acm_certificate.\(gateway.name)_\(index).domain_validation_options : dvo.domain_name => {name=dvo.resource_record_name, record=dvo.resource_record_value, type=dvo.resource_record_type}}}"
 						allow_overwrite: true
 						name:            "${each.value.name}"
 						records: [
@@ -146,18 +146,22 @@ import (
 						type:    "${each.value.type}"
 						zone_id: "${data.aws_route53_zone.\(_apexDomainName).zone_id}"
 					}
-					resource: aws_acm_certificate_validation: "\(gateway.name)_\(listener.port)_\(index)": {
-						certificate_arn:         "${aws_acm_certificate.\(gateway.name)_\(listener.port)_\(index).arn}"
-						validation_record_fqdns: "${[for record in aws_route53_record.zone_\(listener.port)_\(index) : record.fqdn]}"
+					resource: aws_acm_certificate_validation: "\(gateway.name)_\(index)": {
+						certificate_arn:         "${aws_acm_certificate.\(gateway.name)_\(index).arn}"
+						validation_record_fqdns: "${[for record in aws_route53_record.zone_\(index) : record.fqdn]}"
 					}
+				}
+			}
 
-					if index > 0 {
-						resource: aws_lb_listener_certificate: "\(gateway.name)_\(listener.port)_\(index)": {
-							certificate_arn: "${aws_acm_certificate_validation.\(gateway.name)_\(listener.port)_\(index).certificate_arn}"
-							listener_arn:    "${aws_lb_listener.gateway_\(gateway.name)_\(listener.port).arn}"
-						}
+		}
+
+		for _, listener in _groupedListeners {
+			if listener.protocol == "TLS" || listener.protocol == "HTTPS" {
+				for index, _ in _hostnames if index > 0 {
+					resource: aws_lb_listener_certificate: "\(gateway.name)_\(index)": {
+						certificate_arn: "${aws_acm_certificate_validation.\(gateway.name)_\(index).certificate_arn}"
+						listener_arn:    "${aws_lb_listener.gateway_\(gateway.name)_\(listener.port).arn}"
 					}
-
 				}
 			}
 
@@ -168,7 +172,7 @@ import (
 
 				if protocol == "TLS" || protocol == "HTTPS" {
 					ssl_policy:      string | *"ELBSecurityPolicy-TLS-1-1-2017-01"
-					certificate_arn: "${aws_acm_certificate_validation.\(gateway.name)_\(listener.port)_0.certificate_arn}"
+					certificate_arn: "${aws_acm_certificate_validation.\(gateway.name)_0.certificate_arn}"
 				}
 				if protocol == "TLS" {
 					alpn_policy: string | *"HTTP2Preferred"
