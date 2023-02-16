@@ -152,9 +152,9 @@ _#VolumeSpec: {
 		public: bool
 		addresses: [...string]
 		listeners: [string]: {
-			hostname: string
-			port:     uint & <65536
-			protocol: *"HTTP" | "HTTPS" | "TCP" | "TLS"
+			hostname?: string
+			port:      uint & <65536
+			protocol:  *"HTTP" | "HTTPS" | "TCP" | "TLS"
 
 			if protocol == "TLS" || protocol == "HTTPS" {
 				tls: {
@@ -163,7 +163,7 @@ _#VolumeSpec: {
 				}
 			}
 		}
-		_validate: [ for _, l in listeners {"\(l.hostname)/\(l.port)/\(l.protocol)"}] & list.UniqueItems()
+		_validate: [ for _, l in listeners {"\(l.port)/\(l.protocol)"}] & list.UniqueItems()
 	}
 }
 
