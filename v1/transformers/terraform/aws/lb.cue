@@ -96,7 +96,7 @@ import (
 			}
 		}
 
-		_groupedListeners: {
+		let _groupedListeners = {
 			for _, listener in gateway.listeners {
 				"\(listener.port)": {
 					hostnames: "\(listener.hostname)": null
@@ -109,11 +109,11 @@ import (
 			}
 		}
 
-		_hostnames: list.SortStrings([ for address in gateway.addresses if net.FQDN(address) {address}])
+		let _hostnames = list.SortStrings([ for address in gateway.addresses if net.FQDN(address) {address}])
 		for index, hostname in _hostnames {
-			_hostnameParts:  strings.Split(hostname, ".")
-			_apexDomain:     strings.Join(list.Drop(_hostnameParts, len(_hostnameParts)-apexDomainLength), ".") & net.FQDN
-			_apexDomainName: strings.Replace(_apexDomain, ".", "_", -1)
+			let _hostnameParts = strings.Split(hostname, ".")
+			let _apexDomain = strings.Join(list.Drop(_hostnameParts, len(_hostnameParts)-apexDomainLength), ".") & net.FQDN
+			let _apexDomainName = strings.Replace(_apexDomain, ".", "_", -1)
 			if createDNS {
 				data: aws_route53_zone: "\(_apexDomainName)": {
 					name:         _apexDomain
