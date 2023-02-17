@@ -15,7 +15,7 @@ import (
 		resource: aws_ssm_parameter: {
 			for _, secret in secrets {
 				"secret_\(secret.name)": {
-					name:  secret.key
+					name:  secret.name
 					type:  "SecureString"
 					value: "${random_password.secret_\(secret.name).result}"
 
