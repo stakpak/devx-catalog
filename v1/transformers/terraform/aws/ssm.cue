@@ -42,6 +42,7 @@ import (
 	aws: {
 		region:  string
 		account: string
+		...
 	}
 	secrets: [string]: {
 		name: _
