@@ -270,7 +270,7 @@ import (
 				}
 				aws_lb_listener_rule: "\(http.gateway.gateway.name)_\(http.listener)_\(ruleName)": {
 					listener_arn: "${data.aws_lb_listener.gateway_\(http.gateway.gateway.name)_\(http.gateway.gateway.listeners[http.listener].port).arn}"
-					priority:     uint | *100
+					priority?:    uint
 					condition: [
 						{
 							path_pattern: values: [rule.match.path]
