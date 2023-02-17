@@ -57,7 +57,7 @@ import (
 							value
 						}
 						if (value & v1.#Secret) != _|_ {
-							value.key
+							"\(value.key)-very-long-secure-secret"
 						}
 					}
 				}
