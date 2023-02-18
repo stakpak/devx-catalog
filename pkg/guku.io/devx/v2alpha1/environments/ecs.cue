@@ -52,6 +52,12 @@ import (
 					aws: config.aws
 				},
 			]
+			"add-ssm-secret-value": {
+				match: labels: secrets: "create"
+				pipeline: [
+					tfaws.#AddSSMSecretParameter,
+				]
+			}
 		}
 		"terraform/add-ecs-service": pipeline: [
 			tfaws.#AddECSService & {
