@@ -52,7 +52,7 @@ import (
 					aws: config.aws
 				},
 			]
-			"add-ssm-secret-value": {
+			"terraform/add-ssm-secret-value": {
 				match: labels: secrets: "create"
 				pipeline: [
 					tfaws.#AddSSMSecretParameter,
