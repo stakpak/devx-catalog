@@ -87,6 +87,11 @@ import (
 
 #AddMSKUser: v1.#Transformer & {
 	traits.#User
+	aws: {
+		region:  string
+		account: string
+		...
+	}
 	kafka: {
 		name: string
 		...
@@ -96,6 +101,7 @@ import (
 		user: password: {
 			name:     "AmazonMSK_\\(user.username)"
 			property: "password"
+			key:      "arn:aws:secretsmanager:\(aws.region):\(aws.account):secret:\(name):\(property)::"
 		}
 	}
 	$resources: terraform: schema.#Terraform & {
