@@ -240,29 +240,25 @@ import (
 #AddHTTPRouteECS: v1.#Transformer & {
 	traits.#HTTPRoute
 	http: _
-	for rule in http.rules for backend in rule.backends {
-		$resources: backend.component.$resources
-	}
 	$resources: terraform: schema.#Terraform & {
 		_backends: [string]: _
 		for rule in http.rules for backend in rule.backends {
-			_name: backend.component.appName | *backend.component.$metadata.id
-			_backends: "\(_name)": {
-				component: backend.component
+			_backends: "\(backend.name)": {
+				containers: backend.containers
 				ports: "\(backend.port)": {
-					sg: "${aws_security_group.gateway_\(http.gateway.gateway.name)_\(http.listener)_\(backend.component.$metadata.id)_\(backend.port).id}"
-					tg: "${aws_lb_target_group.\(http.gateway.gateway.name)_\(http.listener)_\(backend.component.$metadata.id)_\(backend.port).arn}"
+					sg: "${aws_security_group.gateway_\(http.gateway.name)_\(http.listener)_\(backend.name)_\(backend.port).id}"
+					tg: "${aws_lb_target_group.\(http.gateway.name)_\(http.listener)_\(backend.name)_\(backend.port).arn}"
 				}
 			}
 		}
 
 		for name, backend in _backends {
-			resource: aws_ecs_service: "\(name)": _#ECSService & {
+			resource: aws_ecs_service: "\(name)": {
 				network_configuration: security_groups: [
 					for _, groups in backend.ports {groups.sg},
 				]
 				load_balancer: [
-					for port, groups in backend.ports for k, _ in backend.component.containers {
+					for port, groups in backend.ports for k, _ in backend.containers {
 						{
 							target_group_arn: groups.tg
 							container_name:   k
