@@ -30,15 +30,12 @@ import (
 			match: traits: HTTPRoute: null
 			pipeline: [v1.#Transformer & {
 				http: gateway: {
-					$metadata: id: "<none>"
-					gateway: {
-						name:   "<none>"
-						public: false
-						listeners: [string]: {
-							hostname: "<none>"
-							port:     80
-							protocol: "HTTP"
-						}
+					name:   "<none>"
+					public: false
+					listeners: [string]: {
+						hostname: "<none>"
+						port:     80
+						protocol: "HTTP"
 					}
 				}
 			}]
