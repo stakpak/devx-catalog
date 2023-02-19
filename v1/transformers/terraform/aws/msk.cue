@@ -1,6 +1,7 @@
 package aws
 
 import (
+	"strings"
 	"encoding/json"
 	"guku.io/devx/v1"
 	"guku.io/devx/v1/traits"
@@ -91,6 +92,7 @@ import (
 	kafka:   _
 	secrets: _
 	for _, secret in secrets {
+		"_kafka user secret must have \"AmazonMSK_\" as prefix": strings.HasPrefix(secret.name, "AmazonMSK_")
 		$resources: terraform: schema.#Terraform & {
 			data: aws_kms_alias: "msk_scram_\(kafka.name)": name:     "alias/msk-scram-\(kafka.name)"
 			data: aws_msk_cluster: "msk_\(kafka.name)": cluster_name: kafka.name
@@ -101,7 +103,7 @@ import (
 				depends_on: ["aws_secretsmanager_secret.msk_user_\(secret.name)"]
 			}
 			resource: aws_secretsmanager_secret: "msk_user_\(secret.name)": {
-				name:       "AmazonMSK_\(secret.name)"
+				name:       "\(secret.name)"
 				kms_key_id: "${data.aws_kms_alias.msk_scram_\(kafka.name).target_key_id}"
 			}
 			resource: random_password: "secret_msk_user_\(secret.name)": {
@@ -111,7 +113,7 @@ import (
 			resource: aws_secretsmanager_secret_version: "msk_user_\(secret.name)": {
 				secret_id:     "${aws_secretsmanager_secret.msk_user_\(secret.name).id}"
 				secret_string: json.Marshal({
-					username: secret.name
+					username: strings.TrimPrefix(secret.name, "AmazonMSK_")
 					password: "${random_password.secret_msk_user_\(secret.name).result}"
 				})
 			}
