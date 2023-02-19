@@ -93,32 +93,33 @@ import (
 	secrets: _
 	for _, secret in secrets {
 		"_kafka user secret must have \"AmazonMSK_\" as prefix": strings.HasPrefix(secret.name, "AmazonMSK_") & true
+		let _username = strings.TrimPrefix(secret.name, "AmazonMSK_")
 		$resources: terraform: schema.#Terraform & {
 			data: aws_kms_alias: "msk_scram_\(kafka.name)": name:     "alias/msk-scram-\(kafka.name)"
 			data: aws_msk_cluster: "msk_\(kafka.name)": cluster_name: kafka.name
-			resource: aws_msk_scram_secret_association: "msk_user_\(secret.name)": {
+			resource: aws_msk_scram_secret_association: "msk_user_\(_username)": {
 				cluster_arn: "${data.aws_msk_cluster.msk_\(kafka.name).arn}"
-				secret_arn_list: ["${aws_secretsmanager_secret.msk_user_\(secret.name).arn}"]
+				secret_arn_list: ["${aws_secretsmanager_secret.msk_user_\(_username).arn}"]
 
-				depends_on: ["aws_secretsmanager_secret.msk_user_\(secret.name)"]
+				depends_on: ["aws_secretsmanager_secret.msk_user_\(_username)"]
 			}
-			resource: aws_secretsmanager_secret: "msk_user_\(secret.name)": {
-				name:       "\(secret.name)"
+			resource: aws_secretsmanager_secret: "msk_user_\(_username)": {
+				name:       "\(_username)"
 				kms_key_id: "${data.aws_kms_alias.msk_scram_\(kafka.name).target_key_id}"
 			}
-			resource: random_password: "secret_msk_user_\(secret.name)": {
+			resource: random_password: "secret_msk_user_\(_username)": {
 				length:  32
 				special: false
 			}
-			resource: aws_secretsmanager_secret_version: "msk_user_\(secret.name)": {
-				secret_id:     "${aws_secretsmanager_secret.msk_user_\(secret.name).id}"
+			resource: aws_secretsmanager_secret_version: "msk_user_\(_username)": {
+				secret_id:     "${aws_secretsmanager_secret.msk_user_\(_username).id}"
 				secret_string: json.Marshal({
-					username: strings.TrimPrefix(secret.name, "AmazonMSK_")
-					password: "${random_password.secret_msk_user_\(secret.name).result}"
+					username: _username
+					password: "${random_password.secret_msk_user_\(_username).result}"
 				})
 			}
-			resource: aws_secretsmanager_secret_policy: "msk_user_\(secret.name)": {
-				secret_arn: "${aws_secretsmanager_secret.msk_user_\(secret.name).arn}"
+			resource: aws_secretsmanager_secret_policy: "msk_user_\(_username)": {
+				secret_arn: "${aws_secretsmanager_secret.msk_user_\(_username).arn}"
 				policy:     json.Marshal(resources.#IAMPolicy & {
 					Version: "2012-10-17"
 					Statement: [ {
