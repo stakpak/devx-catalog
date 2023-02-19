@@ -96,10 +96,10 @@ import (
 		name: string
 		...
 	}
-	user: _
-	if (user.password & v1.#Secret) != _|_ {
-		user: password: {
-			name:     "AmazonMSK_\\(user.username)"
+	user: {
+		username: string
+		password: {
+			name:     "AmazonMSK_\\(username)"
 			property: "password"
 			key:      "arn:aws:secretsmanager:\(aws.region):\(aws.account):secret:\(name):\(property)::"
 		}
