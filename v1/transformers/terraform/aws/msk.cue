@@ -99,7 +99,7 @@ import (
 	user: {
 		username: string
 		password: {
-			name:     "AmazonMSK_\\(username)"
+			name:     "AmazonMSK_\(username)"
 			property: "password"
 			key:      "arn:aws:secretsmanager:\(aws.region):\(aws.account):secret:\(name):\(property)::"
 		}
