@@ -96,16 +96,15 @@ import (
 		name: string
 		...
 	}
-	users: _
-	for key, _ in users {
-		users: "\(key)": {
-			username: string
-			password: {
-				name:     "AmazonMSK_\(username)"
-				property: "password"
-				"key":    "arn:aws:secretsmanager:\(aws.region):\(aws.account):secret:\(name):\(property)::"
-			}
+	users: [string]: {
+		username: string
+		password: {
+			name:     "AmazonMSK_\(username)"
+			property: "password"
+			key:      "arn:aws:secretsmanager:\(aws.region):\(aws.account):secret:\(name):\(property)::"
 		}
+	}
+	for _, user in users {
 		$resources: terraform: schema.#Terraform & {
 			data: aws_kms_alias: "msk_scram_\(kafka.name)": name:     "alias/msk-scram-\(kafka.name)"
 			data: aws_msk_cluster: "msk_\(kafka.name)": cluster_name: kafka.name
