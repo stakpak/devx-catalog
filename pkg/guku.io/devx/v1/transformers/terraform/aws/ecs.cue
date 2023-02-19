@@ -87,7 +87,7 @@ import (
 								let arns = {
 									for _, container in containers for _, v in container.env if (v & v1.#Secret) != _|_ {
 										if strings.HasPrefix(v.key, "arn:aws:secretsmanager:") {
-											"arn:aws:secretsmanager:\(aws.region):\(aws.account):secret:\(name)": null
+											"arn:aws:secretsmanager:\(aws.region):\(aws.account):secret:\(v.name)-??????": null
 										}
 										if strings.HasPrefix(v.key, "arn:aws:ssm:") {
 											"\(v.key)": null
