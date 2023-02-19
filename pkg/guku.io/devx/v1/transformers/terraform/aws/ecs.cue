@@ -84,11 +84,19 @@ import (
 									"secretsmanager:GetSecretValue",
 									"kms:Decrypt",
 								]
+								let arns = {
+									for _, container in containers for _, v in container.env if (v & v1.#Secret) != _|_ {
+										if strings.HasPrefix(v.key, "arn:aws:secretsmanager:") {
+											"arn:aws:secretsmanager:\(aws.region):\(aws.account):secret:\(name)": null
+										}
+										if strings.HasPrefix(v.key, "arn:aws:ssm:") {
+											"\(v.key)": null
+										}
+									}
+								}
 								Resource: [
 									"arn:aws:kms:\(aws.region):\(aws.account):key/*",
-									for _, container in containers for _, v in container.env if (v & v1.#Secret) != _|_ {
-										v.key
-									},
+									for arn, _ in arns {arn},
 								]
 							},
 						]

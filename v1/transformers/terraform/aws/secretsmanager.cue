@@ -14,7 +14,9 @@ import (
 		...
 	}
 	secrets: [string]: {
-		name: _
-		key:  "arn:aws:secretsmanager:\(aws.region):\(aws.account):secret:\(name)"
+		name:     _
+		property: string | *""
+		version:  string | *""
+		key:      "arn:aws:secretsmanager:\(aws.region):\(aws.account):secret:\(name):\(property)::\(version)"
 	}
 }
