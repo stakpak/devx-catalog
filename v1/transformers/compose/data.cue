@@ -1,7 +1,6 @@
 package compose
 
 import (
-	"encoding/json"
 	"strings"
 	"guku.io/devx/v1"
 	"guku.io/devx/v1/traits"
