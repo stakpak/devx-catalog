@@ -1,7 +1,6 @@
 package compose
 
 import (
-	"encoding/json"
 	"strings"
 	"guku.io/devx/v1"
 	"guku.io/devx/v1/traits"
@@ -188,13 +187,6 @@ import (
 	secrets:   _
 	$metadata: _
 
-	secrets: [string]: {
-		name: _
-		key:  json.Marshal({
-			"username": name
-			"password": name
-		})
-	}
 	$resources: compose: #Compose & {
 		services: "\($metadata.id)-add-users": command: [
 			string,

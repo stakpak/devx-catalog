@@ -90,10 +90,6 @@ import (
 	traits.#Secret
 	kafka:   _
 	secrets: _
-	secrets: [string]: {
-		name: _
-		key:  "${aws_secretsmanager_secret.msk_user_\(name).arn}"
-	}
 	for _, secret in secrets {
 		$resources: terraform: schema.#Terraform & {
 			data: aws_kms_alias: "msk_scram_\(kafka.name)": name:     "alias/msk-scram-\(kafka.name)"
