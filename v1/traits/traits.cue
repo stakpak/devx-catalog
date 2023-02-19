@@ -9,13 +9,13 @@ import (
 #Workload: v1.#Trait & {
 	$metadata: traits: Workload: null
 
-	containers: [string]: {
+	containers: [string]: #ContainerSpec & {
 		image: string @guku(required)
 		command: [...string]
 		args: [...string]
 		env: [string]: string | v1.#Secret
 		mounts: [...{
-			volume: _#VolumeSpec & {
+			volume: #VolumeSpec & {
 				local:       string
 				secret?:     _|_
 				ephemeral?:  _|_
@@ -54,6 +54,48 @@ import (
 	restart: "onfail" | "never" | *"always"
 }
 
+#ContainerSpec: {
+	image: string @guku(required)
+	command: [...string]
+	args: [...string]
+	env: [string]: string | v1.#Secret
+	mounts: [...{
+		volume: #VolumeSpec & {
+			local:       string
+			secret?:     _|_
+			ephemeral?:  _|_
+			persistent?: _|_
+		} | {
+			ephemeral:   string
+			local?:      _|_
+			secret?:     _|_
+			persistent?: _|_
+		} | {
+			persistent: string
+			ephemeral?: _|_
+			local?:     _|_
+			secret?:    _|_
+		} | {
+			secret:      v1.#Secret
+			ephemeral?:  _|_
+			local?:      _|_
+			persistent?: _|_
+		}
+		path:     string
+		readOnly: bool | *true
+	}]
+	resources: {
+		requests?: {
+			cpu?:    string
+			memory?: string
+		}
+		limits?: {
+			cpu?:    string
+			memory?: string
+		}
+	}
+}
+
 // a component that can be horizontally scaled
 #Replicable: v1.#Trait & {
 	$metadata: traits: Replicable: null
@@ -68,7 +110,7 @@ import (
 #Exposable: v1.#Trait & {
 	$metadata: traits: Exposable: null
 
-	endpoints: [string]: {
+	endpoints: [string]: #EndpointSpec & {
 		ports: [...{
 			name?:  string
 			port:   uint
@@ -79,8 +121,17 @@ import (
 	endpoints: default: _
 }
 
+#EndpointSpec: {
+	ports: [...{
+		name?:  string
+		port:   uint
+		target: uint | *port
+	}]
+	host: string
+}
+
 // work around ambiguous disjunctions by disallowing fields
-_#VolumeSpec: {
+#VolumeSpec: {
 	local:       string
 	secret?:     _|_
 	ephemeral?:  _|_
@@ -106,7 +157,7 @@ _#VolumeSpec: {
 #Volume: v1.#Trait & {
 	$metadata: traits: Volume: null
 
-	volumes: [string]: _#VolumeSpec & {
+	volumes: [string]: #VolumeSpec & {
 		local:       string
 		secret?:     _|_
 		ephemeral?:  _|_
@@ -147,7 +198,7 @@ _#VolumeSpec: {
 // a network ingress for web traffic
 #Gateway: v1.#Trait & {
 	$metadata: traits: Gateway: null
-	gateway: {
+	gateway: #GatewaySpec & {
 		name:   string
 		public: bool
 		addresses: [...string]
@@ -167,14 +218,45 @@ _#VolumeSpec: {
 	}
 }
 
+#GatewaySpec: {
+	name:   string
+	public: bool
+	addresses: [...string]
+	listeners: [string]: {
+		hostname?: string
+		port:      uint & <65536
+		protocol:  *"HTTP" | "HTTPS" | "TCP" | "TLS"
+
+		if protocol == "TLS" || protocol == "HTTPS" {
+			tls: {
+				mode: *"TERMINATE" | "PASSTHROUGH"
+				options: [string]: string
+			}
+		}
+	}
+	_validate: [ for _, l in listeners {"\(l.port)/\(l.protocol)"}] & list.UniqueItems()
+}
+
+#BackendSpec: {
+	name:     string
+	endpoint: #EndpointSpec
+	containers?: [string]: #ContainerSpec
+	port: uint
+	_ports: [
+		for p in endpoint.ports {p.port},
+		for p in endpoint.ports {p.target},
+	]
+	"_port not in endpoints": list.Contains(_ports, port) & true
+}
+
 // an HTTP ingress route
 #HTTPRoute: v1.#Trait & {
 	$metadata: traits: HTTPRoute: null
 	http: {
-		gateway: #Gateway & ({
-			gateway: listeners: "\(listener)": protocol: "HTTP"
+		gateway: #GatewaySpec & ({
+			listeners: "\(listener)": protocol: "HTTP"
 		} | {
-			gateway: listeners: "\(listener)": {
+			listeners: "\(listener)": {
 				protocol: "HTTPS"
 				tls: mode: "TERMINATE"
 			}
@@ -197,18 +279,14 @@ _#VolumeSpec: {
 				pathPrefixOnly:                          bool | *false
 				"_at least one parameter should be set": (scheme != _|_ || hostname != _|_ || path != _|_ || port != _|_) & true
 			}
-			backends: [...{
-				weight?: uint
-				component: {
-					v1.#Component
-					#Workload
-					#Exposable
-				}
-				endpoint: string
-				port:     uint
+			backends: [... #BackendSpec & {
+				name:     string
+				endpoint: #EndpointSpec
+				containers?: [string]: #ContainerSpec
+				port: uint
 				_ports: [
-					for p in component.endpoints[endpoint].ports {p.port},
-					for p in component.endpoints[endpoint].ports {p.target},
+					for p in endpoint.ports {p.port},
+					for p in endpoint.ports {p.target},
 				]
 				"_port not in endpoints": list.Contains(_ports, port) & true
 			}]
@@ -220,10 +298,10 @@ _#VolumeSpec: {
 #TCPRoute: v1.#Trait & {
 	$metadata: traits: TCPRoute: null
 	http: {
-		gateway: #Gateway & ({
-			gateway: listeners: "\(listener)": protocol: "TCP"
+		gateway: #GatewaySpec & ({
+			listeners: "\(listener)": protocol: "TCP"
 		} | {
-			gateway: listeners: "\(listener)": {
+			listeners: "\(listener)": {
 				protocol: "TLS"
 				tls: mode: "TERMINATE"
 			}
@@ -231,17 +309,14 @@ _#VolumeSpec: {
 		listener: string
 
 		rules: [...{
-			backends: [...{
-				component: {
-					v1.#Component
-					#Workload
-					#Exposable
-				}
-				endpoint: string
-				port:     uint
+			backends: [... #BackendSpec & {
+				name:     string
+				endpoint: #EndpointSpec
+				containers?: [string]: #ContainerSpec
+				port: uint
 				_ports: [
-					for p in component.endpoints[endpoint].ports {p.port},
-					for p in component.endpoints[endpoint].ports {p.target},
+					for p in endpoint.ports {p.port},
+					for p in endpoint.ports {p.target},
 				]
 				"_port not in endpoints": list.Contains(_ports, port) & true
 			}]
@@ -253,24 +328,21 @@ _#VolumeSpec: {
 #TLSRoute: v1.#Trait & {
 	$metadata: traits: TLSRoute: null
 	http: {
-		gateway: #Gateway & {
-			gateway: listeners: "\(listener)": protocol: "HTTPS" | "TLS"
+		gateway: #GatewaySpec & {
+			listeners: "\(listener)": protocol: "HTTPS" | "TLS"
 		}
 		listener: string
 
 		hostnames: [...string]
 		rules: [...{
-			backends: [...{
-				component: {
-					v1.#Component
-					#Workload
-					#Exposable
-				}
-				endpoint: string
-				port:     uint
+			backends: [... #BackendSpec & {
+				name:     string
+				endpoint: #EndpointSpec
+				containers?: [string]: #ContainerSpec
+				port: uint
 				_ports: [
-					for p in component.endpoints[endpoint].ports {p.port},
-					for p in component.endpoints[endpoint].ports {p.target},
+					for p in endpoint.ports {p.port},
+					for p in endpoint.ports {p.target},
 				]
 				"_port not in endpoints": list.Contains(_ports, port) & true
 			}]

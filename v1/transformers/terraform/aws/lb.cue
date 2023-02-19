@@ -211,25 +211,25 @@ import (
 	$resources: terraform: schema.#Terraform & {
 		data: {
 			aws_vpc: "\(aws.vpc.name)": tags: Name: aws.vpc.name
-			aws_lb: "gateway_\(http.gateway.gateway.name)": name:             http.gateway.gateway.name
-			aws_security_group: "gateway_\(http.gateway.gateway.name)": name: "gateway-\(http.gateway.gateway.name)"
-			aws_lb_listener: "gateway_\(http.gateway.gateway.name)_\(http.gateway.gateway.listeners[http.listener].port)": {
-				load_balancer_arn: "${data.aws_lb.gateway_\(http.gateway.gateway.name).arn}"
-				port:              http.gateway.gateway.listeners[http.listener].port
+			aws_lb: "gateway_\(http.gateway.name)": name:             http.gateway.name
+			aws_security_group: "gateway_\(http.gateway.name)": name: "gateway-\(http.gateway.name)"
+			aws_lb_listener: "gateway_\(http.gateway.name)_\(http.gateway.listeners[http.listener].port)": {
+				load_balancer_arn: "${data.aws_lb.gateway_\(http.gateway.name).arn}"
+				port:              http.gateway.listeners[http.listener].port
 			}
 		}
 		resource: {
 			for ruleName, rule in http.rules {
 				for _, backend in rule.backends {
-					aws_security_group: "gateway_\(http.gateway.gateway.name)_\(http.listener)_\(backend.component.$metadata.id)_\(backend.port)": {
-						name:   "gateway-\(http.gateway.gateway.name)-\(http.listener)-\(backend.component.$metadata.id)-\(backend.port)"
+					aws_security_group: "gateway_\(http.gateway.name)_\(http.listener)_\(backend.name)_\(backend.port)": {
+						name:   "gateway-\(http.gateway.name)-\(http.listener)-\(backend.name)-\(backend.port)"
 						vpc_id: "${data.aws_vpc.\(aws.vpc.name).id}"
 						ingress: [{
 							protocol:  "tcp"
 							from_port: backend.port
 							to_port:   backend.port
 							security_groups: [
-								"${data.aws_security_group.gateway_\(http.gateway.gateway.name).id}",
+								"${data.aws_security_group.gateway_\(http.gateway.name).id}",
 							]
 							description:      null
 							ipv6_cidr_blocks: null
@@ -249,27 +249,27 @@ import (
 							self:             null
 						}]
 					}
-					aws_lb_target_group: "\(http.gateway.gateway.name)_\(http.listener)_\(backend.component.$metadata.id)_\(backend.port)": {
-						"name":      "\(http.gateway.gateway.name)-\(http.listener)-\(backend.component.$metadata.id)-\(backend.port)"
-						port:        http.gateway.gateway.listeners[http.listener].port
+					aws_lb_target_group: "\(http.gateway.name)_\(http.listener)_\(backend.name)_\(backend.port)": {
+						"name":      "\(http.gateway.name)-\(http.listener)-\(backend.name)-\(backend.port)"
+						port:        http.gateway.listeners[http.listener].port
 						vpc_id:      "${data.aws_vpc.\(aws.vpc.name).id}"
 						target_type: "ip"
 
-						_protocol: http.gateway.gateway.listeners[http.listener].protocol
+						_protocol: http.gateway.listeners[http.listener].protocol
 						if _protocol == "HTTP" {
 							protocol: "HTTP"
 							health_check: protocol: "HTTP"
 						}
 						if _protocol == "HTTPS" {
-							if http.gateway.gateway.listeners[http.listener].tls.mode == "TERMINATE" {
+							if http.gateway.listeners[http.listener].tls.mode == "TERMINATE" {
 								protocol: "HTTP"
 								health_check: protocol: "HTTP"
 							}
 						}
 					}
 				}
-				aws_lb_listener_rule: "\(http.gateway.gateway.name)_\(http.listener)_\(ruleName)": {
-					listener_arn: "${data.aws_lb_listener.gateway_\(http.gateway.gateway.name)_\(http.gateway.gateway.listeners[http.listener].port).arn}"
+				aws_lb_listener_rule: "\(http.gateway.name)_\(http.listener)_\(ruleName)": {
+					listener_arn: "${data.aws_lb_listener.gateway_\(http.gateway.name)_\(http.gateway.listeners[http.listener].port).arn}"
 					priority?:    uint
 					condition: [
 						{
@@ -325,14 +325,14 @@ import (
 						action: {
 							type: "forward"
 							if len(rule.backends) == 1 {
-								target_group_arn: "${aws_lb_target_group.\(http.gateway.gateway.name)_\(http.listener)_\(rule.backends[0].component.$metadata.id)_\(rule.backends[0].port).arn}"
+								target_group_arn: "${aws_lb_target_group.\(http.gateway.name)_\(http.listener)_\(rule.backends[0].name)_\(rule.backends[0].port).arn}"
 							}
 							if len(rule.backends) > 1 {
 								forward: {
 									target_group: [
 										for _, backend in rule.backends {
 											{
-												arn: "${aws_lb_target_group.\(http.gateway.gateway.name)_\(http.listener)_\(backend.component.$metadata.id)_\(backend.port).arn}"
+												arn: "${aws_lb_target_group.\(http.gateway.name)_\(http.listener)_\(backend.name)_\(backend.port).arn}"
 												if backend.weight != _|_ {
 													weight: backend.weight
 												}

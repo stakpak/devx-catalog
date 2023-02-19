@@ -22,17 +22,14 @@ import (
 		secrets: {
 			service: *"ParameterStore" | "SecretsManager"
 		}
-		gateway?: {
-			traits.#Gateway
-		}
+		gateway?: traits.#GatewaySpec
 	}
 
 	components: {
 		if config.gateway != _|_ {
-			gateway:  config.gateway
 			[string]: this={
 				if this.http != _|_ {
-					http: "gateway": gateway
+					http: gateway: config.gateway
 				}
 			}
 		}
