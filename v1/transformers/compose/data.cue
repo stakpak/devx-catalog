@@ -188,13 +188,6 @@ import (
 	secrets:   _
 	$metadata: _
 
-	secrets: [string]: {
-		name: _
-		key:  json.Marshal({
-			"username": name
-			"password": name
-		})
-	}
 	$resources: compose: #Compose & {
 		services: "\($metadata.id)-add-users": command: [
 			string,
