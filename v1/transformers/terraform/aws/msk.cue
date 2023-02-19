@@ -92,7 +92,7 @@ import (
 	kafka:   _
 	secrets: _
 	for _, secret in secrets {
-		"_kafka user secret must have \"AmazonMSK_\" as prefix": strings.HasPrefix(secret.name, "AmazonMSK_")
+		"_kafka user secret must have \"AmazonMSK_\" as prefix": strings.HasPrefix(secret.name, "AmazonMSK_") & true
 		$resources: terraform: schema.#Terraform & {
 			data: aws_kms_alias: "msk_scram_\(kafka.name)": name:     "alias/msk-scram-\(kafka.name)"
 			data: aws_msk_cluster: "msk_\(kafka.name)": cluster_name: kafka.name
