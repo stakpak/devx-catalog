@@ -21,7 +21,7 @@ import (
 // a user account
 #User: v1.#Trait & {
 	$metadata: traits: User: null
-	user: {
+	users: [string]: {
 		username: string
 		password: string | v1.#Secret
 	}

@@ -186,8 +186,10 @@ import (
 		name: string
 		...
 	}
-	user: _
-	user: password: string | *"testing-password"
+	users: [string]: {
+		username: string
+		password: string | *"testing-password"
+	}
 	$metadata: _
 	$resources: compose: #Compose & {
 		services: "\($metadata.id)-add-users": command: [
@@ -196,7 +198,9 @@ import (
 			strings.Join([
 				"cub zk-ready \($metadata.id)-zookeeper:2181 120",
 				"kafka-configs --zookeeper \($metadata.id)-zookeeper:2181 --alter --add-config 'SCRAM-SHA-512=[iterations=4096,password=broker]' --entity-type users --entity-name broker",
-				"kafka-configs --zookeeper \($metadata.id)-zookeeper:2181 --alter --add-config 'SCRAM-SHA-512=[iterations=4096,password=\(user.password)]' --entity-type users --entity-name \(user.username)",
+				for _, user in users {
+					"kafka-configs --zookeeper \($metadata.id)-zookeeper:2181 --alter --add-config 'SCRAM-SHA-512=[iterations=4096,password=\(user.password)]' --entity-type users --entity-name \(user.username)"
+				},
 			], " && "),
 		]
 	}
