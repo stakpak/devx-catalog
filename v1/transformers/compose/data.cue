@@ -187,7 +187,7 @@ import (
 		...
 	}
 	user: _
-	user: password: "testing-password"
+	user: password: string | *"testing-password"
 	$metadata: _
 	$resources: compose: #Compose & {
 		services: "\($metadata.id)-add-users": command: [
