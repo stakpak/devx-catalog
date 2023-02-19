@@ -114,7 +114,7 @@ import (
 			depends_on: ["aws_secretsmanager_secret.msk_user_\(user.username)"]
 		}
 		resource: aws_secretsmanager_secret: "msk_user_\(user.username)": {
-			name:       "AmazonMSK_\\(user.username)"
+			name:       "AmazonMSK_\(user.username)"
 			kms_key_id: "${data.aws_kms_alias.msk_scram_\(kafka.name).target_key_id}"
 		}
 		resource: random_password: "secret_msk_user_\(user.username)": {
