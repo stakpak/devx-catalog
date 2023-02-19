@@ -18,6 +18,15 @@ import (
 	}
 }
 
+// a user account
+#User: v1.#Trait & {
+	$metadata: traits: User: null
+	user: {
+		username: string
+		password: string | v1.#Secret
+	}
+}
+
 // a database
 #Database: v1.#Trait & {
 	$metadata: traits: Database: null
