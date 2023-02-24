@@ -162,6 +162,7 @@ _#HPAResource: {
 
 #AddService: v1.#Transformer & {
 	v1.#Component
+	traits.#Workload
 	traits.#Exposable
 	$metadata: _
 	endpoints: _
