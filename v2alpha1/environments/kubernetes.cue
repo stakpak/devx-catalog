@@ -20,8 +20,9 @@ import (
 			livenessProbe:  _
 			readinessProbe: _
 		}
-		enableHPA: bool | *true
-		gateway?:  traits.#GatewaySpec
+		routeResourceAPI: *"IngressAPI" | "GatewayAPI"
+		enableHPA:        bool | *true
+		gateway?:         traits.#GatewaySpec
 	}
 
 	components: {
@@ -43,6 +44,9 @@ import (
 		}
 		"k8s/add-labels": pipeline: [kubernetes.#AddLabels & {
 			labels: [string]: string
+		}]
+		"k8s/add-annotations": pipeline: [kubernetes.#AddAnnotations & {
+			annotations: [string]: string
 		}]
 
 		// pod spec
@@ -86,7 +90,11 @@ import (
 
 		// servers
 		"k8s/add-service": pipeline: [kubernetes.#AddService]
-		// "k8s/add-http-route": pipeline: [kubernetes.#AddHTTPRoute]
+		if config.routeResourceAPI == "IngressAPI" {
+			"k8s/add-http-route": pipeline: [kubernetes.#AddIngress]
+		}
+		if config.routeResourceAPI == "GatewayAPI" {
+		}
 
 		// scaling
 		"k8s/add-replicas": pipeline: [kubernetes.#AddReplicas]

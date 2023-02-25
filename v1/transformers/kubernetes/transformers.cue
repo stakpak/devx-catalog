@@ -2,10 +2,12 @@ package kubernetes
 
 import (
 	"list"
+	"strings"
 	"guku.io/devx/v1"
 	"guku.io/devx/v1/traits"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
+	netv1 "k8s.io/api/networking/v1"
 	autoscalingv2beta2 "k8s.io/api/autoscaling/v2beta2"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -286,6 +288,18 @@ _#HPAResource: {
 	}
 }
 
+#AddAnnotations: v1.#Transformer & {
+	v1.#Component
+	annotations: [string]: string
+
+	$resources: [_]: this={
+		if this.$metadata.labels.driver == "kubernetes" {
+			_#KubernetesMeta
+			metadata: "annotations": annotations
+		}
+	}
+}
+
 #AddPodTolerations: v1.#Transformer & {
 	v1.#Component
 	traits.#Workload
@@ -391,6 +405,61 @@ _#HPAResource: {
 					},
 				]
 			}
+		}
+	}
+}
+
+_#IngressResource: {
+	netv1.#Ingress
+	$metadata: labels: {
+		driver: "kubernetes"
+		type:   "k8s.io/networking/v1/ingress"
+	}
+	kind:       "Ingress"
+	apiVersion: "v1"
+	metadata: name: _#KubernetesName
+}
+#AddIngress: v1.#Transformer & {
+	traits.#HTTPRoute
+	$metadata: _
+	http:      _
+	$resources: "\($metadata.id)-ingress": _#IngressResource & {
+		spec: {
+			ingressClassName: http.listener
+			let routeRules = [ for rule in http.rules {
+				http: {
+					paths: [{
+						if strings.HasSuffix(rule.match.path, "*") {
+							path:     strings.TrimSuffix(rule.match.path, "*")
+							pathType: "Prefix"
+						}
+						if !strings.HasSuffix(rule.match.path, "*") {
+							path:     rule.match.path
+							pathType: "Exact"
+						}
+
+						for backend in rule.backends {
+							"backend": service: {
+								name: backend.endpoint.host
+								port: number: backend.port
+							}
+						}
+					}]
+				}
+			}]
+			rules: [
+				for hostname in http.hostnames for rule in routeRules {
+					{
+						host: hostname
+						rule
+					}
+				},
+				if len(http.hostnames) == 0 for rule in routeRules {
+					{
+						rule
+					}
+				},
+			]
 		}
 	}
 }
