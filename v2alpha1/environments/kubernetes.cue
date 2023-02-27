@@ -92,8 +92,7 @@ import (
 		"k8s/add-service": pipeline: [kubernetes.#AddService]
 		if config.routeResourceAPI == "IngressAPI" {
 			"k8s/add-http-ingress": pipeline: [
-				kubernetes.#AddIngress,
-				kubernetes.#AddAnnotations,
+				kubernetes.#AddIngress & kubernetes.#AddAnnotations,
 			]
 		}
 		if config.routeResourceAPI == "GatewayAPI" {
