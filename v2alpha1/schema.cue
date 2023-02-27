@@ -25,6 +25,9 @@ import (
 		compose: output: file:    string | *"docker-compose.yml"
 		github: output: file:     string | *""
 		kubernetes: output: file: string | *""
+
+		yaml: output: file: string | *"config.yml"
+		json: output: file: string | *"config.json"
 	}
 
 	config?: [string]:        _
