@@ -39,6 +39,9 @@ import (
 	}
 
 	flows: {
+		// ignore traits
+		"ignore-secret": match: traits: Secret: null
+
 		// all resources transformers
 		if config.namespace != _|_ {
 			"k8s/add-namespace": pipeline: [kubernetes.#AddNamespace & {
