@@ -466,3 +466,14 @@ _#IngressResource: {
 		}
 	}
 }
+
+#AddUser: v1.#Transformer & {
+	traits.#User
+	users: [string]: {
+		username: string
+		password: {
+			name:     "\(username)"
+			property: "password"
+		}
+	}
+}
