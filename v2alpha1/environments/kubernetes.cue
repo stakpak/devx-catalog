@@ -20,7 +20,7 @@ import (
 			livenessProbe:  _
 			readinessProbe: _
 		}
-		routeResourceAPI: *"IngressAPI" | "GatewayAPI"
+		routeResourceAPI: "IngressAPI" //| "GatewayAPI"
 		enableHPA:        bool | *true
 		gateway?:         traits.#GatewaySpec
 	}
@@ -91,7 +91,10 @@ import (
 		// servers
 		"k8s/add-service": pipeline: [kubernetes.#AddService]
 		if config.routeResourceAPI == "IngressAPI" {
-			"k8s/add-http-route": pipeline: [kubernetes.#AddIngress]
+			"k8s/add-http-ingress": pipeline: [
+				kubernetes.#AddIngress,
+				kubernetes.#AddAnnotations,
+			]
 		}
 		if config.routeResourceAPI == "GatewayAPI" {
 		}
