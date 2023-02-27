@@ -20,9 +20,12 @@ import (
 			livenessProbe:  _
 			readinessProbe: _
 		}
-		routeResourceAPI: "IngressAPI" //| "GatewayAPI"
-		enableHPA:        bool | *true
-		gateway?:         traits.#GatewaySpec
+		routes?: {
+			ingress?: defaultClass: string
+			gateway?: {}
+		}
+		enableHPA: bool | *true
+		gateway?:  traits.#GatewaySpec
 	}
 
 	components: {
@@ -90,12 +93,14 @@ import (
 
 		// servers
 		"k8s/add-service": pipeline: [kubernetes.#AddService]
-		if config.routeResourceAPI == "IngressAPI" {
+		if config.routes != _|_ && config.routes.ingress != _|_ {
 			"k8s/add-http-ingress": pipeline: [
-				kubernetes.#AddIngress & kubernetes.#AddAnnotations,
+				kubernetes.#AddIngress & kubernetes.#AddAnnotations & {
+					ingressClassName: string | *config.routes.ingress.defaultClass
+				},
 			]
 		}
-		if config.routeResourceAPI == "GatewayAPI" {
+		if config.routes != _|_ && config.routes.gateway != _|_ {
 		}
 
 		// scaling
