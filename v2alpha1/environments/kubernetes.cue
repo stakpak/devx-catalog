@@ -21,8 +21,13 @@ import (
 			readinessProbe: _
 		}
 		routes?: {
-			ingress?: defaultClass: string
-			gateway?: {}
+			ingress?: {
+				enabled:      true
+				defaultClass: string
+			}
+			gateway?: {
+				enabled: true
+			}
 		}
 		enableHPA: bool | *true
 		gateway?:  traits.#GatewaySpec
