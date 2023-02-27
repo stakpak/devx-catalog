@@ -421,11 +421,12 @@ _#IngressResource: {
 }
 #AddIngress: v1.#Transformer & {
 	traits.#HTTPRoute
-	$metadata: _
-	http:      _
+	$metadata:        _
+	http:             _
+	ingressClassName: string
 	$resources: "\($metadata.id)-ingress": _#IngressResource & {
 		spec: {
-			ingressClassName: http.listener
+			"ingressClassName": ingressClassName
 			let routeRules = [ for rule in http.rules {
 				http: {
 					paths: [{
