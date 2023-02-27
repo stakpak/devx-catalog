@@ -423,8 +423,10 @@ _#IngressResource: {
 	traits.#HTTPRoute
 	$metadata:        _
 	http:             _
+	ingressName:      string | *$metadata.id
 	ingressClassName: string
 	$resources: "\($metadata.id)-ingress": _#IngressResource & {
+		metadata: name: ingressName
 		spec: {
 			"ingressClassName": ingressClassName
 			let routeRules = [ for rule in http.rules {
