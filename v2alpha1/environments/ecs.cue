@@ -34,8 +34,8 @@ import (
 			build: {
 				vars: IMAGE_NAME: string | *""
 				preconditions: [{
-					sh:  "[ '{{.IMAGE_NAME}}' == '' ]"
-					msg: "environmental variable IMAGE_NAME is not set"
+					sh:  "[ {{.IMAGE_NAME}} != '<no value>' ]"
+					msg: "variable IMAGE_NAME is not set, please set taskfile.tasks.{{.TASK}}.vars.IMAGE_NAME"
 				}]
 				cmds: [
 					"docker build . -t {{.AWS_ACCOUNT}}.dkr.ecr.{{.AWS_REGION}}.amazonaws.com/{{.IMAGE_NAME}} -t {{.IMAGE_NAME}} {{.CLI_ARGS}}",
