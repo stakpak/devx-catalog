@@ -28,13 +28,13 @@ import (
 	taskfile: tasks: {
 		build: {
 			env: {
-				IMAGE_NAME?: string
+				IMAGE_NAME:  string | *""
 				AWS_REGION:  config.aws.region
 				AWS_ACCOUNT: config.aws.account
 			}
 			preconditions: [{
 				sh:  "[ $IMAGE_NAME == '' ]"
-				msg: "Environmental variable IMAGE_NAME is not set"
+				msg: "environmental variable IMAGE_NAME is not set"
 			}]
 			cmds: [
 				"docker build . -t $AWS_ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com/$IMAGE_NAME -t $IMAGE_NAME $CLI_ARGS",
