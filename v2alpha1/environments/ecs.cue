@@ -33,7 +33,7 @@ import (
 				AWS_ACCOUNT: config.aws.account
 			}
 			preconditions: [{
-				sh:  "[ '$IMAGE_NAME' == '' ]"
+				sh:  "[ $IMAGE_NAME == '' ]"
 				msg: "Environmental variable IMAGE_NAME is not set"
 			}]
 			cmds: [
