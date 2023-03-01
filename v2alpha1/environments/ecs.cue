@@ -38,7 +38,6 @@ import (
 		}
 		push: {
 			env: build.env
-			deps: ["build"]
 			cmds: [
 				"aws ecr get-login-password --region $AWS_REGION  | docker login --username AWS --password-stdin $AWS_ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com",
 				"docker push $AWS_ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com/$IMAGE_NAME $CLI_ARGS",
