@@ -25,6 +25,27 @@ import (
 		gateway?: traits.#GatewaySpec
 	}
 
+	taskfile: tasks: {
+		build: {
+			env: {
+				IMAGE_NAME:  string
+				AWS_REGION:  config.aws.region
+				AWS_ACCOUNT: config.aws.account
+			}
+			cmds: [
+				"docker build . -t $AWS_ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com/$IMAGE_NAME -t $IMAGE_NAME $CLI_ARGS",
+			]
+		}
+		push: {
+			env: build.env
+			deps: ["build"]
+			cmds: [
+				"aws ecr get-login-password --region $AWS_REGION  | docker login --username AWS --password-stdin $AWS_ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com",
+				"docker push $AWS_ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com/$IMAGE_NAME $CLI_ARGS",
+			]
+		}
+	}
+
 	components: {
 		if config.gateway != _|_ {
 			[string]: this={
