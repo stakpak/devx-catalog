@@ -19,7 +19,7 @@ _#PipelineResource: {
 	$metadata: _
 	plan:      _#GitlabCISpec
 
-	$resources: "\($metadata.id)-gitlab": _#PipelineResource & {
+	$resources: "\($metadata.id)": _#PipelineResource & {
 		plan
 	}
 }

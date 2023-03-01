@@ -19,7 +19,7 @@ _#PipelineResource: {
 	$metadata: _
 	plan:      _#GitHubCISpec
 
-	$resources: "\($metadata.id)-github": _#PipelineResource & {
+	$resources: "\($metadata.id)": _#PipelineResource & {
 		// for some reason the CUE resolver vails if we don't add $metadata again here
 		$metadata: labels: {
 			driver: "github"
