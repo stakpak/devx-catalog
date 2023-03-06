@@ -3,6 +3,7 @@ package github
 import "strings"
 
 #BuildPushECR: {
+	$metadata: type: "BuildPushECR"
 	image: string
 	tags: [...string]
 	context: string | *"."
