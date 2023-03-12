@@ -24,7 +24,7 @@ import (
 	}
 
 	if aws.public {
-		"_repository is private registry must be set": (len(registry) > 0) & true
+		"_repository is public registry must be set": (len(registry) > 0) & true
 	}
 	if !aws.public {
 		"_repository is private aws.account must be set": (aws.account != _|_) & true
