@@ -98,11 +98,6 @@ import (
 				}
 			},
 			{
-				name: "Login to ECR"
-				uses: "docker/login-action@v1"
-				with: registry: "${{ steps.ecr-login.outputs.registry }}"
-			},
-			{
 				name: "Build and push"
 				uses: "docker/build-push-action@v4"
 				with: {
