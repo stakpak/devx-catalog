@@ -1,30 +1,47 @@
 package github
 
-import "strings"
+import (
+	"strings"
+	"guku.io/devx/v1"
+	"guku.io/devx/v2alpha1/traits"
+	"guku.io/devx/v2alpha1/workflow/tasks"
+)
 
-#BuildPushECR: {
-	$metadata: type: "BuildPushECR"
-	image: string
-	tags: [...string]
-	context: string | *"."
-	dir:     string | *"."
-	aws: {
-		insecure:         bool | *false
-		region:           string
-		public:           bool | *false
-		role?:            string
-		session?:         string
-		accessKeyId?:     string
-		accessKeySecret?: string
+#PipelineResource: {
+	#GitHubCISpec
+	$metadata: labels: {
+		driver: "github"
+		type:   ""
+	}
+}
 
-		if accessKeyId != _|_ && !insecure {
-			"_insecure access key id, use github secrets or set insecure to true": strings.Contains(accessKeyId, "secrets.") & true
-		}
-		if accessKeySecret != _|_ && !insecure {
-			"_insecure access key secret, use github secrets or set insecure to true": strings.Contains(accessKeySecret, "secrets.") & true
+#AddWorkflow: v1.#Transformer & {
+	traits.#Workflow
+	$metadata: _
+	workflow:  _
+
+	$resources: "\($metadata.id)": #PipelineResource & {
+		name: workflow.name
+		on: push: branches: ["main"]
+		permissions: contents: "read"
+
+		jobs: {
+			for name, task in workflow.tasks {
+				if task.$metadata.task == "BuildPushECR" {
+					"\(name)": (#BuildPushECR & task).spec
+				}
+			}
 		}
 	}
+}
 
+#BuildPushECR: {
+	tasks.#BuildPushECR
+	image:   _
+	tags:    _
+	context: _
+	dir:     _
+	aws:     _
 	spec: {
 		name:      string | *"Build & Push \(image)"
 		"runs-on": "ubuntu-latest"
@@ -42,10 +59,20 @@ import "strings"
 				uses: "aws-actions/configure-aws-credentials@v1"
 				with: {
 					if aws.accessKeyId != _|_ {
-						"aws-access-key-id": aws.accessKeyId
+						if (aws.accessKeyId & string) != _|_ {
+							"aws-access-key-id": aws.accessKeyId
+						}
+						if (aws.accessKeyId & v1.#Secret) != _|_ {
+							"aws-access-key-id": "${{ secrets.\(aws.accessKeyId.name) }}"
+						}
 					}
 					if aws.accessKeySecret != _|_ {
-						"aws-secret-access-key": aws.accessKeySecret
+						if (aws.accessKeySecret & string) != _|_ {
+							"aws-secret-access-key": aws.accessKeySecret
+						}
+						if (aws.accessKeySecret & v1.#Secret) != _|_ {
+							"aws-secret-access-key": "${{ secrets.\(aws.accessKeySecret.name) }}"
+						}
 					}
 					if aws.session != _|_ {
 						"role-session-name": aws.session
