@@ -34,12 +34,17 @@ import (
 		data: {
 			aws_vpc: "\(aws.vpc.name)": tags: Name: aws.vpc.name
 			aws_ecs_cluster: "\(clusterName)": cluster_name: clusterName
-			aws_subnet_ids: "\(aws.vpc.name)": {
-				vpc_id: "${data.aws_vpc.\(aws.vpc.name).id}"
-				filter: [{
-					name: "mapPublicIpOnLaunch"
-					values: ["false"]
-				}]
+			aws_subnets: "\(aws.vpc.name)": {
+				filter: [
+					{
+						name: "vpc-id"
+						values: ["${data.aws_vpc.\(aws.vpc.name).id}"]
+					},
+					{
+						name: "mapPublicIpOnLaunch"
+						values: ["false"]
+					},
+				]
 			}
 		}
 		resource: {
@@ -107,7 +112,7 @@ import (
 				cluster:         "${data.aws_ecs_cluster.\(clusterName).id}"
 				task_definition: "${aws_ecs_task_definition.\(appName).arn}"
 				launch_type:     launchType
-				network_configuration: subnets: "${data.aws_subnet_ids.\(aws.vpc.name).ids}"
+				network_configuration: subnets: "${data.aws_subnets.\(aws.vpc.name).ids}"
 			}
 			aws_ecs_task_definition: "\(appName)": _#ECSTaskDefinition & {
 				family:       appName
