@@ -91,10 +91,16 @@ import (
 			},
 			{
 				name: "Login to Amazon ECR"
+				id:   "ecr-login"
 				uses: "aws-actions/amazon-ecr-login@v1"
 				if aws.public {
 					with: "registry-type": "public"
 				}
+			},
+			{
+				name: "Login to ECR"
+				uses: "docker/login-action@v1"
+				with: registry: "${{ steps.ecr-login.outputs.registry }}"
 			},
 			{
 				name: "Build and push"
