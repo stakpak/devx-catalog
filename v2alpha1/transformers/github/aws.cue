@@ -37,13 +37,23 @@ import (
 
 #BuildPushECR: {
 	tasks.#BuildPushECR
-	image:   _
-	tags:    _
-	context: _
-	dir:     _
-	aws:     _
+	registry:   _
+	repository: _
+	tags:       _
+	context:    _
+	dir:        _
+	aws:        _
+
+	if !aws.public && aws.account != _|_ {
+		if (aws.account & string) != _|_ {
+			registry: "\(aws.account).dkr.ecr.\(aws.region).amazonaws.com"
+		}
+		if (aws.account & v1.#Secret) != _|_ {
+			registry: "${{ secrets.\(aws.account.name) }}.dkr.ecr.\(aws.region).amazonaws.com"
+		}
+	}
 	spec: {
-		name:      string | *"Build & Push \(image)"
+		name:      string | *"Build & Push \(repository)"
 		"runs-on": "ubuntu-latest"
 		steps: [
 			{
@@ -100,10 +110,17 @@ import (
 					push:      "true"
 					"tags":    strings.Join(
 							[
-								for tag in tags {"\(image):\(tag)"},
-							],
-							"\n",
-							)
+								for tag in tags {
+								if len(registry) > 0 {
+									"\(registry)/\(repository):\(tag)"
+								}
+								if len(registry) == 0 {
+									"\(repository):\(tag)"
+								}
+							},
+						],
+						"\n",
+						)
 				}
 			},
 		]
