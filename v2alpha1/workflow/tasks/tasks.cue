@@ -12,7 +12,6 @@ import (
 	repository: string
 	tags: [...string]
 	context: string | *"."
-	dir:     string | *"."
 	aws: {
 		region:           string
 		public:           bool | *false

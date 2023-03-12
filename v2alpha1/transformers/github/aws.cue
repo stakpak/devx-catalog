@@ -38,7 +38,6 @@ import (
 	repository: _
 	tags:       _
 	context:    _
-	dir:        _
 	aws:        _
 
 	if !aws.public && aws.account != _|_ {
@@ -98,11 +97,10 @@ import (
 				}
 			},
 			{
-				name:                "Build and push"
-				uses:                "docker/build-push-action@v4"
-				"working-directory": dir
+				name: "Build and push"
+				uses: "docker/build-push-action@v4"
 				with: {
-					context:   "."
+					"context": context
 					platforms: "linux/amd64"
 					push:      "true"
 					"tags":    strings.Join(
