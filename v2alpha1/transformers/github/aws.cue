@@ -22,9 +22,6 @@ import (
 
 	$resources: "\($metadata.id)": #PipelineResource & {
 		name: workflow.name
-		on: push: branches: ["main"]
-		permissions: contents: "read"
-
 		jobs: {
 			for name, task in workflow.tasks {
 				if task.$metadata.task == "BuildPushECR" {
