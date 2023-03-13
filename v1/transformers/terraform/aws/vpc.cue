@@ -21,9 +21,9 @@ import (
 			cidr: vpc.cidr
 
 			azs: [
-				"${data.aws_availability_zones.azs.names[0]}",
-				"${data.aws_availability_zones.azs.names[1]}",
-				"${data.aws_availability_zones.azs.names[2]}",
+				for i, _ in vpc.subnets.private {
+					"${data.aws_availability_zones.azs.names[\(i)]}"
+				},
 			]
 			private_subnets: vpc.subnets.private
 			public_subnets:  vpc.subnets.public
