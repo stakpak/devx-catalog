@@ -201,6 +201,7 @@ import (
 
 #AddHTTPRoute: v1.#Transformer & {
 	traits.#HTTPRoute
+	$metadata: _
 	aws: {
 		vpc: {
 			name: string
@@ -269,7 +270,7 @@ import (
 						}
 					}
 				}
-				aws_lb_listener_rule: "\(http.gateway.name)_\(http.listener)_\(ruleName)": {
+				aws_lb_listener_rule: "\(http.gateway.name)_\(http.listener)_\($metadata.id)_\(ruleName)": {
 					listener_arn: "${data.aws_lb_listener.gateway_\(http.gateway.name)_\(http.gateway.listeners[http.listener].port).arn}"
 					priority?:    uint
 					condition: [
