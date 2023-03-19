@@ -115,6 +115,10 @@ import (
 			name?:  string
 			port:   uint
 			target: uint | *port
+			health?: {
+				path?:     string
+				protocol?: string
+			}
 		}]
 		host: string
 	}
@@ -126,6 +130,10 @@ import (
 		name?:  string
 		port:   uint
 		target: uint | *port
+		health?: {
+			path?:     string
+			protocol?: string
+		}
 	}]
 	host: string
 }
@@ -284,7 +292,7 @@ import (
 				endpoint: #EndpointSpec
 				containers?: [string]: #ContainerSpec
 				port: uint
-				_ports: [
+				let _ports = [
 					for p in endpoint.ports {p.port},
 					for p in endpoint.ports {p.target},
 				]

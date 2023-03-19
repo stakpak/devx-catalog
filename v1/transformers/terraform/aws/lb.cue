@@ -257,8 +257,23 @@ import (
 						vpc_id:      "${data.aws_vpc.\(aws.vpc.name).id}"
 						target_type: "ip"
 
+						let _port = [
+							for p in backend.endpoint.ports if p.port == backend.port {
+								p
+							},
+						][0]
 						let _protocol = http.gateway.listeners[http.listener].protocol
-						health_check: enabled: bool | *true
+						health_check: {
+							enabled: bool | *true
+							if _port.health != _|_ {
+								if _port.health.path != _|_ {
+									path: _port.health.path
+								}
+								if _port.health.protocol != _|_ {
+									protocol: _port.health.protocol
+								}
+							}
+						}
 						if _protocol == "HTTP" {
 							protocol: "HTTP"
 							health_check: protocol: "HTTP"
