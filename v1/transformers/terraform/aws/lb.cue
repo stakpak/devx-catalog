@@ -223,8 +223,8 @@ import (
 		resource: {
 			for ruleName, rule in http.rules {
 				for _, backend in rule.backends {
-					aws_security_group: "gateway_\(http.gateway.name)_\(http.listener)_\(backend.name)_\(backend.port)": {
-						name:   "gateway-\(http.gateway.name)-\(http.listener)-\(backend.name)-\(backend.port)"
+					aws_security_group: "gateway_\(http.gateway.name)_\(backend.name)_\(backend.port)": {
+						name:   "gateway-\(http.gateway.name)-\(backend.name)-\(backend.port)"
 						vpc_id: "${data.aws_vpc.\(aws.vpc.name).id}"
 						ingress: [{
 							protocol:  "tcp"

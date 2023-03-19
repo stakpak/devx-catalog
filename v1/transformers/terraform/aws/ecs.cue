@@ -251,7 +251,7 @@ import (
 				"\(backend.name)": {
 					containers: backend.containers
 					ports: "\(backend.port)": {
-						sg: "${aws_security_group.gateway_\(http.gateway.name)_\(http.listener)_\(backend.name)_\(backend.port).id}"
+						sg: "${aws_security_group.gateway_\(http.gateway.name)_\(backend.name)_\(backend.port).id}"
 						tg: "${aws_lb_target_group.\(http.gateway.name)_\(http.listener)_\(backend.name)_\(backend.port).arn}"
 					}
 				}
