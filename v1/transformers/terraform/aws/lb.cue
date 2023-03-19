@@ -257,7 +257,8 @@ import (
 						vpc_id:      "${data.aws_vpc.\(aws.vpc.name).id}"
 						target_type: "ip"
 
-						_protocol: http.gateway.listeners[http.listener].protocol
+						let _protocol = http.gateway.listeners[http.listener].protocol
+						health_check: enabled: bool | *false
 						if _protocol == "HTTP" {
 							protocol: "HTTP"
 							health_check: protocol: "HTTP"
