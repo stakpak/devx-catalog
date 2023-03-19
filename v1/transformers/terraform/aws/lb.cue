@@ -258,7 +258,7 @@ import (
 						target_type: "ip"
 
 						let _protocol = http.gateway.listeners[http.listener].protocol
-						health_check: enabled: bool | *false
+						health_check: enabled: bool | *true
 						if _protocol == "HTTP" {
 							protocol: "HTTP"
 							health_check: protocol: "HTTP"
