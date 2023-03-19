@@ -272,6 +272,15 @@ import (
 								if _port.health.protocol != _|_ {
 									protocol: _port.health.protocol
 								}
+								if _port.health.periodSeconds != _|_ {
+									interval: _port.health.periodSeconds & >=5 & <=300
+								}
+								if _port.health.successThreshold != _|_ {
+									healthy_threshold: _port.health.successThreshold & >=2 & <=10
+								}
+								if _port.health.failureThreshold != _|_ {
+									unhealthy_threshold: _port.health.failureThreshold & >=2 & <=10
+								}
 							}
 						}
 						if _protocol == "HTTP" {

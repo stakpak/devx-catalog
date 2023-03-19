@@ -116,8 +116,11 @@ import (
 			port:   uint
 			target: uint | *port
 			health?: {
-				path?:     string
-				protocol?: string
+				path?:             string
+				protocol?:         string
+				periodSeconds?:    uint
+				successThreshold?: uint
+				failureThreshold?: uint
 			}
 		}]
 		host: string
@@ -131,8 +134,11 @@ import (
 		port:   uint
 		target: uint | *port
 		health?: {
-			path?:     string
-			protocol?: string
+			path?:             string
+			protocol?:         string
+			periodSeconds?:    uint
+			successThreshold?: uint
+			failureThreshold?: uint
 		}
 	}]
 	host: string
