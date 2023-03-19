@@ -246,13 +246,14 @@ import (
 	traits.#HTTPRoute
 	http: _
 	$resources: terraform: schema.#Terraform & {
-		_backends: [string]: _
-		for rule in http.rules for backend in rule.backends {
-			_backends: "\(backend.name)": {
-				containers: backend.containers
-				ports: "\(backend.port)": {
-					sg: "${aws_security_group.gateway_\(http.gateway.name)_\(http.listener)_\(backend.name)_\(backend.port).id}"
-					tg: "${aws_lb_target_group.\(http.gateway.name)_\(http.listener)_\(backend.name)_\(backend.port).arn}"
+		let _backends = {
+			for rule in http.rules for backend in rule.backends {
+				"\(backend.name)": {
+					containers: backend.containers
+					ports: "\(backend.port)": {
+						sg: "${aws_security_group.gateway_\(http.gateway.name)_\(http.listener)_\(backend.name)_\(backend.port).id}"
+						tg: "${aws_lb_target_group.\(http.gateway.name)_\(http.listener)_\(backend.name)_\(backend.port).arn}"
+					}
 				}
 			}
 		}
