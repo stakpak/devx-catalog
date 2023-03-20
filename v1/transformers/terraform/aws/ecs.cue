@@ -252,7 +252,11 @@ import (
 					containers: backend.containers
 					ports: "\(backend.port)": {
 						sg: "${aws_security_group.gateway_\(http.gateway.name)_\(backend.name)_\(backend.port).id}"
-						tg: "${aws_lb_target_group.\(http.gateway.name)_\(http.listener)_\(backend.name)_\(backend.port).arn}"
+						tgs: [
+							for listener, _ in http.gateway.listeners {
+								"${aws_lb_target_group.\(http.gateway.name)_\(listener)_\(backend.name)_\(backend.port).arn}"
+							},
+						]
 					}
 				}
 			}
@@ -264,9 +268,9 @@ import (
 					for _, groups in backend.ports {groups.sg},
 				]
 				load_balancer: [
-					for port, groups in backend.ports for k, _ in backend.containers {
+					for port, groups in backend.ports for tg in groups.tgs for k, _ in backend.containers {
 						{
-							target_group_arn: groups.tg
+							target_group_arn: tg
 							container_name:   k
 							container_port:   strconv.Atoi(port)
 						}
