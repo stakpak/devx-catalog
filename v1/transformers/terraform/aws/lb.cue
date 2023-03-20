@@ -251,46 +251,48 @@ import (
 							self:             null
 						}]
 					}
-					aws_lb_target_group: "\(http.gateway.name)_\(http.listener)_\(backend.name)_\(backend.port)": {
-						"name":      "\(http.gateway.name)-\(http.listener)-\(backend.name)-\(backend.port)"
-						port:        http.gateway.listeners[http.listener].port
-						vpc_id:      "${data.aws_vpc.\(aws.vpc.name).id}"
-						target_type: "ip"
+					for listenerName, listener in http.gateway.listeners {
+						aws_lb_target_group: "\(http.gateway.name)_\(listenerName)_\(backend.name)_\(backend.port)": {
+							"name":      "\(http.gateway.name)-\(listenerName)-\(backend.name)-\(backend.port)"
+							port:        listener.port
+							vpc_id:      "${data.aws_vpc.\(aws.vpc.name).id}"
+							target_type: "ip"
 
-						let _port = [
-							for p in backend.endpoint.ports if p.port == backend.port {
-								p
-							},
-						][0]
-						let _protocol = http.gateway.listeners[http.listener].protocol
-						health_check: {
-							enabled: bool | *true
-							if _port.health != _|_ {
-								if _port.health.path != _|_ {
-									path: _port.health.path
-								}
-								if _port.health.protocol != _|_ {
-									protocol: _port.health.protocol
-								}
-								if _port.health.periodSeconds != _|_ {
-									interval: _port.health.periodSeconds & >=5 & <=300
-								}
-								if _port.health.successThreshold != _|_ {
-									healthy_threshold: _port.health.successThreshold & >=2 & <=10
-								}
-								if _port.health.failureThreshold != _|_ {
-									unhealthy_threshold: _port.health.failureThreshold & >=2 & <=10
+							let _port = [
+								for p in backend.endpoint.ports if p.port == backend.port {
+									p
+								},
+							][0]
+							let _protocol = listener.protocol
+							health_check: {
+								enabled: bool | *true
+								if _port.health != _|_ {
+									if _port.health.path != _|_ {
+										path: _port.health.path
+									}
+									if _port.health.protocol != _|_ {
+										protocol: _port.health.protocol
+									}
+									if _port.health.periodSeconds != _|_ {
+										interval: _port.health.periodSeconds & >=5 & <=300
+									}
+									if _port.health.successThreshold != _|_ {
+										healthy_threshold: _port.health.successThreshold & >=2 & <=10
+									}
+									if _port.health.failureThreshold != _|_ {
+										unhealthy_threshold: _port.health.failureThreshold & >=2 & <=10
+									}
 								}
 							}
-						}
-						if _protocol == "HTTP" {
-							protocol: "HTTP"
-							health_check: protocol: "HTTP"
-						}
-						if _protocol == "HTTPS" {
-							if http.gateway.listeners[http.listener].tls.mode == "TERMINATE" {
+							if _protocol == "HTTP" {
 								protocol: "HTTP"
 								health_check: protocol: "HTTP"
+							}
+							if _protocol == "HTTPS" {
+								if listener.tls.mode == "TERMINATE" {
+									protocol: "HTTP"
+									health_check: protocol: "HTTP"
+								}
 							}
 						}
 					}
