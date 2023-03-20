@@ -251,7 +251,7 @@ import (
 							self:             null
 						}]
 					}
-					for listenerName, listener in http.gateway.listeners {
+					for listenerName, listener in http.gateway.listeners if listenerName == http.listener {
 						aws_lb_target_group: "\(http.gateway.name)_\(listenerName)_\(backend.name)_\(backend.port)": {
 							"name":      "\(http.gateway.name)-\(listenerName)-\(backend.name)-\(backend.port)"
 							port:        listener.port

@@ -253,7 +253,7 @@ import (
 					ports: "\(backend.port)": {
 						sg: "${aws_security_group.gateway_\(http.gateway.name)_\(backend.name)_\(backend.port).id}"
 						tgs: [
-							for listener, _ in http.gateway.listeners {
+							for listener, _ in http.gateway.listeners if listener == http.listener {
 								"${aws_lb_target_group.\(http.gateway.name)_\(listener)_\(backend.name)_\(backend.port).arn}"
 							},
 						]
