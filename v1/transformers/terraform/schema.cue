@@ -8,8 +8,9 @@ package terraform
 	data?: [string]: {
 		...
 	}
-	provider?: [string]: _
-	module?: [string]:   _
+	provider?: [string]:  _
+	terraform?: [string]: _
+	module?: [string]:    _
 	resource?: [string]: {
 		...
 	}
