@@ -13,6 +13,7 @@ import (
 
 #AddECSPermissions: v1.#Transformer & {
 	traits.#Workload
+	$metadata: _
 
 	policies: [string]: {
 		actions: [...string]

@@ -57,3 +57,37 @@ import (
 		accessSecret?: string | v1.#Secret
 	}
 }
+
+// a dynamodb table
+#DynamoDBTable: v1.#Trait & {
+	$metadata: traits: DynamoDBTable: null
+	table: {
+		name:    string | *$metadata.id
+		billing: "PROVISIONED" | "PAY_PER_REQUEST"
+
+		capacity?: {
+			read:  uint
+			write: uint
+		}
+
+		if billing == "PROVISIONED" {
+			capacity: {
+				read:  uint
+				write: uint
+			}
+		}
+
+		key: {
+			partition: {
+				name: string
+				type: "S" | "N" | "B"
+			}
+			sort?: {
+				name: string
+				type: "S" | "N" | "B"
+			}
+		}
+
+		stream?: view: "KEYS_ONLY" | "NEW_IMAGE" | "OLD_IMAGE" | "NEW_AND_OLD_IMAGES"
+	}
+}
