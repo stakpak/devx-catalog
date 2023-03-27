@@ -11,6 +11,60 @@ import (
 	schema "guku.io/devx/v1/transformers/terraform"
 )
 
+#AddECSPermissions: v1.#Transformer & {
+	traits.#Workload
+
+	policies: [string]: {
+		actions: [...string]
+		resources: [...string]
+		condition: [string]: _
+	}
+
+	appName: string | *$metadata.id
+	$resources: terraform: schema.#Terraform & {
+		resource: {
+			aws_ecs_task_definition: "\(appName)": task_role_arn: "${aws_iam_role.task_\(appName).arn}"
+			aws_iam_role: "task_\(appName)": {
+				name:               "task-\(appName)"
+				assume_role_policy: json.Marshal(resources.#IAMPolicy &
+					{
+						Version: "2012-10-17"
+						Statement: [{
+							Sid:    "ECSTask"
+							Effect: "Allow"
+							Principal: Service: "ecs-tasks.amazonaws.com"
+							Action: "sts:AssumeRole"
+						}]
+						// Consider for confused deputy in cross-account access
+						// Condition: {
+						//  ArnLike: "aws:SourceArn":          "arn:aws:ecs:us-west-2:111122223333:*"
+						//  StringEquals: "aws:SourceAccount": "111122223333"
+						// }
+					})
+			}
+			for name, policy in policies {
+				aws_iam_role_policy: "task_\(appName)_\(name)": {
+					name:   "task-\(appName)-\(name)"
+					role:   "${aws_iam_role.task_\(appName).name}"
+					policy: json.Marshal(resources.#IAMPolicy &
+						{
+							Version: "2012-10-17"
+							Statement: [
+								{
+									Sid:       "ECSTaskPolicy"
+									Effect:    "Allow"
+									Action:    policy.actions
+									Resource:  policy.resources
+									Condition: policy.condition
+								},
+							]
+						})
+				}
+			}
+		}
+	}
+}
+
 // add an ECS service and task definition
 #AddECSService: v1.#Transformer & {
 	v1.#Component
