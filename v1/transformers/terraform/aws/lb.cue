@@ -250,6 +250,7 @@ import (
 							prefix_list_ids:  null
 							self:             null
 						}]
+						lifecycle: create_before_destroy: true
 					}
 					for listenerName, listener in http.gateway.listeners if listenerName == http.listener {
 						aws_lb_target_group: "\(http.gateway.name)_\(listenerName)_\(backend.name)_\(backend.port)": {
