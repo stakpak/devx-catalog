@@ -195,6 +195,7 @@ _exposeService: v1.#TestCase & {
 				aws_ecs_service: "obi": {
 					network_configuration: {
 						security_groups: [
+							"${aws_security_group.ecs_service_internal_obi.id}",
 							"${aws_security_group.obi.id}",
 						]
 						subnets: [

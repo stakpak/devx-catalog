@@ -36,6 +36,10 @@ import (
 			fargate: {}
 			fargateSpot: {}
 		}
+		vpc: {
+			name: string
+			...
+		}
 		environment?: string
 	}
 }
