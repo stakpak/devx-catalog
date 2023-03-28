@@ -402,7 +402,7 @@ import (
 		for name, backend in _backends {
 			resource: aws_ecs_service: "\(name)": {
 				network_configuration: security_groups: [
-					string,
+					string | *"",
 					for _, groups in backend.ports {groups.sg},
 				]
 				load_balancer: [
