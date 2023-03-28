@@ -276,10 +276,92 @@ import (
 	traits.#Workload
 	traits.#Exposable
 	$metadata: _
-	endpoints: _
-	appName:   string | *$metadata.id
-	endpoints: default: host: appName
+	aws: {
+		vpc: {
+			name: string
+			...
+		}
+		...
+	}
+	endpoints:   _
+	clusterName: string
+	appName:     string | *$metadata.id
+	endpoints: default: host: "\(appName).\(clusterName).ecs.local"
 	$resources: terraform: schema.#Terraform & {
+		data: {
+			aws_service_discovery_dns_namespace: "ecs_\(clusterName)": {
+				name: "\(clusterName).ecs.local"
+				type: "DNS_PRIVATE"
+			}
+			aws_vpc: "\(aws.vpc.name)": tags: Name: aws.vpc.name
+			aws_subnets: "\(aws.vpc.name)": {
+				filter: [
+					{
+						name: "vpc-id"
+						values: ["${data.aws_vpc.\(aws.vpc.name).id}"]
+					},
+					{
+						name: "mapPublicIpOnLaunch"
+						values: ["false"]
+					},
+				]
+			}
+			aws_subnet: "\(aws.vpc.name)": {
+				count: "${length(data.aws_subnets.\(aws.vpc.name).ids)}"
+				id:    "${tolist(data.aws_subnets.\(aws.vpc.name).ids)[count.index]}"
+			}
+		}
+		resource: aws_security_group: "ecs_service_internal_\(appName)": {
+			name:   "ecs-service-internal-\(appName)"
+			vpc_id: "${data.aws_vpc.\(aws.vpc.name).id}"
+
+			ingress: [{
+				from_port:   0
+				to_port:     0
+				protocol:    "-1"
+				cidr_blocks: "${data.aws_subnet.\(aws.vpc.name).*.cidr_block}"
+
+				description:      null
+				ipv6_cidr_blocks: null
+				prefix_list_ids:  null
+				self:             null
+				security_groups:  null
+			}]
+
+			egress: [{
+				from_port: 0
+				to_port:   0
+				protocol:  "-1"
+				cidr_blocks: ["0.0.0.0/0"]
+
+				description:      null
+				ipv6_cidr_blocks: null
+				prefix_list_ids:  null
+				self:             null
+				security_groups:  null
+			}]
+		}
+		resource: aws_service_discovery_service: "\(appName)": {
+			name: "\(appName)"
+
+			dns_config: {
+				namespace_id: "${data.aws_service_discovery_private_dns_namespace.ecs_\(clusterName).id}"
+				dns_records: {
+					ttl:  uint | *10
+					type: "A"
+				}
+				routing_policy: "MULTIVALUE"
+			}
+
+			health_check_custom_config: failure_threshold: uint | *5
+		}
+		resource: aws_ecs_service: "\(appName)": _#ECSService & {
+			service_registries: registry_arn: "${aws_service_discovery_service.\(appName).arn}"
+			network_configuration: security_groups: [
+				"${aws_security_group.ecs_service_internal_\(appName).id}",
+				...,
+			]
+		}
 		resource: aws_ecs_task_definition: "\(appName)": _#ECSTaskDefinition & {
 			network_mode: "awsvpc"
 			_container_definitions: [
@@ -320,6 +402,7 @@ import (
 		for name, backend in _backends {
 			resource: aws_ecs_service: "\(name)": {
 				network_configuration: security_groups: [
+					string,
 					for _, groups in backend.ports {groups.sg},
 				]
 				load_balancer: [
@@ -401,6 +484,11 @@ _#ECSService: {
 				retention_in_days: ecs.logging.retentionInDays
 				tags:              _tags
 			}
+		}
+		resource: aws_service_discovery_private_dns_namespace: "ecs_\(ecs.name)": {
+			name:        "\(ecs.name).ecs.local"
+			description: "\(ecs.name) ECS private namespace"
+			vpc:         "${module.vpc_\(ecs.vpc.name).vpc_id}"
 		}
 		module: "ecs_\(ecs.name)": {
 			source:  "terraform-aws-modules/ecs/aws"

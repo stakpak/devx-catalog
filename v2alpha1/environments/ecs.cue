@@ -90,7 +90,10 @@ import (
 				launchType:  config.ecs.launchType
 			},
 		]
-		"terraform/expose-ecs-service": pipeline: [tfaws.#ExposeECSService]
+		"terraform/expose-ecs-service": pipeline: [tfaws.#ExposeECSService & {
+			aws: vpc: config.vpc
+			clusterName: config.ecs.name
+		}]
 		"terraform/add-ecs-replicas": pipeline: [tfaws.#AddECSReplicas]
 		"terraform/add-ecs-http-routes": pipeline: [tfaws.#AddHTTPRouteECS]
 		"terraform/add-http-route": pipeline: [tfaws.#AddHTTPRoute & {aws: vpc: config.vpc}]
