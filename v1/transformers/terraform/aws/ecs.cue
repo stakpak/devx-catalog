@@ -352,8 +352,6 @@ import (
 				}
 				routing_policy: "MULTIVALUE"
 			}
-
-			health_check_custom_config: failure_threshold: uint | *5
 		}
 		resource: aws_ecs_service: "\(appName)": _#ECSService & {
 			service_registries: registry_arn: "${aws_service_discovery_service.\(appName).arn}"
