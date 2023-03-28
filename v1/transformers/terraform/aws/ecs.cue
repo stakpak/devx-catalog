@@ -452,6 +452,7 @@ _#ECSService: {
 	desired_count:         uint | *1
 	launch_type:           "EC2" | "FARGATE"
 	wait_for_steady_state: bool | *true
+	service_registries?: registry_arn: string
 	network_configuration?: {
 		security_groups: [...string]
 		subnets: string | [...string]
