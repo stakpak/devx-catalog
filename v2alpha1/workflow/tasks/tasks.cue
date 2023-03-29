@@ -13,6 +13,7 @@ import (
 	repository: string
 	tags: [...string]
 	context: string | *"."
+	buildArgs: [string]: string | v1.#Secret
 	aws: {
 		region:           string
 		public:           bool | *false

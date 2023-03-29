@@ -12,6 +12,7 @@ import (
 	repository: _
 	tags:       _
 	context:    _
+	buildArgs:  _
 	aws:        _
 
 	if !aws.public && aws.account != _|_ {
@@ -75,12 +76,25 @@ import (
 				name: "Build and push"
 				uses: "docker/build-push-action@v4"
 				with: {
-					"context": context
-					platforms: "linux/amd64"
-					push:      "true"
-					"tags":    strings.Join(
+					"context":    context
+					platforms:    "linux/amd64"
+					push:         "true"
+					"build-args": strings.Join(
 							[
-								for tag in tags {
+								for name, value in buildArgs {
+								if (value & string) != _|_ {
+									"\(name)=\(value)"
+								}
+								if (value & v1.#Secret) != _|_ {
+									"\(name)=${{ secrets.\(value.name) }}"
+								}
+							},
+						],
+						"\n",
+						)
+					"tags": strings.Join(
+						[
+							for tag in tags {
 								if len(registry) > 0 {
 									"\(registry)/\(repository):\(tag)"
 								}
