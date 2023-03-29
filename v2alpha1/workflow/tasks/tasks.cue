@@ -27,7 +27,7 @@ import (
 		registry: strings.MinRunes(1)
 	}
 	if !aws.public {
-		aws: account: string
+		aws: account: string | v1.#Secret
 	}
 }
 
