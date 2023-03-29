@@ -1,6 +1,7 @@
 package tasks
 
 import (
+	"strings"
 	"guku.io/devx/v1"
 	"guku.io/devx/v2alpha1/traits"
 )
@@ -23,9 +24,14 @@ import (
 	}
 
 	if aws.public {
-		"_repository is public registry must be set": (len(registry) > 0) & true
+		registry: strings.MinRunes(1)
 	}
 	if !aws.public {
-		"_repository is private aws.account must be set": (aws.account != _|_) & true
+		aws: account: string
 	}
+}
+
+#RawTask: traits.#WorkflowTask & {
+	$metadata: task: "RawTask"
+	spec: [string]:  _
 }
