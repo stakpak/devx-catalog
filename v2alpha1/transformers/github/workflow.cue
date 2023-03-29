@@ -3,6 +3,7 @@ package github
 import (
 	"guku.io/devx/v1"
 	"guku.io/devx/v2alpha1/traits"
+	"guku.io/devx/v2alpha1/workflow/tasks"
 )
 
 #PipelineResource: {
@@ -26,7 +27,7 @@ import (
 					"\(name)": (#BuildPushECR & task).spec
 				}
 				if task.$metadata.task == "RawTask" {
-					"\(name)": (#RawTask & task).spec
+					"\(name)": (tasks.#RawTask & task).spec
 				}
 			}
 		}
