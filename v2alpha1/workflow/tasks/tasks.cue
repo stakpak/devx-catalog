@@ -1,7 +1,7 @@
 package tasks
 
 import (
-	"strings"
+	// "strings"
 	"guku.io/devx/v1"
 	"guku.io/devx/v2alpha1/traits"
 )
@@ -23,12 +23,12 @@ import (
 		accessKeySecret?: string | v1.#Secret
 	}
 
-	if aws.public {
-		registry: strings.MinRunes(1)
-	}
-	if !aws.public {
-		aws: account: string | v1.#Secret
-	}
+	// if aws.public {
+	//  registry: strings.MinRunes(1)
+	// }
+	// if !aws.public {
+	//  aws: account: string | v1.#Secret
+	// }
 }
 
 #RawTask: traits.#WorkflowTask & {
