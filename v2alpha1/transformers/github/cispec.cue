@@ -609,7 +609,8 @@ import "strings"
 
 	#: "working-directory": string
 
-	#jobNeeds: [...#name] & [_, ...] | #name
+	// #jobNeeds: [...#name] & [_, ...] | #name
+	#jobNeeds: [...#name] | #name
 
 	#reusableWorkflowCallJob: {
 		// The name of the job displayed on GitHub.
