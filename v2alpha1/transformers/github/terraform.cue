@@ -85,9 +85,8 @@ import (
 			},
 			if show {
 				{
-					uses:                "actions/github-script@v6"
-					"if":                "github.event_name == 'pull_request'"
-					"working-directory": dir
+					uses: "actions/github-script@v6"
+					"if": "github.event_name == 'pull_request'"
 					with: {
 						script: #"""
 						const fs = require("fs");
@@ -117,7 +116,7 @@ import (
 
 						</details>
 
-						*Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`${{ inputs.working-directory }}\`, Workflow: \`${{ github.workflow }}\`*`;   
+						*Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`\#(dir)\`, Workflow: \`${{ github.workflow }}\`*`;   
 
 						await github.rest.issues.createComment({
 						    issue_number: context.issue.number,
