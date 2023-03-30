@@ -10,11 +10,12 @@ import (
 
 	dir:     _
 	show:    _
+	apply:   _
 	version: _
 	auth:    _
 
 	spec: {
-		name:      string | *"Plan & Apply Terraform"
+		name:      string | *"Plan Terraform"
 		"runs-on": "ubuntu-latest"
 		steps: [
 			{
@@ -77,6 +78,7 @@ import (
 			if show {
 				{
 					name:                "Terraform Show"
+					"if":                "github.event_name == 'pull_request'"
 					id:                  "show"
 					run:                 "terraform show -no-color tf.plan 2>&1 > /tmp/plan.txt"
 					"working-directory": dir
@@ -127,6 +129,15 @@ import (
 						}
 						"""#
 					}
+				}
+			},
+			if apply {
+				{
+					name: "Terraform Apply"
+					// "if":                "github.ref == 'refs/heads/main' && github.event_name == 'push'"
+					run:                 "terraform apply -input=false tf.plan"
+					"working-directory": dir
+					shell:               "bash"
 				}
 			},
 		]

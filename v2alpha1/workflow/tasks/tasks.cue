@@ -42,6 +42,7 @@ import (
 
 	dir:     string
 	show:    bool | *true
+	apply:   bool | *false
 	version: string | *"1.4.2"
 	auth: {
 		aws?: {
