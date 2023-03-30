@@ -11,3 +11,11 @@ import (
 		...
 	}
 }
+
+#PullRequestEvent: traits.#WorkflowTrigger & {
+	$metadata: trigger: "PullRequestEvent"
+	filters: {
+		branches: [...string]
+		...
+	}
+}

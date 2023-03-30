@@ -27,6 +27,9 @@ import (
 				if trigger.$metadata.trigger == "PushEvent" {
 					push: (triggers.#PushEvent & trigger).filters
 				}
+				if trigger.$metadata.trigger == "PullRequestEvent" {
+					pull_request: (triggers.#PullRequestEvent & trigger).filters
+				}
 			}
 		}
 		jobs: {
