@@ -82,6 +82,8 @@ import (
 					"working-directory": dir
 					shell:               "bash"
 				}
+			},
+			if show {
 				{
 					uses: "actions/github-script@v6"
 					"if": "github.event_name == 'pull_request'"
