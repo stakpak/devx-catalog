@@ -38,8 +38,8 @@ import (
 					"\(name)": (#BuildPushECR & task).spec
 					"\(name)": needs: [ for t in task.dependencies {t.id}]
 				}
-				if task.$metadata.task == "ApplyTerraform" {
-					"\(name)": (#ApplyTerraform & task).spec
+				if task.$metadata.task == "Terraform" {
+					"\(name)": (#Terraform & task).spec
 					"\(name)": needs: [ for t in task.dependencies {t.id}]
 				}
 				if task.$metadata.task == "RawTask" {

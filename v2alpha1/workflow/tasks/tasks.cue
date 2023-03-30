@@ -37,8 +37,8 @@ import (
 	spec: [string]:  _
 }
 
-#ApplyTerraform: traits.#WorkflowTask & {
-	$metadata: task: "ApplyTerraform"
+#Terraform: traits.#WorkflowTask & {
+	$metadata: task: "Terraform"
 
 	dir:     string
 	show:    bool | *true

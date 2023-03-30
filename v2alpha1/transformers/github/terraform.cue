@@ -5,8 +5,8 @@ import (
 	"guku.io/devx/v2alpha1/workflow/tasks"
 )
 
-#ApplyTerraform: {
-	tasks.#ApplyTerraform
+#Terraform: {
+	tasks.#Terraform
 
 	dir:     _
 	show:    _
@@ -15,7 +15,7 @@ import (
 	auth:    _
 
 	spec: {
-		name:      string | *"Plan Terraform"
+		name:      string | *"Run Terraform"
 		"runs-on": "ubuntu-latest"
 		steps: [
 			{
