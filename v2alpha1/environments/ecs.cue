@@ -47,6 +47,18 @@ import (
 					"docker push {{.AWS_ACCOUNT}}.dkr.ecr.{{.AWS_REGION}}.amazonaws.com/{{.IMAGE_NAME}} {{.CLI_ARGS}}",
 				]
 			}
+			apply: {
+				cmds: [
+					"terraform apply",
+					...,
+				]
+			}
+			"apply-auto": {
+				cmds: [
+					"terraform apply -auto-approve",
+					...,
+				]
+			}
 		}
 	}
 	components: {
