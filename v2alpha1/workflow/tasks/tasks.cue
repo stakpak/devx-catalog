@@ -36,3 +36,20 @@ import (
 	$metadata: task: "RawTask"
 	spec: [string]:  _
 }
+
+#ApplyTerraform: traits.#WorkflowTask & {
+	$metadata: task: "ApplyTerraform"
+
+	dir:     string
+	show:    bool | *true
+	version: string | *"1.4.2"
+	auth: {
+		aws?: {
+			region:           string
+			role?:            string
+			session?:         string
+			accessKeyId?:     string | v1.#Secret
+			accessKeySecret?: string | v1.#Secret
+		}
+	}
+}

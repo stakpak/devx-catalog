@@ -34,6 +34,9 @@ import (
 				if task.$metadata.task == "BuildPushECR" {
 					"\(name)": (#BuildPushECR & task).spec
 				}
+				if task.$metadata.task == "ApplyTerraform" {
+					"\(name)": (#ApplyTerraform & task).spec
+				}
 				if task.$metadata.task == "RawTask" {
 					"\(name)": (tasks.#RawTask & task).spec
 				}
