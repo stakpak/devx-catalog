@@ -14,7 +14,7 @@ import (
 	auth:    _
 
 	spec: {
-		name:      string | *"Apply Terraform"
+		name:      string | *"Plan & Apply Terraform"
 		"runs-on": "ubuntu-latest"
 		steps: [
 			{
@@ -85,10 +85,10 @@ import (
 			},
 			if show {
 				{
-					uses: "actions/github-script@v6"
-					"if": "github.event_name == 'pull_request'"
+					uses:                "actions/github-script@v6"
+					"if":                "github.event_name == 'pull_request'"
+					"working-directory": dir
 					with: {
-						"github-token": "${{ inputs.GITHUB_TOKEN }}"
 						script: #"""
 						const fs = require("fs");
 						const plan = fs.readFileSync("/tmp/plan.txt", "utf8");
@@ -110,10 +110,13 @@ import (
 						#### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
 						#### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
 						<details><summary>Show Plan</summary>
+
 						\`\`\`\n
 						${plans[i]}
 						\`\`\`
+
 						</details>
+
 						*Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`${{ inputs.working-directory }}\`, Workflow: \`${{ github.workflow }}\`*`;   
 
 						await github.rest.issues.createComment({
