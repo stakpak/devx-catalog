@@ -33,12 +33,15 @@ import (
 			for name, task in workflow.tasks {
 				if task.$metadata.task == "BuildPushECR" {
 					"\(name)": (#BuildPushECR & task).spec
+					"\(name)": needs: [ for t in task.dependencies {t.id}]
 				}
 				if task.$metadata.task == "ApplyTerraform" {
 					"\(name)": (#ApplyTerraform & task).spec
+					"\(name)": needs: [ for t in task.dependencies {t.id}]
 				}
 				if task.$metadata.task == "RawTask" {
 					"\(name)": (tasks.#RawTask & task).spec
+					"\(name)": needs: [ for t in task.dependencies {t.id}]
 				}
 			}
 		}

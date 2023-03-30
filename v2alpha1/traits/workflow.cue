@@ -19,7 +19,7 @@ import "guku.io/devx/v1"
 #WorkflowTask: {
 	$metadata: task: string | *""
 	id: string
-	dependencies: [string]: _
+	dependencies: [...{id: string, ...}]
 	...
 }
 
