@@ -751,8 +751,7 @@ import "strings"
 			run?: _|_
 			...
 		} | {
-			run:   string
-			uses?: _|_
+			run: string
 			...
 		}) & {
 			// A unique identifier for the step. You can use the id to

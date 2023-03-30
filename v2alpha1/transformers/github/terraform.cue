@@ -8,9 +8,10 @@ import (
 #ApplyTerraform: {
 	tasks.#ApplyTerraform
 
-	dir:  _
-	show: _
-	auth: _
+	dir:     _
+	show:    _
+	version: _
+	auth:    _
 
 	spec: {
 		name:      string | *"Apply Terraform"
@@ -55,7 +56,7 @@ import (
 				name: "Setup Terraform"
 				uses: "hashicorp/setup-terraform@v2"
 				with: {
-					terraform_version: "1.1.9"
+					terraform_version: version
 					terraform_wrapper: false
 				}
 			},
