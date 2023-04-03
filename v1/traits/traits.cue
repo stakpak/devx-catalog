@@ -10,7 +10,7 @@ import (
 	$metadata: traits: Workload: null
 
 	containers: [string]: #ContainerSpec & {
-		image: string @guku(required)
+		image: string
 		command: [...string]
 		args: [...string]
 		env: [string]: string | v1.#Secret
@@ -55,7 +55,7 @@ import (
 }
 
 #ContainerSpec: {
-	image: string @guku(required)
+	image: string
 	command: [...string]
 	args: [...string]
 	env: [string]: string | v1.#Secret
