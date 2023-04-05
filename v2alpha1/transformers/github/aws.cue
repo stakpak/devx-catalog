@@ -12,6 +12,7 @@ import (
 	repository: _
 	tags:       _
 	context:    _
+	file:       _
 	buildArgs:  _
 	aws:        _
 
@@ -77,6 +78,7 @@ import (
 				uses: "docker/build-push-action@v4"
 				with: {
 					"context":    context
+					"file":       file
 					platforms:    "linux/amd64"
 					push:         "true"
 					"build-args": strings.Join(

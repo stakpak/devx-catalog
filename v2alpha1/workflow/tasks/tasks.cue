@@ -13,6 +13,7 @@ import (
 	repository: string
 	tags: [...string]
 	context: string | *"."
+	file:    string | *"\(context)/Dockerfile"
 	buildArgs: [string]: string | v1.#Secret
 	aws: {
 		region:           string
