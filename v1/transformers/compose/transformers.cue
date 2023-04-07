@@ -15,8 +15,10 @@ import (
 	version: string | *"3"
 	volumes: [string]: null
 	services: [string]: {
-		image:     string
-		hostname?: string
+		image:        string
+		user?:        string
+		working_dir?: string
+		hostname?:    string
 		build?: {
 			context: string
 			args: [string]: string

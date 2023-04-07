@@ -15,20 +15,21 @@ import (
 	restart: "always"
 	containers: default: {
 		image: "amazon/dynamodb-local:latest"
-		command: ["-jar", "DynamoDBLocal.jar", "-sharedDb", "-dbPath", "/home/dynamodblocal/data"]
-		mounts: [{
-			volume:   volumes.default
-			path:     "/home/dynamodblocal/data"
-			readOnly: false
-		}]
-	}
-	volumes: default: {
-		if dynamodb.persistent {
-			persistent: "dynamodbdata"
-		}
 		if !dynamodb.persistent {
-			ephemeral: "dynamodbdata"
+			command: ["-jar", "DynamoDBLocal.jar", "-sharedDb", "-inMemory"]
 		}
+
+		if dynamodb.persistent {
+			command: ["-jar", "DynamoDBLocal.jar", "-sharedDb", "-dbPath", "/home/dynamodblocal/data"]
+			mounts: [{
+				volume:   volumes.default
+				path:     "/home/dynamodblocal/data"
+				readOnly: false
+			}]
+		}
+	}
+	if dynamodb.persistent {
+		volumes: default: persistent: "dynamodb-data"
 	}
 	endpoints: default: ports: [
 		{
