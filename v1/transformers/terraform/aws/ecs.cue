@@ -48,9 +48,9 @@ import (
 			}
 			for name, policy in policies {
 				aws_iam_role_policy: "task_\(appName)_\(name)": {
-					name:   "task-\(appName)-\(name)"
-					role:   "${aws_iam_role.task_\(appName).name}"
-					policy: json.Marshal(resources.#IAMPolicy &
+					name:     "task-\(appName)-\(name)"
+					role:     "${aws_iam_role.task_\(appName).name}"
+					"policy": json.Marshal(resources.#IAMPolicy &
 						{
 							Version: "2012-10-17"
 							Statement: [
