@@ -7,7 +7,6 @@ import (
 
 #DynamoDB: v1.#Trait & {
 	traits.#Workload
-	traits.#Volume
 	traits.#Exposable
 
 	dynamodb: persistent: bool | *true
@@ -29,6 +28,7 @@ import (
 		}
 	}
 	if dynamodb.persistent {
+		traits.#Volume
 		volumes: default: persistent: "dynamodb-data"
 	}
 	endpoints: default: ports: [
