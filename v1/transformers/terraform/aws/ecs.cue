@@ -24,7 +24,10 @@ import (
 	appName: string | *$metadata.id
 	$resources: terraform: schema.#Terraform & {
 		resource: {
-			aws_ecs_task_definition: "\(appName)": task_role_arn: "${aws_iam_role.task_\(appName).arn}"
+			aws_ecs_task_definition: "\(appName)": {
+				task_role_arn: "${aws_iam_role.task_\(appName).arn}"
+				...
+			}
 			aws_iam_role: "task_\(appName)": {
 				name:               "task-\(appName)"
 				assume_role_policy: json.Marshal(resources.#IAMPolicy &
