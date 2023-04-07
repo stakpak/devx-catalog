@@ -1,11 +1,8 @@
 package components
 
-import (
-	"guku.io/devx/v1"
-	"guku.io/devx/v1/traits"
-)
+import "guku.io/devx/v1/traits"
 
-#DynamoDB: v1.#Trait & {
+#DynamoDB: this={
 	traits.#Workload
 	traits.#Exposable
 
@@ -18,10 +15,10 @@ import (
 			command: ["-jar", "DynamoDBLocal.jar", "-sharedDb", "-inMemory"]
 		}
 
-		if dynamodb.persistent {
+		if dynamodb.persistent && this.volumes != _|_ {
 			command: ["-jar", "DynamoDBLocal.jar", "-sharedDb", "-dbPath", "/home/dynamodblocal/data"]
 			mounts: [{
-				volume:   volumes.default
+				volume:   this.volumes.default
 				path:     "/home/dynamodblocal/data"
 				readOnly: false
 			}]
