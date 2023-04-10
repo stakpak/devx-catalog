@@ -102,6 +102,28 @@ import (
 						// }
 					})
 			}
+			aws_iam_role_policy: "task_\(appName)_default": {
+				name:   "task-\(appName)-default"
+				role:   "${aws_iam_role.task_\(appName).name}"
+				policy: json.Marshal(resources.#IAMPolicy &
+					{
+						// ECS SSM permissions https://aws.amazon.com/blogs/containers/new-using-amazon-ecs-exec-access-your-containers-fargate-ec2/
+						Version: "2012-10-17"
+						Statement: [
+							{
+								Sid:    "SSMExec"
+								Effect: "Allow"
+								Action: [
+									"ssmmessages:CreateControlChannel",
+									"ssmmessages:CreateDataChannel",
+									"ssmmessages:OpenControlChannel",
+									"ssmmessages:OpenDataChannel",
+								]
+								Resource: "*"
+							},
+						]
+					})
+			}
 			aws_iam_role: "task_execution_\(appName)": {
 				name:               "task-execution-\(appName)"
 				assume_role_policy: json.Marshal(resources.#IAMPolicy &
@@ -173,11 +195,11 @@ import (
 					})
 			}
 			aws_ecs_service: "\(appName)": _#ECSService & {
-				name:            appName
-				cluster:         "${data.aws_ecs_cluster.\(clusterName).id}"
-				task_definition: "${aws_ecs_task_definition.\(appName).arn}"
-				launch_type:     launchType
-				// enable_execute_command: bool | *false
+				name:                   appName
+				cluster:                "${data.aws_ecs_cluster.\(clusterName).id}"
+				task_definition:        "${aws_ecs_task_definition.\(appName).arn}"
+				launch_type:            launchType
+				enable_execute_command: bool | *true
 				network_configuration: subnets: "${data.aws_subnets.\(aws.vpc.name).ids}"
 			}
 			aws_ecs_task_definition: "\(appName)": _#ECSTaskDefinition & {
@@ -212,6 +234,8 @@ import (
 							essential: true
 							name:      k
 							image:     container.image
+							// Set to avoid SSM agent child processes becoming orphaned
+							linuxParameters: initProcessEnabled: true
 							command: [
 								for v in container.command {
 									v
