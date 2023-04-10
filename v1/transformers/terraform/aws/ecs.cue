@@ -318,8 +318,29 @@ import (
 							},
 						]
 					}
+					aws_subnet: "\(aws.vpc.name)": {
+						count: "${length(data.aws_subnets.\(aws.vpc.name).ids)}"
+						id:    "${tolist(data.aws_subnets.\(aws.vpc.name).ids)[count.index]}"
+					}
 				}
 				resource: {
+					aws_security_group: "efs_mount_target_internal_\(mount.volume.persistent)": {
+						name:   "efs-mount-target-internal-\(mount.volume.persistent)"
+						vpc_id: "${data.aws_vpc.\(aws.vpc.name).id}"
+
+						ingress: [{
+							from_port:   0
+							to_port:     0
+							protocol:    "-1"
+							cidr_blocks: "${data.aws_subnet.\(aws.vpc.name).*.cidr_block}"
+
+							description:      null
+							ipv6_cidr_blocks: null
+							prefix_list_ids:  null
+							self:             null
+							security_groups:  null
+						}]
+					}
 					aws_efs_file_system: "\(mount.volume.persistent)": {
 						creation_token: mount.volume.persistent
 						tags: Name: mount.volume.persistent
@@ -330,6 +351,9 @@ import (
 						count:          "${length(data.aws_subnets.\(aws.vpc.name).ids)}"
 						file_system_id: "${aws_efs_file_system.\(mount.volume.persistent).id}"
 						subnet_id:      "${tolist(data.aws_subnets.\(aws.vpc.name).ids)[count.index]}"
+						security_groups: [
+							"${aws_security_group.efs_mount_target_internal_\(mount.volume.persistent).id}",
+						]
 					}
 					// aws_efs_access_point: "\(mount.volume.persistent)": {
 					//  file_system_id: "${aws_efs_file_system.\(mount.volume.persistent).id}"
