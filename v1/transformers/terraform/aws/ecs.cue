@@ -274,6 +274,48 @@ import (
 	}
 }
 
+// add ECS service volum eusing EFS
+#AddECSVolumeEFS: v1.#Transformer & {
+	traits.#Workload
+	$metadata:  _
+	containers: _
+
+	appName: string | *$metadata.id
+	$resources: terraform: schema.#Terraform & {
+		for _, container in containers for mount in container.mounts {
+			if mount.volume.persistent != _|_ {
+				data: aws_efs_file_system: "\(mount.volume.persistent)": creation_token: mount.volume.persistent
+				resource: aws_ecs_task_definition: "\(appName)": volume: {
+					name: mount.volume.persistent
+					efs_volume_configuration: file_system_id: "${data.aws_efs_file_system.\(mount.volume.persistent).id}"
+				}
+			}
+		}
+		resource: {
+			aws_ecs_task_definition: "\(appName)": _#ECSTaskDefinition & {
+				_container_definitions: [
+					for k, container in containers {
+						{
+							name: k
+							if len(container.mounts) > 0 {
+								mountPoints: [
+									for mount in container.mounts {
+										{
+											sourceVolume:  mount.volume.persistent
+											containerPath: mount.path
+											readOnly:      mount.readOnly
+										}
+									},
+								]
+							}
+						}
+					},
+				]
+			}
+		}
+	}
+}
+
 // expose an ECS service through a load balancer
 #ExposeECSService: v1.#Transformer & {
 	traits.#Workload
@@ -446,6 +488,13 @@ _#ECSTaskDefinition: {
 	task_role_arn?: string
 	_container_definitions: [..._#ContainerDefinition]
 	container_definitions: json.Marshal(_container_definitions)
+	volume: {
+		name: string
+		efs_volume_configuration: {
+			file_system_id:  string
+			root_directory?: string
+		}
+	}
 }
 _#ECSService: {
 	name:                  string
