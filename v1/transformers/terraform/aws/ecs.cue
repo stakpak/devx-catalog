@@ -362,7 +362,9 @@ import (
 										"${aws_efs_file_system.\(mount.volume.persistent).arn}",
 									]
 									Condition: {
-										StringEquals: "elasticfilesystem:AccessPointArn": "${aws_efs_access_point.\(mount.volume.persistent).arn}"
+										StringEquals: "elasticfilesystem:AccessPointArn": [
+											"${aws_efs_access_point.\(mount.volume.persistent).arn}",
+										]
 									}
 								}]
 							})
