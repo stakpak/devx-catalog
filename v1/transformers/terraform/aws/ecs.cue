@@ -139,6 +139,17 @@ import (
 								]
 								Resource: "*"
 							},
+							// {
+							//  Sid:    "SSMExec"
+							//  Effect: "Allow"
+							//  Action: [
+							//   "ssmmessages:CreateControlChannel",
+							//   "ssmmessages:CreateDataChannel",
+							//   "ssmmessages:OpenControlChannel",
+							//   "ssmmessages:OpenDataChannel",
+							//  ]
+							//  Resource: "*"
+							// },
 							{
 								Sid:    "ECSTaskSecret"
 								Effect: "Allow"
@@ -170,6 +181,7 @@ import (
 				cluster:         "${data.aws_ecs_cluster.\(clusterName).id}"
 				task_definition: "${aws_ecs_task_definition.\(appName).arn}"
 				launch_type:     launchType
+				// enable_execute_command: bool | *false
 				network_configuration: subnets: "${data.aws_subnets.\(aws.vpc.name).ids}"
 			}
 			aws_ecs_task_definition: "\(appName)": _#ECSTaskDefinition & {
@@ -319,9 +331,41 @@ import (
 						file_system_id: "${aws_efs_file_system.\(mount.volume.persistent).id}"
 						subnet_id:      "${tolist(data.aws_subnets.\(aws.vpc.name).ids)[count.index]}"
 					}
+					aws_efs_access_point: "\(mount.volume.persistent)": {
+						file_system_id: "${aws_efs_file_system.\(mount.volume.persistent).id}"
+					}
 					aws_ecs_task_definition: "\(appName)": volume: {
 						name: mount.volume.persistent
-						efs_volume_configuration: file_system_id: "${aws_efs_file_system.\(mount.volume.persistent).id}"
+						efs_volume_configuration: {
+							transit_encryption: "ENABLED"
+							file_system_id:     "${aws_efs_file_system.\(mount.volume.persistent).id}"
+							authorization_config: {
+								access_point_id: "${aws_efs_access_point.\(mount.volume.persistent).id}"
+								iam:             "ENABLED"
+							}
+						}
+					}
+					aws_iam_role_policy: "task_execution_\(appName)_\(mount.volume.persistent)": {
+						name:   "task-execution-\(appName)-\(mount.volume.persistent)"
+						role:   "${aws_iam_role.task_execution_\(appName).name}"
+						policy: json.Marshal(resources.#IAMPolicy &
+							{
+								Version: "2012-10-17"
+								Statement: [{
+									Effect: "Allow"
+									Action: [
+										"elasticfilesystem:ClientMount",
+										"elasticfilesystem:ClientWrite",
+										"elasticfilesystem:ClientRootAccess",
+									]
+									Resource: [
+										"${aws_efs_file_system.\(mount.volume.persistent).arn}",
+									]
+									Condition: {
+										StringEquals: "elasticfilesystem:AccessPointArn": "${aws_efs_access_point.\(mount.volume.persistent).arn}"
+									}
+								}]
+							})
 					}
 				}
 			}
@@ -524,8 +568,14 @@ _#ECSTaskDefinition: {
 	volume: {
 		name: string
 		efs_volume_configuration: {
-			file_system_id:  string
-			root_directory?: string
+			file_system_id:           string
+			root_directory?:          string
+			transit_encryption:       "ENABLED" | *"DISABLED"
+			transit_encryption_port?: uint
+			authorization_config?: {
+				access_point_id: string
+				iam:             "ENABLED" | *"DISABLED"
+			}
 		}
 	}
 }
