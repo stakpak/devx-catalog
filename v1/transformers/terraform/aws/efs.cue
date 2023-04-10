@@ -51,9 +51,9 @@ import (
 					file_system_id: "${aws_efs_file_system.\(v.persistent).id}"
 					subnet_id:      "${tolist(data.aws_subnets.\(aws.vpc.name).ids)[count.index]}"
 				}
-				aws_efs_access_point: "\(v.persistent)": {
-					file_system_id: "${aws_efs_file_system.\(v.persistent).id}"
-				}
+				// aws_efs_access_point: "\(v.persistent)": {
+				//  file_system_id: "${aws_efs_file_system.\(v.persistent).id}"
+				// }
 			}
 		}
 	}

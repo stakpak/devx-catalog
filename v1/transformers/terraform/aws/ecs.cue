@@ -331,44 +331,44 @@ import (
 						file_system_id: "${aws_efs_file_system.\(mount.volume.persistent).id}"
 						subnet_id:      "${tolist(data.aws_subnets.\(aws.vpc.name).ids)[count.index]}"
 					}
-					aws_efs_access_point: "\(mount.volume.persistent)": {
-						file_system_id: "${aws_efs_file_system.\(mount.volume.persistent).id}"
-					}
+					// aws_efs_access_point: "\(mount.volume.persistent)": {
+					//  file_system_id: "${aws_efs_file_system.\(mount.volume.persistent).id}"
+					// }
 					aws_ecs_task_definition: "\(appName)": volume: {
 						name: mount.volume.persistent
 						efs_volume_configuration: {
 							transit_encryption: "ENABLED"
 							file_system_id:     "${aws_efs_file_system.\(mount.volume.persistent).id}"
-							authorization_config: {
-								access_point_id: "${aws_efs_access_point.\(mount.volume.persistent).id}"
-								iam:             "ENABLED"
-							}
+							// authorization_config: {
+							//  access_point_id: "${aws_efs_access_point.\(mount.volume.persistent).id}"
+							//  iam:             "ENABLED"
+							// }
 						}
 					}
-					aws_iam_role_policy: "task_execution_\(appName)_\(mount.volume.persistent)": {
-						name:   "task-execution-\(appName)-\(mount.volume.persistent)"
-						role:   "${aws_iam_role.task_execution_\(appName).name}"
-						policy: json.Marshal(resources.#IAMPolicy &
-							{
-								Version: "2012-10-17"
-								Statement: [{
-									Effect: "Allow"
-									Action: [
-										"elasticfilesystem:ClientMount",
-										"elasticfilesystem:ClientWrite",
-										"elasticfilesystem:ClientRootAccess",
-									]
-									Resource: [
-										"${aws_efs_file_system.\(mount.volume.persistent).arn}",
-									]
-									Condition: {
-										StringEquals: "elasticfilesystem:AccessPointArn": [
-											"${aws_efs_access_point.\(mount.volume.persistent).arn}",
-										]
-									}
-								}]
-							})
-					}
+					// aws_iam_role_policy: "task_execution_\(appName)_\(mount.volume.persistent)": {
+					//  name:   "task-execution-\(appName)-\(mount.volume.persistent)"
+					//  role:   "${aws_iam_role.task_execution_\(appName).name}"
+					//  policy: json.Marshal(resources.#IAMPolicy &
+					//   {
+					//    Version: "2012-10-17"
+					//    Statement: [{
+					//     Effect: "Allow"
+					//     Action: [
+					//      "elasticfilesystem:ClientMount",
+					//      "elasticfilesystem:ClientWrite",
+					//      "elasticfilesystem:ClientRootAccess",
+					//     ]
+					//     Resource: [
+					//      "${aws_efs_file_system.\(mount.volume.persistent).arn}",
+					//     ]
+					//     Condition: {
+					//      StringEquals: "elasticfilesystem:AccessPointArn": [
+					//       "${aws_efs_access_point.\(mount.volume.persistent).arn}",
+					//      ]
+					//     }
+					//    }]
+					//   })
+					// }
 				}
 			}
 		}
