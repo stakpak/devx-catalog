@@ -626,12 +626,13 @@ _#ECSTaskDefinition: {
 	}
 }
 _#ECSService: {
-	name:                  string
-	cluster:               string
-	task_definition:       string
-	desired_count:         uint | *1
-	launch_type:           "EC2" | "FARGATE"
-	wait_for_steady_state: bool | *true
+	name:                    string
+	cluster:                 string
+	task_definition:         string
+	desired_count:           uint | *1
+	launch_type:             "EC2" | "FARGATE"
+	wait_for_steady_state:   bool | *true
+	enable_execute_command?: bool
 	service_registries?: registry_arn: string
 	network_configuration?: {
 		security_groups: [...string]
