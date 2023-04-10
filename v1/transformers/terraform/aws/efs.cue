@@ -39,19 +39,17 @@ import (
 			}
 		}
 		resource: {
-			for k, v in volumes {
-				if v.persistent != _|_ {
-					aws_efs_file_system: "\(k)": {
-						creation_token: v.persistent
-						tags: Name: v.persistent
-						encrypted:        bool | *true
-						performance_mode: *"generalPurpose" | "maxIO"
-					}
-					aws_efs_mount_target: "\(k)": {
-						count:          "${length(data.aws_subnets.\(aws.vpc.name).ids)}"
-						file_system_id: "${aws_efs_file_system.\(k).id}"
-						subnet_id:      "${tolist(data.aws_subnets.\(aws.vpc.name).ids)[count.index]}"
-					}
+			for _, v in volumes if v.persistent != _|_ {
+				aws_efs_file_system: "\(v.persistent)": {
+					creation_token: v.persistent
+					tags: Name: v.persistent
+					encrypted:        bool | *true
+					performance_mode: *"generalPurpose" | "maxIO"
+				}
+				aws_efs_mount_target: "\(v.persistent)": {
+					count:          "${length(data.aws_subnets.\(aws.vpc.name).ids)}"
+					file_system_id: "${aws_efs_file_system.\(v.persistent).id}"
+					subnet_id:      "${tolist(data.aws_subnets.\(aws.vpc.name).ids)[count.index]}"
 				}
 			}
 		}

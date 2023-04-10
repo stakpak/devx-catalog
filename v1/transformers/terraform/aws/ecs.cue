@@ -280,38 +280,71 @@ import (
 	$metadata:  _
 	containers: _
 
+	aws: {
+		vpc: {
+			name: string
+			...
+		}
+		...
+	}
+
 	appName: string | *$metadata.id
 	$resources: terraform: schema.#Terraform & {
 		for _, container in containers for mount in container.mounts {
 			if mount.volume.persistent != _|_ {
-				data: aws_efs_file_system: "\(mount.volume.persistent)": creation_token: mount.volume.persistent
-				resource: aws_ecs_task_definition: "\(appName)": volume: {
-					name: mount.volume.persistent
-					efs_volume_configuration: file_system_id: "${data.aws_efs_file_system.\(mount.volume.persistent).id}"
+				data: {
+					aws_vpc: "\(aws.vpc.name)": tags: Name: aws.vpc.name
+					aws_subnets: "\(aws.vpc.name)": {
+						filter: [
+							{
+								name: "vpc-id"
+								values: ["${data.aws_vpc.\(aws.vpc.name).id}"]
+							},
+							{
+								name: "mapPublicIpOnLaunch"
+								values: ["false"]
+							},
+						]
+					}
+				}
+				resource: {
+					aws_efs_file_system: "\(mount.volume.persistent)": {
+						creation_token: mount.volume.persistent
+						tags: Name: mount.volume.persistent
+						encrypted:        bool | *true
+						performance_mode: *"generalPurpose" | "maxIO"
+					}
+					aws_efs_mount_target: "\(mount.volume.persistent)": {
+						count:          "${length(data.aws_subnets.\(aws.vpc.name).ids)}"
+						file_system_id: "${aws_efs_file_system.\(mount.volume.persistent).id}"
+						subnet_id:      "${tolist(data.aws_subnets.\(aws.vpc.name).ids)[count.index]}"
+					}
+					aws_ecs_task_definition: "\(appName)": volume: {
+						name: mount.volume.persistent
+						efs_volume_configuration: file_system_id: "${aws_efs_file_system.\(mount.volume.persistent).id}"
+					}
 				}
 			}
 		}
-		resource: {
-			aws_ecs_task_definition: "\(appName)": _#ECSTaskDefinition & {
-				_container_definitions: [
-					for k, container in containers {
-						{
-							name: k
-							if len(container.mounts) > 0 {
-								mountPoints: [
-									for mount in container.mounts {
-										{
-											sourceVolume:  mount.volume.persistent
-											containerPath: mount.path
-											readOnly:      mount.readOnly
-										}
-									},
-								]
-							}
+		resource: aws_ecs_task_definition: "\(appName)": _#ECSTaskDefinition & {
+			_container_definitions: [
+				for k, container in containers {
+					{
+						name: k
+						if len(container.mounts) > 0 {
+							mountPoints: [
+								for mount in container.mounts {
+									{
+										sourceVolume:  mount.volume.persistent
+										containerPath: mount.path
+										readOnly:      mount.readOnly
+									}
+								},
+							]
 						}
-					},
-				]
-			}
+					}
+				},
+			]
 		}
 	}
 }
