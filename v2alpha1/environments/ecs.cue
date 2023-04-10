@@ -112,5 +112,7 @@ import (
 		"terraform/add-ecs-replicas": pipeline: [tfaws.#AddECSReplicas]
 		"terraform/add-ecs-http-routes": pipeline: [tfaws.#AddHTTPRouteECS]
 		"terraform/add-http-route": pipeline: [tfaws.#AddHTTPRoute & {aws: vpc: config.vpc}]
+		"terraform/add-efs-volumes": pipeline: [tfaws.#AddEFSVolume & {aws: vpc: config.vpc}]
+		"terraform/add-ecs-efs-volumes": pipeline: [tfaws.#AddECSVolumeEFS & {aws: vpc: config.vpc}]
 	}
 }
