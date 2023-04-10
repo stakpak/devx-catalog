@@ -24,28 +24,6 @@ import (
 	appName: string | *$metadata.id
 	$resources: terraform: schema.#Terraform & {
 		resource: {
-			aws_ecs_task_definition: "\(appName)": {
-				task_role_arn: "${aws_iam_role.task_\(appName).arn}"
-				...
-			}
-			aws_iam_role: "task_\(appName)": {
-				name:               "task-\(appName)"
-				assume_role_policy: json.Marshal(resources.#IAMPolicy &
-					{
-						Version: "2012-10-17"
-						Statement: [{
-							Sid:    "ECSTask"
-							Effect: "Allow"
-							Principal: Service: "ecs-tasks.amazonaws.com"
-							Action: "sts:AssumeRole"
-						}]
-						// Consider for confused deputy in cross-account access
-						// Condition: {
-						//  ArnLike: "aws:SourceArn":          "arn:aws:ecs:us-west-2:111122223333:*"
-						//  StringEquals: "aws:SourceAccount": "111122223333"
-						// }
-					})
-			}
 			for name, policy in policies {
 				aws_iam_role_policy: "task_\(appName)_\(name)": {
 					"name":   "task-\(appName)-\(name)"
@@ -106,6 +84,24 @@ import (
 			}
 		}
 		resource: {
+			aws_iam_role: "task_\(appName)": {
+				name:               "task-\(appName)"
+				assume_role_policy: json.Marshal(resources.#IAMPolicy &
+					{
+						Version: "2012-10-17"
+						Statement: [{
+							Sid:    "ECSTask"
+							Effect: "Allow"
+							Principal: Service: "ecs-tasks.amazonaws.com"
+							Action: "sts:AssumeRole"
+						}]
+						// Consider for confused deputy in cross-account access
+						// Condition: {
+						//  ArnLike: "aws:SourceArn":          "arn:aws:ecs:us-west-2:111122223333:*"
+						//  StringEquals: "aws:SourceAccount": "111122223333"
+						// }
+					})
+			}
 			aws_iam_role: "task_execution_\(appName)": {
 				name:               "task-execution-\(appName)"
 				assume_role_policy: json.Marshal(resources.#IAMPolicy &
@@ -190,7 +186,7 @@ import (
 				requires_compatibilities: [launchType]
 
 				execution_role_arn: "${aws_iam_role.task_execution_\(appName).arn}"
-				task_role_arn?:     string
+				task_role_arn:      string | *"${aws_iam_role.task_\(appName).arn}"
 
 				_cpu: list.Sum([
 					0,
