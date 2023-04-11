@@ -728,11 +728,20 @@ _#ECSService: {
 			deletion_window_in_days: 7
 			tags:                    _tags
 		}
+		resource: aws_kms_alias: "ecs_logs_\(ecs.name)": {
+			name:          "alias/ecs/logs/\(ecs.name)"
+			target_key_id: "${aws_kms_key.ecs_logs_\(ecs.name).arn}"
+		}
+		resource: aws_kms_key: "ecs_logs_\(ecs.name)": {
+			description:             "ecs_\(ecs.name) logs encryption key"
+			deletion_window_in_days: 7
+			tags:                    _tags
+		}
 		if ecs.logging.enabled {
 			resource: aws_cloudwatch_log_group: "ecs_\(ecs.name)": {
 				name:              "/aws/ecs/\(ecs.name)"
 				retention_in_days: ecs.logging.retentionInDays
-				kms_key_id:        "${aws_kms_key.ecs_\(ecs.name).arn}"
+				kms_key_id:        "${aws_kms_key.ecs_logs_\(ecs.name).arn}"
 				tags:              _tags
 			}
 		}
