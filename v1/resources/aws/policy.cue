@@ -16,7 +16,7 @@ _#Statement: {
 }
 
 _#PrincipalMap: {
-	AWS?: [...string]
+	AWS?: string | [...string]
 	Federated?: [...string]
 	Service?: string | [...string]
 	CanonicalUser?: [...string]
