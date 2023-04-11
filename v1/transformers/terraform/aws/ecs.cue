@@ -116,6 +116,9 @@ import (
 					},
 				]
 			}
+			aws_kms_alias: "\(clusterName)": {
+				name: "alias/ecs/\(clusterName)"
+			}
 		}
 		resource: {
 			aws_iam_role: "task_\(appName)": {
@@ -154,6 +157,14 @@ import (
 									"ssmmessages:OpenDataChannel",
 								]
 								Resource: "*"
+							},
+							{
+								Sid:    "SSMDecrypt"
+								Effect: "Allow"
+								Action: [
+									"kms:Decrypt",
+								]
+								Resource: "${data.aws_kms_alias.\(clusterName).target_key_arn}"
 							},
 						]
 					})
@@ -689,12 +700,16 @@ _#ECSService: {
 		terraform: "true"
 	}
 	$resources: terraform: schema.#Terraform & {
+		resource: aws_kms_alias: "ecs_\(ecs.name)": {
+			name:          "alias/ecs/\(ecs.name)"
+			target_key_id: "${aws_kms_key.ecs_\(ecs.name).arn}"
+		}
+		resource: aws_kms_key: "ecs_\(ecs.name)": {
+			description:             "ecs_\(ecs.name) client encryption key"
+			deletion_window_in_days: 7
+			tags:                    _tags
+		}
 		if ecs.logging.enabled {
-			resource: aws_kms_key: "ecs_\(ecs.name)": {
-				description:             "ecs_\(ecs.name) log encryption key"
-				deletion_window_in_days: 7
-				tags:                    _tags
-			}
 			resource: aws_cloudwatch_log_group: "ecs_\(ecs.name)": {
 				name:              "/aws/ecs/\(ecs.name)"
 				retention_in_days: ecs.logging.retentionInDays
@@ -711,10 +726,10 @@ _#ECSService: {
 			version: string | *"4.1.2"
 
 			cluster_name: ecs.name
-			if ecs.logging.enabled {
-				cluster_configuration: execute_command_configuration: {
-					kms_key_id: "${aws_kms_key.ecs_\(ecs.name).arn}"
-					logging:    "OVERRIDE"
+			cluster_configuration: execute_command_configuration: {
+				kms_key_id: "${aws_kms_key.ecs_\(ecs.name).arn}"
+				if ecs.logging.enabled {
+					logging: "OVERRIDE"
 
 					log_configuration: {
 						cloud_watch_encryption_enabled: true
