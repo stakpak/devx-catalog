@@ -120,7 +120,7 @@ import (
 				name: "alias/ecs/\(clusterName)"
 			}
 			aws_cloudwatch_log_group: "\(clusterName)": {
-				name: "aws/ecs/\(clusterName)"
+				name: "/aws/ecs/\(clusterName)"
 			}
 		}
 		resource: {
