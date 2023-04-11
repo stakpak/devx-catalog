@@ -754,7 +754,7 @@ _#ECSService: {
 						{
 							Sid:    "CloudWatchLogs"
 							Effect: "Allow"
-							Principal: Service: "logs.region.amazonaws.com"
+							Principal: Service: "logs.\(aws.region).amazonaws.com"
 							Action: [
 								"kms:Encrypt*",
 								"kms:Decrypt*",
