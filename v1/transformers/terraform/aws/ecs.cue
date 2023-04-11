@@ -54,6 +54,31 @@ import (
 	$metadata:  _
 	containers: _
 
+	if launchType == "FARGATE" {
+		containers: [string]: resources: requests: {
+			cpu:    "256m"
+			memory: "512M" | "1024M" | "2048M"
+		} | {
+			cpu:    "512m"
+			memory: or([ for i in list.Range(1Ki, 5Ki, 1Ki) {"\(i)M"}])
+		} | {
+			cpu:    "1024m"
+			memory: or([ for i in list.Range(2Ki, 9Ki, 1Ki) {"\(i)M"}])
+		} | {
+			cpu:    "2048m"
+			memory: or([ for i in list.Range(4Ki, 17Ki, 1Ki) {"\(i)M"}])
+		} | {
+			cpu:    "4096m"
+			memory: or([ for i in list.Range(8Ki, 31Ki, 1Ki) {"\(i)M"}])
+		} | {
+			cpu:    "8192m"
+			memory: or([ for i in list.Range(16Ki, 61Ki, 4Ki) {"\(i)M"}])
+		} | {
+			cpu:    "16384m"
+			memory: or([ for i in list.Range(32Ki, 121Ki, 8Ki) {"\(i)M"}])
+		}
+	}
+
 	aws: {
 		region:  string
 		account: string
