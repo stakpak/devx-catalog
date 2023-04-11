@@ -119,6 +119,9 @@ import (
 			aws_kms_alias: "\(clusterName)": {
 				name: "alias/ecs/\(clusterName)"
 			}
+			aws_cloudwatch_log_group: "\(clusterName)": {
+				name: "aws/ecs/\(clusterName)"
+			}
 		}
 		resource: {
 			aws_iam_role: "task_\(appName)": {
@@ -157,6 +160,22 @@ import (
 									"ssmmessages:OpenDataChannel",
 								]
 								Resource: "*"
+							},
+							{
+								"Effect": "Allow"
+								"Action": [
+									"logs:DescribeLogGroups",
+								]
+								"Resource": "*"
+							},
+							{
+								"Effect": "Allow"
+								"Action": [
+									"logs:CreateLogStream",
+									"logs:DescribeLogStreams",
+									"logs:PutLogEvents",
+								]
+								"Resource": "${data.aws_cloudwatch_log_group.\(clusterName).arn}"
 							},
 							{
 								Sid:    "SSMDecrypt"
@@ -713,6 +732,7 @@ _#ECSService: {
 			resource: aws_cloudwatch_log_group: "ecs_\(ecs.name)": {
 				name:              "/aws/ecs/\(ecs.name)"
 				retention_in_days: ecs.logging.retentionInDays
+				kms_key_id:        "${aws_kms_key.ecs_\(ecs.name).arn}"
 				tags:              _tags
 			}
 		}
