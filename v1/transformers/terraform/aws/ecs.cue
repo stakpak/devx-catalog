@@ -695,7 +695,7 @@ _#ECSTaskDefinition: {
 	task_role_arn?: string
 	_container_definitions: [..._#ContainerDefinition]
 	container_definitions: json.Marshal(_container_definitions)
-	volume: {
+	volume?: {
 		name: string
 		efs_volume_configuration: {
 			file_system_id:           string
