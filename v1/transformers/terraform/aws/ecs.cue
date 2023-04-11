@@ -48,6 +48,26 @@ import (
 }
 
 // add an ECS service and task definition
+#AddECSServiceRollout: v1.#Transformer & {
+	traits.#Workload
+	$metadata: _
+	rollout:   _
+	appName:   string | *$metadata.id
+	if rollout != _|_ {
+		$resources: terraform: schema.#Terraform & {
+			resource: aws_ecs_service: "\(appName)": _#ECSService & {
+				if rollout.maxSurgePercentage != _|_ {
+					deployment_maximum_percent: 100 + rollout.maxSurgePercentage
+				}
+				if rollout.minAvailablePercentage != _|_ {
+					deployment_minimum_healthy_percent: rollout.minAvailablePercentage
+				}
+			}
+		}
+	}
+}
+
+// add an ECS service and task definition
 #AddECSService: v1.#Transformer & {
 	v1.#Component
 	traits.#Workload
@@ -707,6 +727,8 @@ _#ECSService: {
 		container_name:   string
 		container_port:   uint
 	}]
+	deployment_maximum_percent?:         uint & <=100 & >=0
+	deployment_minimum_healthy_percent?: uint & <=100 & >=0
 }
 
 #AddECS: v1.#Transformer & {

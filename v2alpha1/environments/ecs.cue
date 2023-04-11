@@ -104,6 +104,7 @@ import (
 				clusterName: config.ecs.name
 				launchType:  config.ecs.launchType
 			},
+			tfaws.#AddECSServiceRollout,
 		]
 		"terraform/expose-ecs-service": pipeline: [tfaws.#ExposeECSService & {
 			aws: vpc: config.vpc

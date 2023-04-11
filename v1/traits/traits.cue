@@ -52,6 +52,10 @@ import (
 	}
 	containers: default: _
 	restart: "onfail" | "never" | *"always"
+	rollout?: {
+		maxSurgePercentage?:     uint & <=100 & >=0
+		minAvailablePercentage?: uint & <=100 & >=0
+	}
 }
 
 #ContainerSpec: {
