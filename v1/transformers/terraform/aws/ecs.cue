@@ -712,6 +712,11 @@ _#ECSService: {
 #AddECS: v1.#Transformer & {
 	traits.#ECS
 	ecs: _
+	aws: {
+		region:  string
+		account: string
+		...
+	}
 	_tags: {
 		if ecs.environment != _|_ {
 			environment: ecs.environment
@@ -735,7 +740,35 @@ _#ECSService: {
 		resource: aws_kms_key: "ecs_logs_\(ecs.name)": {
 			description:             "ecs_\(ecs.name) logs encryption key"
 			deletion_window_in_days: 7
-			tags:                    _tags
+			policy:                  json.Marshal(resources.#IAMPolicy &
+				{
+					Version: "2012-10-17"
+					Statement: [
+						{
+							Sid:    "IAMUser"
+							Effect: "Allow"
+							Principal: AWS: "arn:aws:iam::\(aws.account):root"
+							Action:   "kms:*"
+							Resource: "*"
+						},
+						{
+							Sid:    "CloudWatchLogs"
+							Effect: "Allow"
+							Principal: Service: "logs.region.amazonaws.com"
+							Action: [
+								"kms:Encrypt*",
+								"kms:Decrypt*",
+								"kms:ReEncrypt*",
+								"kms:GenerateDataKey*",
+								"kms:Describe*",
+							]
+							Resource: "*"
+							Condition: ArnEquals: "kms:EncryptionContext:aws:logs:arn": "arn:aws:logs:\(aws.region):\(aws.account):log-group:/aws/ecs/\(ecs.name)"
+						},
+					]
+
+				})
+			tags: _tags
 		}
 		if ecs.logging.enabled {
 			resource: aws_cloudwatch_log_group: "ecs_\(ecs.name)": {
