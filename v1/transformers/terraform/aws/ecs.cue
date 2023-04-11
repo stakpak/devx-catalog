@@ -763,7 +763,9 @@ _#ECSService: {
 								"kms:Describe*",
 							]
 							Resource: "*"
-							Condition: ArnEquals: "kms:EncryptionContext:aws:logs:arn": "arn:aws:logs:\(aws.region):\(aws.account):log-group:/aws/ecs/\(ecs.name)"
+							Condition: ArnEquals: "kms:EncryptionContext:aws:logs:arn": [
+								"arn:aws:logs:\(aws.region):\(aws.account):log-group:/aws/ecs/\(ecs.name)",
+							]
 						},
 					]
 
