@@ -41,7 +41,7 @@ _addService: v1.#TestCase & {
 
 			resource: {
 				aws_iam_role: "task_execution_obi": {
-					name:               "task-execution-obi"
+					name:               "task-execution-mycluster-obi"
 					assume_role_policy: json.Marshal(resources.#IAMPolicy &
 						{
 							Version: "2012-10-17"
@@ -54,7 +54,7 @@ _addService: v1.#TestCase & {
 						})
 				}
 				aws_iam_role_policy: "task_execution_obi_default": {
-					name:   "task-execution-obi-default"
+					name:   "task-execution-mycluster-obi-default"
 					role:   "${aws_iam_role.task_execution_obi.name}"
 					policy: json.Marshal(resources.#IAMPolicy &
 						{
@@ -93,7 +93,7 @@ _addService: v1.#TestCase & {
 					launch_type:     "FARGATE"
 				}
 				aws_ecs_task_definition: "obi": {
-					family:       "obi"
+					family:       "mycluster-obi"
 					network_mode: "awsvpc"
 					requires_compatibilities: ["FARGATE"]
 					execution_role_arn:    "${aws_iam_role.task_execution_obi.arn}"
