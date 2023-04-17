@@ -84,7 +84,7 @@ import (
 	}
 }
 
-#AddMQUser: v1.#Transformer & {
+#AddRabbitMQUser: v1.#Transformer & {
 	traits.#User
 	aws: {
 		region:  string
@@ -98,7 +98,7 @@ import (
 	users: [string]: {
 		username: string
 		password: {
-			name: "mq-\(username)-password"
+			name: "mq-\(rabbitmq.name)-\(username)-password"
 			key:  "arn:aws:ssm:\(aws.region):\(aws.account):parameter/\(name)"
 		}
 	}
@@ -110,20 +110,20 @@ import (
 				for _, user in users {
 					{
 						username: user.username
-						password: "${random_password.secret_mq_\(user.username).result}"
+						password: "${random_password.secret_\(user.password.name).result}"
 					}
 				},
 			]
 		}
 
 		for _, user in users {
-			resource: aws_ssm_parameter: "secret_mq_\(user.username)": {
+			resource: aws_ssm_parameter: "secret_\(user.password.name)": {
 				name:  user.password.name
 				type:  "SecureString"
-				value: "${random_password.secret_mq_\(user.username).result}"
+				value: "${random_password.secret_\(user.password.name).result}"
 			}
 
-			resource: random_password: "secret_mq_\(user.username)": {
+			resource: random_password: "secret_\(user.password.name)": {
 				length:  32
 				special: false
 			}
