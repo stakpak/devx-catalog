@@ -61,7 +61,7 @@ import (
 		}
 		resource: aws_security_group: "mq_\(rabbitmq.name)": {
 			name:   "mq-\(rabbitmq.name)"
-			vpc_id: "${data.aws_vpc.\(aws.vpc.vpc.name).id}"
+			vpc_id: "${data.aws_vpc.\(aws.vpc.name).id}"
 
 			ingress: [
 				{
