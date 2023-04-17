@@ -16,6 +16,7 @@ import (
 			"mq.m5.xlarge" |
 			"mq.m5.2xlarge" |
 			"mq.m5.4xlarge"
+		...
 	}
 	rabbitmq: host:        string | *"${aws_mq_broker.\(rabbitmq.name).instances.0.endpoints.0}"
 	$resources: terraform: schema.#Terraform & {
