@@ -599,7 +599,7 @@ import (
 			dns_config: {
 				namespace_id: "${data.aws_service_discovery_dns_namespace.ecs_\(clusterName).id}"
 				dns_records: {
-					ttl:  uint | *10
+					ttl:  uint | *5
 					type: "A"
 				}
 				routing_policy: "MULTIVALUE"
