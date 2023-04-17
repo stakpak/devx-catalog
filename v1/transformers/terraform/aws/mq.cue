@@ -10,7 +10,7 @@ import (
 	traits.#RabbitMQ
 	rabbitmq: _
 	aws: {
-		vpc:          traits.#VPC
+		vpc: name: string
 		instanceType: *"mq.t3.micro" |
 			"mq.m5.large " |
 			"mq.m5.xlarge" |
@@ -19,7 +19,25 @@ import (
 	}
 	rabbitmq: host:        string | *"${aws_mq_broker.\(rabbitmq.name).instances.0.endpoints.0}"
 	$resources: terraform: schema.#Terraform & {
-		data: aws_vpc: "\(aws.vpc.name)": tags: Name: aws.vpc.name
+		data: {
+			aws_vpc: "\(aws.vpc.name)": tags: Name: aws.vpc.name
+			aws_subnets: "\(aws.vpc.name)": {
+				filter: [
+					{
+						name: "vpc-id"
+						values: ["${data.aws_vpc.\(aws.vpc.name).id}"]
+					},
+					{
+						name: "mapPublicIpOnLaunch"
+						values: ["false"]
+					},
+				]
+			}
+			aws_subnet: "\(aws.vpc.name)": {
+				count: "${length(data.aws_subnets.\(aws.vpc.name).ids)}"
+				id:    "${tolist(data.aws_subnets.\(aws.vpc.name).ids)[count.index]}"
+			}
+		}
 		resource: aws_mq_broker: "\(rabbitmq.name)": {
 			broker_name: rabbitmq.name
 
@@ -35,6 +53,11 @@ import (
 			authentication_strategy: "simple"
 
 			encryption_options: use_aws_owned_key: true
+
+			user: [...{
+				username: string
+				password: string
+			}]
 		}
 		resource: aws_security_group: "mq_\(rabbitmq.name)": {
 			name:   "mq-\(rabbitmq.name)"
@@ -46,7 +69,7 @@ import (
 					from_port: 5671
 					to_port:   5671
 
-					cidr_blocks: [aws.vpc.vpc.cidr]
+					cidr_blocks: "${data.aws_subnet.\(aws.vpc.name).*.cidr_block}"
 
 					description:      null
 					ipv6_cidr_blocks: null
@@ -81,6 +104,7 @@ import (
 
 	$resources: terraform: schema.#Terraform & {
 		resource: aws_mq_broker: "\(rabbitmq.name)": {
+			...
 			user: [
 				for _, user in users {
 					{
