@@ -55,6 +55,18 @@ import (
 
 			encryption_options: use_aws_owned_key: true
 
+			deployment_mode: *"SINGLE_INSTANCE" | "ACTIVE_STANDBY_MULTI_AZ" | "CLUSTER_MULTI_AZ"
+
+			if deployment_mode == "SINGLE_INSTANCE" {
+				subnet_ids: [
+					"${data.aws_subnets.\(aws.vpc.name).ids[0]}",
+				]
+			}
+
+			if deployment_mode == "ACTIVE_STANDBY_MULTI_AZ" {
+				subnet_ids: "${data.aws_subnets.\(aws.vpc.name).ids}"
+			}
+
 			user: [...{
 				username: string
 				password: string
