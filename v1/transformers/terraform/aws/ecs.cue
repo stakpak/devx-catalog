@@ -145,7 +145,7 @@ import (
 		}
 		resource: {
 			aws_iam_role: "task_\(appName)": {
-				name:               "task-\(appName)"
+				name:               "task-\(clusterName)-\(appName)"
 				assume_role_policy: json.Marshal(resources.#IAMPolicy &
 					{
 						Version: "2012-10-17"
@@ -163,7 +163,7 @@ import (
 					})
 			}
 			aws_iam_role_policy: "task_\(appName)_default": {
-				name:   "task-\(appName)-default"
+				name:   "task-\(clusterName)-\(appName)-default"
 				role:   "${aws_iam_role.task_\(appName).name}"
 				policy: json.Marshal(resources.#IAMPolicy &
 					{
@@ -209,7 +209,7 @@ import (
 					})
 			}
 			aws_iam_role: "task_execution_\(appName)": {
-				name:               "task-execution-\(appName)"
+				name:               "task-execution-\(clusterName)-\(appName)"
 				assume_role_policy: json.Marshal(resources.#IAMPolicy &
 					{
 						Version: "2012-10-17"
@@ -222,7 +222,7 @@ import (
 					})
 			}
 			aws_iam_role_policy: "task_execution_\(appName)_default": {
-				name:   "task-execution-\(appName)-default"
+				name:   "task-execution-\(clusterName)-\(appName)-default"
 				role:   "${aws_iam_role.task_execution_\(appName).name}"
 				policy: json.Marshal(resources.#IAMPolicy &
 					{
@@ -287,7 +287,7 @@ import (
 				network_configuration: subnets: "${data.aws_subnets.\(aws.vpc.name).ids}"
 			}
 			aws_ecs_task_definition: "\(appName)": _#ECSTaskDefinition & {
-				family:       appName
+				family:       "\(clusterName)-\(appName)"
 				network_mode: "awsvpc"
 				requires_compatibilities: [launchType]
 
