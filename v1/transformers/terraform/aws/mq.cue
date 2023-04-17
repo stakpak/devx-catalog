@@ -1,0 +1,107 @@
+package aws
+
+import (
+	"guku.io/devx/v1"
+	"guku.io/devx/v1/traits"
+	schema "guku.io/devx/v1/transformers/terraform"
+)
+
+#AddRabbitMQ: v1.#Transformer & {
+	traits.#RabbitMQ
+	rabbitmq: _
+	aws: {
+		vpc:          traits.#VPC
+		instanceType: *"mq.t3.micro" |
+			"mq.m5.large " |
+			"mq.m5.xlarge" |
+			"mq.m5.2xlarge" |
+			"mq.m5.4xlarge"
+	}
+	rabbitmq: host:        string | *"${aws_mq_broker.\(rabbitmq.name).instances.0.endpoints.0}"
+	$resources: terraform: schema.#Terraform & {
+		data: aws_vpc: "\(aws.vpc.name)": tags: Name: aws.vpc.name
+		resource: aws_mq_broker: "\(rabbitmq.name)": {
+			broker_name: rabbitmq.name
+
+			engine_type:        "RabbitMQ"
+			engine_version:     rabbitmq.version
+			storage_type:       "ebs"
+			host_instance_type: aws.instanceType
+			security_groups: [
+				"${aws_security_group.mq_\(rabbitmq.name).id}",
+			]
+
+			apply_immediately:       true
+			authentication_strategy: "simple"
+
+			encryption_options: use_aws_owned_key: true
+		}
+		resource: aws_security_group: "mq_\(rabbitmq.name)": {
+			name:   "mq-\(rabbitmq.name)"
+			vpc_id: "${data.aws_vpc.\(aws.vpc.vpc.name).id}"
+
+			ingress: [
+				{
+					protocol:  "tcp"
+					from_port: 5671
+					to_port:   5671
+
+					cidr_blocks: [aws.vpc.vpc.cidr]
+
+					description:      null
+					ipv6_cidr_blocks: null
+					prefix_list_ids:  null
+					self:             null
+					security_groups:  null
+				},
+			]
+		}
+		output: "mq_\(rabbitmq.name)_endpoint": value: "${aws_mq_broker.\(rabbitmq.name).instances.0.endpoints.0}"
+	}
+}
+
+#AddMQUser: v1.#Transformer & {
+	traits.#User
+	aws: {
+		region:  string
+		account: string
+		...
+	}
+	rabbitmq: {
+		name: string
+		...
+	}
+	users: [string]: {
+		username: string
+		password: {
+			name: "mq-\(username)-password"
+			key:  "arn:aws:ssm:\(aws.region):\(aws.account):parameter/\(name)"
+		}
+	}
+
+	$resources: terraform: schema.#Terraform & {
+		resource: aws_mq_broker: "\(rabbitmq.name)": {
+			user: [
+				for _, user in users {
+					{
+						username: user.username
+						password: "${random_password.secret_mq_\(user.username).result}"
+					}
+				},
+			]
+		}
+
+		for _, user in users {
+			resource: aws_ssm_parameter: "secret_mq_\(user.username)": {
+				name:  user.password.name
+				type:  "SecureString"
+				value: "${random_password.secret_mq_\(user.username).result}"
+			}
+
+			resource: random_password: "secret_mq_\(user.username)": {
+				length:  32
+				special: false
+			}
+		}
+	}
+}
