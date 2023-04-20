@@ -320,16 +320,22 @@ import (
 							image:     container.image
 							// Set to avoid SSM agent child processes becoming orphaned
 							linuxParameters: initProcessEnabled: true
-							entryPoint: [
-								for v in container.command {
-									v
-								},
-							]
-							command: [
-								for v in container.args {
-									v
-								},
-							]
+
+							if len(container.command) > 0 {
+								entryPoint: [
+									for v in container.command {
+										v
+									},
+								]
+							}
+
+							if len(container.args) > 0 {
+								command: [
+									for v in container.args {
+										v
+									},
+								]
+							}
 
 							environment: [
 								for k, v in container.env if (v & string) != _|_ {
