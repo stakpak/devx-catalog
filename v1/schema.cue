@@ -23,6 +23,7 @@ import (
 	$metadata: {
 		id: string
 		labels: [string]: string
+		transformed?: bool
 	}
 	#Trait
 }
@@ -38,6 +39,7 @@ import (
 
 #Transformer: {
 	#Component
+	$metadata: transformed: true
 	$resources: [string]: {
 		$metadata: labels: [string]: string
 		$metadata: labels: driver:   string
