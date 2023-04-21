@@ -163,7 +163,6 @@ _#HPAResource: {
 }
 
 #AddService: v1.#Transformer & {
-	v1.#Component
 	traits.#Workload
 	traits.#Exposable
 	$metadata: _
@@ -179,10 +178,14 @@ _#HPAResource: {
 			ports: [
 				for p in endpoints.default.ports {
 					{
-						name: [
-							if p.name != _|_ {p.name},
-							"\(p.port)",
-						][0]
+						if p.name != _|_ {
+							name: p.name
+						}
+
+						if p.name == _|_ {
+							name: "\(p.port)"
+						}
+
 						port: p.port
 					}
 				},
