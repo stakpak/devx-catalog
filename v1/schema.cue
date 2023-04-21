@@ -13,18 +13,20 @@ import (
 	property?: string
 }
 
+#ComponentMetadata: $metadata: {
+	id: string
+	labels: [string]: string
+	traits: [string]: _ | *null
+	transformed?: bool
+}
+
 #Trait: {
-	#Component
-	$metadata: traits: [string]: _ | *null
+	#ComponentMetadata
 	...
 }
 
 #Component: {
-	$metadata: {
-		id: string
-		labels: [string]: string
-		transformed?: bool
-	}
+	#ComponentMetadata
 	#Trait
 }
 
