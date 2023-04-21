@@ -63,13 +63,9 @@ import (
 	}
 	components: {
 		if config.gateway != _|_ {
-			[string]: this={
-				if this.http != _|_ {
-					http: {
-						gateway: config.gateway
-						...
-					}
-				}
+			[string]: http?: {
+				gateway: config.gateway
+				...
 			}
 		}
 	}
