@@ -1,2 +1,3 @@
 module: "guku.io/devx"
-packages: []
+
+cue: lang: "v0.6.0-alpha.1"
