@@ -19,3 +19,8 @@ import (
 		...
 	}
 }
+
+#ManualEvent: traits.#WorkflowTrigger & {
+	$metadata: trigger: "ManualEvent"
+	inputs: [string]:   _
+}

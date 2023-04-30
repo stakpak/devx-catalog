@@ -30,6 +30,12 @@ import (
 				if trigger.$metadata.trigger == "PullRequestEvent" {
 					pull_request: (triggers.#PullRequestEvent & trigger).filters
 				}
+				if trigger.$metadata.trigger == "ManualEvent" {
+					workflow_dispatch: {
+						inputs: (triggers.#ManualEvent & trigger).inputs
+						...
+					}
+				}
 			}
 		}
 		jobs: {
