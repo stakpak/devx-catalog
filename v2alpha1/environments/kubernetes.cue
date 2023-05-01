@@ -7,8 +7,6 @@ import (
 )
 
 #Kubernetes: v2alpha1.#StackBuilder & {
-	$metadata: builder: "Kubernetes"
-
 	config: {
 		defaultSecurityContext?: _
 		namespace?:              string

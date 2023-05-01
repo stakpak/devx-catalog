@@ -7,8 +7,6 @@ import (
 )
 
 #ECS: v2alpha1.#StackBuilder & {
-	$metadata: builder: "ECS"
-
 	config: {
 		aws: {
 			region:  string
