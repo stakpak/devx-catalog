@@ -205,3 +205,24 @@ import (
 		]
 	}
 }
+
+// add a compose service for a redis instance
+#AddRedis: v1.#Transformer & {
+	traits.#Redis
+	$metadata: _
+	$dependencies: [...string]
+
+	redis: host:         "\($metadata.id)"
+	$resources: compose: #Compose & {
+		services: "\($metadata.id)": {
+			image: "redis:\(redis.version)-alpine"
+			ports: [
+				"\(redis.port)",
+			]
+			depends_on: [
+				for id in $dependencies if services[id] != _|_ {id},
+			]
+			restart: "no"
+		}
+	}
+}

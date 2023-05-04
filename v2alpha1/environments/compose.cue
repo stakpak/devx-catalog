@@ -12,6 +12,7 @@ import (
 		"compose/add-service": pipeline: [compose.#AddComposeService]
 		"compose/expose-service": pipeline: [compose.#ExposeComposeService]
 		"compose/add-database": pipeline: [compose.#AddDatabase]
+		"compose/add-redis": pipeline: [compose.#AddRedis]
 		"compose/add-volume": pipeline: [compose.#AddComposeVolume]
 		"compose/add-kafka": pipeline: [compose.#AddKafka]
 		"compose/add-kafka-user": pipeline: [compose.#AddKafkaUser]
