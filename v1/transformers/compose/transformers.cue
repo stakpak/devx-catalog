@@ -20,7 +20,8 @@ import (
 		working_dir?: string
 		hostname?:    string
 		build?: {
-			context: string
+			context:     string
+			dockerfile?: string
 			args: [string]: string
 		}
 		container_name?: string
