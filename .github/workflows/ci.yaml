@@ -12,5 +12,5 @@ jobs:
           fetch-depth: 0
       - uses: cue-lang/setup-cue@v1.0.0-alpha.2
         with:
-          version: "v0.4.3"
+          version: "v0.6.0-alpha.1"
       - run: make test
