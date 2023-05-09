@@ -23,9 +23,10 @@ _#ArgoCDApplicationResource: {
 	traits.#Helm
 	$metadata: _
 	helm:      _
+	helm: repoType:                "git" | "oci" | "default"
 	$resources: "\($metadata.id)": _#ArgoCDApplicationResource & {
 		metadata: {
-			name:      $metadata.id
+			name:      helm.release
 			namespace: helm.namespace
 			finalizers: [
 				"resources-finalizer.argocd.argoproj.io",
@@ -40,7 +41,7 @@ _#ArgoCDApplicationResource: {
 				targetRevision: helm.version
 
 				"helm": {
-					releaseName: $metadata.id
+					releaseName: helm.release
 					values:      yaml.Marshal(helm.values)
 				}
 			}

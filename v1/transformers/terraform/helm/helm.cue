@@ -12,9 +12,10 @@ import (
 	traits.#Helm
 	$metadata: _
 	helm:      _
+	helm: repoType:        "default"
 	$resources: terraform: schema.#Terraform & {
-		resource: helm_release: "\($metadata.id)": {
-			name:             $metadata.id
+		resource: helm_release: "\(helm.release)": {
+			name:             helm.release
 			namespace:        helm.namespace
 			repository:       helm.url
 			chart:            helm.chart
@@ -27,7 +28,7 @@ import (
 			]
 			depends_on: [
 				for item in helm.dependsOn {
-					"helm_release.\(item.$metadata.id)"
+					"helm_release.\(item.release)"
 				},
 			]
 		}
