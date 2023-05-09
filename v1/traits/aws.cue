@@ -46,7 +46,7 @@ import (
 
 // an s3 compatible bucket
 #S3CompatibleBucket: v1.#Trait & {
-	$metadata: traits: S3Bucket: null
+	$metadata: traits: S3CompatibleBucket: null
 	s3: {
 		prefix:         string | *""
 		name:           string
