@@ -1,0 +1,73 @@
+package digitalocean
+
+import (
+	"guku.io/devx/v1"
+	"guku.io/devx/v1/traits"
+	schema "guku.io/devx/v1/transformers/terraform"
+)
+
+#AddKubernetesCluster: v1.#Transformer & {
+	traits.#KubernetesCluster
+	k8s: _
+	k8s: version: major: 1
+	k8s: version: minor: <=26 & >=24
+	digitalocean: {
+		providerVersion: string | *"2.28.1"
+		region:          "nyc1" | "nyc3" | "ams3" | "sfo3" | "sgp1" | "lon1" | "fra1" | "tor1" | "blr1" | "syd1"
+		doks: {
+			nodeSize:      *"s-1vcpu-2gb" | "s-2vcpu-2gb" | "s-1vcpu-3gb" | "s-2vcpu-4gb"
+			minSize:       uint | *1
+			maxSize:       uint | *2
+			nodeAutoScale: bool | *true
+			autoUpgrade:   bool | *true
+			ha:            bool | *true
+		}
+	}
+	$resources: terraform: schema.#Terraform & {
+		// data: digitalocean_kubernetes_cluster: "\(k8s.name)": name: "${digitalocean_kubernetes_cluster.\(k8s.name).id}"
+		data: "digitalocean_kubernetes_versions": "\(k8s.name)": {
+			version_prefix: "\(k8s.version.major).\(k8s.version.minor)."
+		}
+		terraform: {
+			required_providers: {
+				"digitalocean": {
+					source:  "digitalocean/digitalocean"
+					version: digitalocean.providerVersion
+				}
+			}
+		}
+		resource: digitalocean_kubernetes_cluster: "\(k8s.name)": {
+			name:         k8s.name
+			region:       digitalocean.region
+			version:      "${data.digitalocean_kubernetes_versions.\(k8s.name).latest_version}"
+			auto_upgrade: digitalocean.doks.autoUpgrade
+			ha:           digitalocean.doks.ha
+			node_pool: [
+				{
+					name:       "worker-pool-1"
+					size:       digitalocean.doks.nodeSize
+					auto_scale: digitalocean.doks.nodeAutoScale
+					node_count: digitalocean.doks.minSize
+					min_nodes:  digitalocean.doks.minSize
+					max_nodes:  digitalocean.doks.maxSize
+					tags: [
+						"worker-pool-1",
+					]
+				},
+			]
+		}
+	}
+}
+
+#AddKubernetesClusterProvider: v1.#Transformer & {
+	traits.#KubernetesCluster
+	k8s: _
+	$resources: terraform: schema.#Terraform & {
+		data: digitalocean_kubernetes_cluster: "\(k8s.name)": name: "${digitalocean_kubernetes_cluster.\(k8s.name).id}"
+		provider: "kubernetes": {
+			host:                   "${digitalocean_kubernetes_cluster.\(k8s.name).endpoint}"
+			token:                  "${digitalocean_kubernetes_cluster.\(k8s.name).kube_config[0].token}"
+			cluster_ca_certificate: "${base64decode(digitalocean_kubernetes_cluster.\(k8s.name).kube_config[0].cluster_ca_certificate)}"
+		}
+	}
+}
