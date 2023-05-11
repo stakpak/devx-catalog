@@ -8,8 +8,8 @@ import (
 	$metadata: traits: KubernetesCluster: null
 	k8s!: {
 		name!: string
-		version!: {
-			major!: uint | *1
+		version: {
+			major:  uint | *1
 			minor!: uint
 			patch?: uint
 		}
