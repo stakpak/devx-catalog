@@ -24,7 +24,6 @@ import (
 		}
 	}
 	$resources: terraform: schema.#Terraform & {
-		// data: digitalocean_kubernetes_cluster: "\(k8s.name)": name: "${digitalocean_kubernetes_cluster.\(k8s.name).id}"
 		data: "digitalocean_kubernetes_versions": "\(k8s.name)": {
 			version_prefix: "\(k8s.version.major).\(k8s.version.minor)."
 		}
