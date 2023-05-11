@@ -9,7 +9,7 @@ import (
 	traits.#Helm
 	helm: {
 		repoType: "default"
-		url:      "https://charts.external-secrets.io"
+		url:      "https://external-secrets.io"
 		chart:    "external-secrets"
 
 		version: string | *"0.6.0"
