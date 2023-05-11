@@ -1,7 +1,7 @@
 package eso
 
 import (
-	"guku.io/devx/k8s/types"
+	"guku.io/devx/k8s"
 	"k8s.io/api/core/v1"
 	admv1 "k8s.io/api/admissionregistration/v1"
 )
@@ -75,12 +75,12 @@ import (
 	extraVolumeMounts: [...v1.#VolumeMount]
 
 	// -- Annotations to add to Deployment
-	deploymentAnnotations: types.#Annotations
+	deploymentAnnotations: k8s.#Annotations
 
 	// -- Annotations to add to Pod
-	podAnnotations: types.#Annotations
+	podAnnotations: k8s.#Annotations
 
-	podLabels: types.#Labels
+	podLabels: k8s.#Labels
 
 	podSecurityContext: v1.#PodSecurityContext
 	// fsGroup: 2000
@@ -103,7 +103,7 @@ import (
 	serviceMonitor: #ServiceMonitor
 	metrics:        #Metrics
 
-	nodeSelector: types.#Labels
+	nodeSelector: k8s.#Labels
 
 	tolerations: [...v1.#Toleration]
 
@@ -133,13 +133,13 @@ import (
 		nameOverride:     string | *""
 		fullnameOverride: string | *""
 		// -- The port the webhook will listen to
-		port: types.#Port | *10250
+		port: k8s.#Port | *10250
 		rbac: {
 			// -- Specifies whether role and rolebinding resources should be created.
 			create: bool | *true
 		}
 		serviceAccount: #ServiceAccount
-		nodeSelector:   types.#Labels
+		nodeSelector:   k8s.#Labels
 
 		tolerations: [...v1.#Toleration]
 
@@ -159,7 +159,7 @@ import (
 			// -- Address for readiness probe
 			address: string | *""
 			// -- ReadinessProbe port for kubelet
-			port: types.#Port | *8081
+			port: k8s.#Port | *8081
 		}
 
 		//# -- Extra environment variables to add to container.
@@ -175,15 +175,15 @@ import (
 		extraVolumeMounts: [...v1.#VolumeMount]
 
 		// -- Annotations to add to Secret
-		secretAnnotations: types.#Annotations
+		secretAnnotations: k8s.#Annotations
 
 		// -- Annotations to add to Deployment
-		deploymentAnnotations: types.#Annotations
+		deploymentAnnotations: k8s.#Annotations
 
 		// -- Annotations to add to Pod
-		podAnnotations: types.#Annotations
+		podAnnotations: k8s.#Annotations
 
-		podLabels: types.#Labels
+		podLabels: k8s.#Labels
 
 		podSecurityContext: v1.#PodSecurityContext
 		// fsGroup: 2000
@@ -216,7 +216,7 @@ import (
 			create: bool | *true
 		}
 		serviceAccount: #ServiceAccount
-		nodeSelector:   types.#Labels
+		nodeSelector:   k8s.#Labels
 		tolerations: [...v1.#Toleration]
 
 		affinity: v1.#Affinity
@@ -245,12 +245,12 @@ import (
 		extraVolumeMounts: [...v1.#VolumeMount]
 
 		// -- Annotations to add to Deployment
-		deploymentAnnotations: types.#Annotations
+		deploymentAnnotations: k8s.#Annotations
 
 		// -- Annotations to add to Pod
-		podAnnotations: types.#Annotations
+		podAnnotations: k8s.#Annotations
 
-		podLabels: types.#Labels
+		podLabels: k8s.#Labels
 
 		podSecurityContext: v1.#PodSecurityContext
 		// fsGroup: 2000
@@ -289,7 +289,7 @@ import (
 	enabled: bool | *false
 
 	// -- Additional labels
-	additionalLabels: types.#Labels
+	additionalLabels: k8s.#Labels
 
 	// --  Interval to scrape metrics
 	interval: string | *"30s"
@@ -303,10 +303,10 @@ import (
 	enabled: bool | *false
 
 	// -- Metrics service port to scrape
-	port: types.#Port | *8080
+	port: k8s.#Port | *8080
 
 	// -- Additional service annotations
-	annotations: types.#Annotations
+	annotations: k8s.#Annotations
 }
 
 #Prometheus: {
@@ -314,7 +314,7 @@ import (
 	enabled: bool | *false
 	service: {
 		// -- deprecated. will be removed with 0.7.0, use serviceMonitor instead.
-		port: types.#Port | *8080
+		port: k8s.#Port | *8080
 	}
 }
 
@@ -322,9 +322,9 @@ import (
 	// -- Specifies whether a service account should be created.
 	create: bool | *true
 	// -- Annotations to add to the service account.
-	annotations: types.#Annotations
+	annotations: k8s.#Annotations
 	// -- Extra Labels to add to the service account.
-	extraLabels: types.#Labels
+	extraLabels: k8s.#Labels
 	// -- The name of the service account to use.
 	// If not set and create is true, a name is generated using the fullname template.
 	name: string | *""
