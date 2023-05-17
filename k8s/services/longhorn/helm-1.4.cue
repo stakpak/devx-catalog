@@ -1,6 +1,6 @@
 package longhorn
 
-#KubeVersion: [=~"^1\\.4\\."]: minor: >=20
+#KubeVersion: [=~"^1\\.4\\."]: minor: >=21
 #Values: [=~"^1\\.4\\."]: {
 	global: {
 		cattle: {
