@@ -8,7 +8,7 @@ import (
 KubernetesBareMetalStack: v1.#Stack & {
 	$metadata: stack: "KubernetesBareMetalStack"
 	components: {
-		longhorn: longhorn.#LonghornChart & {
+		"longhorn": longhorn.#LonghornChart & {
 			helm: {
 				version: "1.4.2"
 				release: "longhorn"
