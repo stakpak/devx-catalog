@@ -10,6 +10,10 @@ import (
 	v1beta1.#ClusterSecretStore
 	apiVersion: "external-secrets.io/v1beta1"
 	kind:       "ClusterSecretStore"
+	spec: {
+		controller:      string | *""
+		refreshInterval: uint | *0
+	}
 }
 #ClusterExternalSecret: {
 	k8s.#KubernetesResource
@@ -24,6 +28,10 @@ import (
 	apiVersion: "external-secrets.io/v1beta1"
 	kind:       "SecretStore"
 	metadata: namespace!: string
+	spec: {
+		controller:      string | *""
+		refreshInterval: uint | *0
+	}
 }
 #ExternalSecret: {
 	k8s.#KubernetesResource

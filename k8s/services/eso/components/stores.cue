@@ -19,14 +19,14 @@ import (
 	}
 
 	if secretStore.scope == "cluster" {
-		k8sResources: "secret-store/\(secretStore.name)": resources.#ClusterSecretStore
+		k8sResources: "secret-store-\(secretStore.name)": resources.#ClusterSecretStore
 	}
 	if secretStore.scope == "namespace" {
-		k8sResources: "secret-store/\(secretStore.name)": resources.#SecretStore & {
+		k8sResources: "secret-store-\(secretStore.name)": resources.#SecretStore & {
 			metadata: namespace: secretStore.namespace
 		}
 	}
-	k8sResources: "secret-store/\(secretStore.name)": {
+	k8sResources: "secret-store-\(secretStore.name)": {
 		metadata: name: secretStore.name
 		spec: provider: aws: {
 			service: secretStore.type
