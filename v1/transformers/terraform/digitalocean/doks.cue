@@ -62,7 +62,10 @@ import (
 	traits.#KubernetesCluster
 	k8s: _
 	$resources: terraform: schema.#Terraform & {
-		data: digitalocean_kubernetes_cluster: "\(k8s.name)": name: "${digitalocean_kubernetes_cluster.\(k8s.name).id}"
+		data: digitalocean_kubernetes_cluster: "\(k8s.name)": {
+			name: k8s.name
+			depends_on: ["digitalocean_kubernetes_cluster.\(k8s.name)"]
+		}
 		provider: {
 			kubernetes: {
 				host:                   "${digitalocean_kubernetes_cluster.\(k8s.name).endpoint}"
