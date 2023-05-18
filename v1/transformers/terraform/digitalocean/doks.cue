@@ -46,7 +46,6 @@ import (
 					name:       "worker-pool-1"
 					size:       digitalocean.doks.nodeSize
 					auto_scale: digitalocean.doks.nodeAutoScale
-					node_count: digitalocean.doks.minSize
 					min_nodes:  digitalocean.doks.minSize
 					max_nodes:  digitalocean.doks.maxSize
 					tags: [
