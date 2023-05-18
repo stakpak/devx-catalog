@@ -480,3 +480,14 @@ _#IngressResource: {
 		}
 	}
 }
+
+#AddKubernetesResources: v1.#Transformer & {
+	traits.#KubernetesResources
+	$metadata:    _
+	k8sResources: _
+	$resources: {
+		for name, resource in k8sResources {
+			"\($metadata.id)-\(name)": resource
+		}
+	}
+}

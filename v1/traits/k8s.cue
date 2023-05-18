@@ -2,6 +2,7 @@ package traits
 
 import (
 	"guku.io/devx/v1"
+	"guku.io/devx/k8s"
 )
 
 #KubernetesCluster: v1.#Trait & {
@@ -14,4 +15,9 @@ import (
 			patch?: uint
 		}
 	}
+}
+
+#KubernetesResources: v1.#Trait & {
+	$metadata: traits: KubernetesResources: null
+	k8sResources!: [string]: k8s.#KubernetesResource
 }
