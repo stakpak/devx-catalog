@@ -39,8 +39,8 @@ import (
 			for _, user in users {
 				for name, policy in policies {
 					aws_iam_policy: "\(user.username)_\(name)": {
-						"name": "\(user.username)-\(name)"
-						policy: json.Marshal(resources.#IAMPolicy &
+						"name":   "\(user.username)-\(name)"
+						"policy": json.Marshal(resources.#IAMPolicy &
 							{
 								Version: "2012-10-17"
 								Statement: [
@@ -55,7 +55,7 @@ import (
 							})
 					}
 					aws_iam_user_policy_attachment: "\(user.username)_\(name)": {
-						user:       "${aws_iam_user.\(user.username).name}"
+						"user":     "${aws_iam_user.\(user.username).name}"
 						policy_arn: "${aws_iam_policy.\(user.username)_\(name).arn}"
 					}
 				}
