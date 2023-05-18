@@ -19,7 +19,7 @@ import (
 	}
 }
 
-#AddIAMUserSecret: #AddKubernetesResources & {
+#AddIAMUserSecret: v1.#Transformer & {
 	traits.#User
 	$metadata: _
 	users: [string]: {
