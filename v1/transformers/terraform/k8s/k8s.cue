@@ -12,7 +12,7 @@ import (
 	k8sResources: _
 	$resources: terraform: schema.#Terraform & {
 		for name, resource in k8sResources {
-			"resource": "\($metadata.id)_\(name)": manifest: {
+			"resource": kubernetes_manifest: "\($metadata.id)_\(name)": manifest: {
 				resource
 			}
 		}
