@@ -487,7 +487,15 @@ _#IngressResource: {
 	k8sResources: _
 	$resources: {
 		for name, resource in k8sResources {
-			"\($metadata.id)-\(name)": resource
+			"\($metadata.id)-\(name)": {
+				$metadata: labels: {
+					driver: "kubernetes"
+					type:   "\(apiVersion)/\(strings.ToLower(kind))"
+				}
+				apiVersion: string
+				kind:       string
+				resource
+			}
 		}
 	}
 }

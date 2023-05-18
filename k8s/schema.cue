@@ -1,13 +1,7 @@
 package k8s
 
-import "strings"
-
 #KubernetesName: =~"^[a-z0-9][-a-z0-9]{0,251}[a-z0-9]?$"
 #KubernetesResource: {
-	$metadata: labels: {
-		driver: "kubernetes"
-		type:   "\(apiVersion)/\(strings.ToLower(kind))"
-	}
 	kind!:       string
 	apiVersion!: string
 	metadata!: {
