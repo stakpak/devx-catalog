@@ -12,16 +12,13 @@ import (
 	traits.#User
 	users: [string]: {
 		username: string
-		password: {
-			name:     "\(username)"
-			property: "secret-access-key"
-		}
+		password: name: "\(username)"
 	}
 	for _, user in users {
 		$resources: terraform: schema.#Terraform & {
 			resource: {
-				aws_iam_user: "\(user.username)": name:       user.username
-				aws_iam_access_key: "\(user.username)": user: "${aws_iam_user.\(user.username).name}"
+				aws_iam_user: "\(user.username)": name:         user.username
+				aws_iam_access_key: "\(user.username)": "user": "${aws_iam_user.\(user.username).name}"
 			}
 		}
 	}
