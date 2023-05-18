@@ -68,9 +68,9 @@ import (
 		}
 		provider: {
 			kubernetes: {
-				host:                   "${digitalocean_kubernetes_cluster.\(k8s.name).endpoint}"
-				token:                  "${digitalocean_kubernetes_cluster.\(k8s.name).kube_config[0].token}"
-				cluster_ca_certificate: "${base64decode(digitalocean_kubernetes_cluster.\(k8s.name).kube_config[0].cluster_ca_certificate)}"
+				host:                   "${data.digitalocean_kubernetes_cluster.\(k8s.name).endpoint}"
+				token:                  "${data.digitalocean_kubernetes_cluster.\(k8s.name).kube_config[0].token}"
+				cluster_ca_certificate: "${base64decode(data.digitalocean_kubernetes_cluster.\(k8s.name).kube_config[0].cluster_ca_certificate)}"
 			}
 			helm: "kubernetes": kubernetes
 		}
