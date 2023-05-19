@@ -1,5 +1,7 @@
 package terraform
 
+import "guku.io/devx/v1"
+
 #Terraform: {
 	$metadata: labels: {
 		driver: "terraform"
@@ -17,7 +19,7 @@ package terraform
 	output?: [string]: value: _
 }
 
-#SetOutputSubdir: {
+#SetOutputSubdir: v1.#Transformer & {
 	subdir: string
 	$resources: [string]: $metadata: labels: "output-subdir": subdir
 }
