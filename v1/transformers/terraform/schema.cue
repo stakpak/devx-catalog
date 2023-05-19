@@ -16,3 +16,8 @@ package terraform
 	}
 	output?: [string]: value: _
 }
+
+#SetOutputSubdir: {
+	subdir: string
+	$resources: [string]: $metadata: labels: "output-subdir": subdir
+}
