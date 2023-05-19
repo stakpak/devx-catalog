@@ -69,7 +69,6 @@ import (
 	}
 	digitalocean: {
 		providerVersion: string | *"2.28.1"
-		region:          "nyc1" | "nyc3" | "ams3" | "sfo3" | "sgp1" | "lon1" | "fra1" | "tor1" | "blr1" | "syd1"
 		...
 	}
 	$resources: terraform: schema.#Terraform & {
@@ -97,7 +96,6 @@ import (
 	}
 	digitalocean: {
 		providerVersion: string | *"2.28.1"
-		region:          "nyc1" | "nyc3" | "ams3" | "sfo3" | "sgp1" | "lon1" | "fra1" | "tor1" | "blr1" | "syd1"
 		...
 	}
 	$resources: terraform: schema.#Terraform & {
