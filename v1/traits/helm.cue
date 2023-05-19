@@ -31,6 +31,7 @@ import (
 	$metadata: traits: Helm: null
 	helm: #HelmFields & {
 		k8s: {
+			name: string
 			version: {
 				major: uint | *1
 				minor: uint
