@@ -57,34 +57,36 @@ import (
 	}
 }
 
-#AddHelmKubernetesProvider: v1.#Transformer & {
+#AddHelmProvider: v1.#Transformer & {
 	traits.#Helm
-	helm: _
+	helm: {
+		k8s: {
+			name: string
+			...
+		}
+		...
+	}
 	$resources: terraform: schema.#Terraform & {
 		data: digitalocean_kubernetes_cluster: "\(helm.k8s.name)": name: helm.k8s.name
-		provider: {
-			kubernetes: {
-				host:                   "${data.digitalocean_kubernetes_cluster.\(helm.k8s.name).endpoint}"
-				token:                  "${data.digitalocean_kubernetes_cluster.\(helm.k8s.name).kube_config[0].token}"
-				cluster_ca_certificate: "${base64decode(data.digitalocean_kubernetes_cluster.\(helm.k8s.name).kube_config[0].cluster_ca_certificate)}"
-			}
-			"helm": "kubernetes": kubernetes
+		provider: "helm": {
+			host:                   "${data.digitalocean_kubernetes_cluster.\(helm.k8s.name).endpoint}"
+			token:                  "${data.digitalocean_kubernetes_cluster.\(helm.k8s.name).kube_config[0].token}"
+			cluster_ca_certificate: "${base64decode(data.digitalocean_kubernetes_cluster.\(helm.k8s.name).kube_config[0].cluster_ca_certificate)}"
 		}
 	}
 }
 
-#AddHelmKubernetesProvider: v1.#Transformer & {
-	traits.#KubernetesResources
-	k8s: _
+#AddKubernetesProvider: v1.#Transformer & {
+	k8s: {
+		name: string
+		...
+	}
 	$resources: terraform: schema.#Terraform & {
 		data: digitalocean_kubernetes_cluster: "\(k8s.name)": name: k8s.name
-		provider: {
-			kubernetes: {
-				host:                   "${data.digitalocean_kubernetes_cluster.\(k8s.name).endpoint}"
-				token:                  "${data.digitalocean_kubernetes_cluster.\(k8s.name).kube_config[0].token}"
-				cluster_ca_certificate: "${base64decode(data.digitalocean_kubernetes_cluster.\(k8s.name).kube_config[0].cluster_ca_certificate)}"
-			}
-			"helm": "kubernetes": kubernetes
+		provider: kubernetes: {
+			host:                   "${data.digitalocean_kubernetes_cluster.\(k8s.name).endpoint}"
+			token:                  "${data.digitalocean_kubernetes_cluster.\(k8s.name).kube_config[0].token}"
+			cluster_ca_certificate: "${base64decode(data.digitalocean_kubernetes_cluster.\(k8s.name).kube_config[0].cluster_ca_certificate)}"
 		}
 	}
 }

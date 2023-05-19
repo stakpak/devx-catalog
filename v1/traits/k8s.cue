@@ -2,7 +2,7 @@ package traits
 
 import (
 	"guku.io/devx/v1"
-	"guku.io/devx/k8s"
+	k8sr "guku.io/devx/k8s"
 )
 
 #KubernetesCluster: v1.#Trait & {
@@ -27,5 +27,5 @@ import (
 			patch?: uint
 		}
 	}
-	k8sResources!: [string]: k8s.#KubernetesResource
+	k8sResources!: [string]: k8sr.#KubernetesResource
 }
