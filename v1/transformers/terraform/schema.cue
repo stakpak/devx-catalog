@@ -6,6 +6,7 @@ import "guku.io/devx/v1"
 	$metadata: labels: {
 		driver: "terraform"
 		type:   ""
+		...
 	}
 	data?: [string]: {
 		...
