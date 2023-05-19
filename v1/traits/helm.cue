@@ -5,14 +5,6 @@ import (
 )
 
 #HelmFields: {
-	k8s: {
-		version: {
-			major: uint
-			minor: uint
-			...
-		}
-		...
-	}
 	repoType: string
 	chart!:   string
 	url!:     string
@@ -29,16 +21,16 @@ import (
 // a helm chart using helm repo
 #Helm: v1.#Trait & {
 	$metadata: traits: Helm: null
-	helm: #HelmFields & {
-		k8s: {
-			name: string
-			version: {
-				major: uint | *1
-				minor: uint
-				...
-			}
+	k8s: {
+		name: string
+		version: {
+			major: uint | *1
+			minor: uint
 			...
 		}
+		...
+	}
+	helm: #HelmFields & {
 		repoType: "git" | "oci" | *"default"
 		chart!:   string
 		url!:     string

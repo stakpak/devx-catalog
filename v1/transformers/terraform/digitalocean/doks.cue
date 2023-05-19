@@ -60,11 +60,8 @@ import (
 
 #AddHelmProvider: v1.#Transformer & {
 	traits.#Helm
-	helm: {
-		k8s: {
-			name: string
-			...
-		}
+	k8s: {
+		name: string
 		...
 	}
 	digitalocean: {
@@ -80,11 +77,11 @@ import (
 				}
 			}
 		}
-		data: digitalocean_kubernetes_cluster: "\(helm.k8s.name)": name: helm.k8s.name
-		provider: "helm": kubernetes: {
-			host:                   "${data.digitalocean_kubernetes_cluster.\(helm.k8s.name).endpoint}"
-			token:                  "${data.digitalocean_kubernetes_cluster.\(helm.k8s.name).kube_config[0].token}"
-			cluster_ca_certificate: "${base64decode(data.digitalocean_kubernetes_cluster.\(helm.k8s.name).kube_config[0].cluster_ca_certificate)}"
+		data: digitalocean_kubernetes_cluster: "\(k8s.name)": name: k8s.name
+		provider: helm: kubernetes: {
+			host:                   "${data.digitalocean_kubernetes_cluster.\(k8s.name).endpoint}"
+			token:                  "${data.digitalocean_kubernetes_cluster.\(k8s.name).kube_config[0].token}"
+			cluster_ca_certificate: "${base64decode(data.digitalocean_kubernetes_cluster.\(k8s.name).kube_config[0].cluster_ca_certificate)}"
 		}
 	}
 }

@@ -7,6 +7,10 @@ import (
 
 #ExternalSecretsOperatorChart: {
 	traits.#Helm
+	k8s: "version": (v1.getMatch & {
+		match: helm.version
+		input: #KubeVersion
+	}).result
 	helm: {
 		repoType: "default"
 		url:      "https://external-secrets.io"
@@ -17,10 +21,6 @@ import (
 		namespace: string | *"external-secrets"
 		release:   string
 
-		k8s: "version": (v1.getMatch & {
-			match: version
-			input: #KubeVersion
-		}).result
 		values: (v1.getMatch & {
 			match: version
 			input: #Values
