@@ -22,6 +22,7 @@ import (
 			autoUpgrade:   bool | *true
 			ha:            bool | *true
 		}
+		...
 	}
 	$resources: terraform: schema.#Terraform & {
 		data: "digitalocean_kubernetes_versions": "\(k8s.name)": {
@@ -66,7 +67,20 @@ import (
 		}
 		...
 	}
+	digitalocean: {
+		providerVersion: string | *"2.28.1"
+		region:          "nyc1" | "nyc3" | "ams3" | "sfo3" | "sgp1" | "lon1" | "fra1" | "tor1" | "blr1" | "syd1"
+		...
+	}
 	$resources: terraform: schema.#Terraform & {
+		terraform: {
+			required_providers: {
+				"digitalocean": {
+					source:  "digitalocean/digitalocean"
+					version: digitalocean.providerVersion
+				}
+			}
+		}
 		data: digitalocean_kubernetes_cluster: "\(helm.k8s.name)": name: helm.k8s.name
 		provider: "helm": {
 			host:                   "${data.digitalocean_kubernetes_cluster.\(helm.k8s.name).endpoint}"
@@ -81,7 +95,20 @@ import (
 		name: string
 		...
 	}
+	digitalocean: {
+		providerVersion: string | *"2.28.1"
+		region:          "nyc1" | "nyc3" | "ams3" | "sfo3" | "sgp1" | "lon1" | "fra1" | "tor1" | "blr1" | "syd1"
+		...
+	}
 	$resources: terraform: schema.#Terraform & {
+		terraform: {
+			required_providers: {
+				"digitalocean": {
+					source:  "digitalocean/digitalocean"
+					version: digitalocean.providerVersion
+				}
+			}
+		}
 		data: digitalocean_kubernetes_cluster: "\(k8s.name)": name: k8s.name
 		provider: kubernetes: {
 			host:                   "${data.digitalocean_kubernetes_cluster.\(k8s.name).endpoint}"
