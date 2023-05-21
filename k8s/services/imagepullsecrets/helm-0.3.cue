@@ -1,19 +1,24 @@
 package imagepullsecrets
 
+import (
+	"guku.io/devx/k8s"
+	"k8s.io/api/core/v1"
+)
+
 #KubeVersion: [=~"^0\\.3\\."]: minor: >=21
 #Values: [=~"^0\\.3\\."]: {
-	replicas: int | *1
+	replicas: uint | *1
 	istio: {
 		revision: string | *""
 	}
-	podAnnotations: [string]: string | *{}
-	podSecurityContext: {
+	podAnnotations:     k8s.#Annotations | *{}
+	podSecurityContext: v1.#PodSecurityContext | *{
 		runAsNonRoot: bool | *true
 		seccompProfile: {
 			type: string | *"RuntimeDefault"
 		}
 	}
-	securityContext: {
+	securityContext: v1.#SecurityContext | *{
 		allowPrivilegeEscalation: bool | *false
 		capabilities: {
 			drop: [string] | *["ALL"]
@@ -22,13 +27,13 @@ package imagepullsecrets
 	image: {
 		repository: string | *"ghcr.io/banzaicloud/imagepullsecrets"
 		tag:        string | *"v0.3.12"
-		pullPolicy: string | *"IfNotPresent"
+		pullPolicy: v1.#enumPullPolicy | *"IfNotPresent"
 	}
-	imagePullSecrets: []
-	nodeSelector: {[string]: string} | *{}
-	affinity:     {[string]: string} | *{}
-	tolerations: []
-	resources: {
+	imagePullSecrets: [...v1.#LocalObjectReference]
+	nodeSelector: k8s.#Labels
+	affinity:     v1.#Affinity
+	tolerations: [...v1.#Toleration]
+	resources: v1.#ResourceRequirements | *{
 		requests: {
 			memory: string | *"100Mi"
 			cpu:    string | *"100m"
@@ -40,10 +45,10 @@ package imagepullsecrets
 	}
 	service: {
 		type: string | *"ClusterIP"
-		port: int | *8080
+		port: k8s.#Port | *8080
 	}
 	serviceAccount: {
-		annotations: {string: string} | *{}
+		annotations: k8s.#Annotations
 	}
 	serviceMonitor: {
 		scrapeInterval: string | *"5s"
