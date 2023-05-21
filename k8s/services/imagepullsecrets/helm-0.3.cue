@@ -4,29 +4,29 @@ package imagepullsecrets
 #Values: [=~"^0\\.3\\."]: {
 	replicas: int | *1
 	istio: {
-		revision: ""
+		revision: string | *""
 	}
-	podAnnotations: {}
+	podAnnotations: [string]: string | *{}
 	podSecurityContext: {
 		runAsNonRoot: bool | *true
 		seccompProfile: {
-			type: "RuntimeDefault"
+			type: string | *"RuntimeDefault"
 		}
 	}
 	securityContext: {
 		allowPrivilegeEscalation: bool | *false
 		capabilities: {
-			drop: ["ALL"]
+			drop: [string] | *["ALL"]
 		}
 	}
 	image: {
-		repository: "ghcr.io/banzaicloud/imagepullsecrets"
+		repository: string | *"ghcr.io/banzaicloud/imagepullsecrets"
 		tag:        string | *"v0.3.12"
 		pullPolicy: string | *"IfNotPresent"
 	}
 	imagePullSecrets: []
-	nodeSelector: {string: string} | *{}
-	affinity:     {string: string} | *{}
+	nodeSelector: {[string]: string} | *{}
+	affinity:     {[string]: string} | *{}
 	tolerations: []
 	resources: {
 		requests: {
@@ -68,10 +68,10 @@ package imagepullsecrets
 		credentials:        [string] | *[]
 	}
 
-    defaultSecret: {
-        enabled: bool | *false
-        secretData: {string: string} | *{}
-        type: string | *""
-    }
+	defaultSecret: {
+		enabled:    bool | *false
+		secretData: {string: string} | *{}
+		type:       string | *""
+	}
 
 }
