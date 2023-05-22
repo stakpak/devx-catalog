@@ -13,7 +13,7 @@ import (
 	}).result
 	helm: {
 		repoType: "default"
-		url:      "https://github.com/banzaicloud/imps"
+		url:      "https://kubernetes-charts.banzaicloud.com"
 		chart:    "banzaicloud-stable/imagepullsecrets"
 
 		version: string | *"0.3.12"
