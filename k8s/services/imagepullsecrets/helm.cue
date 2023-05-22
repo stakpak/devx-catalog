@@ -5,7 +5,7 @@ import (
 	"guku.io/devx/v1/traits"
 )
 
-#IngressNginxChart: {
+#ImagePullSecretsChart: {
 	traits.#Helm
 	k8s: "version": (v1.getMatch & {
 		match: helm.version
