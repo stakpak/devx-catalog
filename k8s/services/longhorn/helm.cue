@@ -13,7 +13,7 @@ import (
 	}).result
 	helm: {
 		repoType: "default"
-		url:      "https://longhorn.io/"
+		url:      "https://charts.longhorn.io"
 		chart:    "longhorn"
 
 		version: string | *"1.4.2"
