@@ -13,15 +13,13 @@ import (
 	}
 	podAnnotations:     k8s.#Annotations | *{}
 	podSecurityContext: v1.#PodSecurityContext | *{
-		runAsNonRoot: bool | *true
-		seccompProfile: {
-			type: string | *"RuntimeDefault"
-		}
+		runAsNonRoot:   true
+		seccompProfile: "RuntimeDefault"
 	}
 	securityContext: v1.#SecurityContext | *{
-		allowPrivilegeEscalation: bool | *false
+		allowPrivilegeEscalation: false
 		capabilities: {
-			drop: [string] | *["ALL"]
+			drop: ["ALL"]
 		}
 	}
 	image: {
@@ -35,12 +33,12 @@ import (
 	tolerations: [...v1.#Toleration]
 	resources: v1.#ResourceRequirements | *{
 		requests: {
-			memory: string | *"100Mi"
-			cpu:    string | *"100m"
+			memory: "100Mi"
+			cpu:    "100m"
 		}
 		limits: {
-			memory: string | *"200Mi"
-			cpu:    string | *"300m"
+			memory: "200Mi"
+			cpu:    "300m"
 		}
 	}
 	service: {
@@ -61,21 +59,21 @@ import (
 		enabled: bool | *false
 	}
 	log: {
-		level: "panic" | "fatal" | "error" | "warn" | "warning" | "info" | "debug" | "trace"
-	} | *{}
-	env: {string: string} | *{}
+		level: "panic" | "fatal" | "error" | "warn" | "warning" | *"info" | "debug" | "trace"
+	}
+	env: [string]: string
 
 	defaultConfig: {
-		enabled:            bool | *false
-		targetSecretName:   string | *"default-secret-name"
-		namespaces:         {string: string} | *{}
-		namespacesWithPods: [string] | *[]
-		credentials:        [string] | *[]
+		enabled:          bool | *false
+		targetSecretName: string | *"default-secret-name"
+		namespaces: [string]: string
+		namespacesWithPods: [...string]
+		credentials: [...string]
 	}
 
 	defaultSecret: {
 		enabled:    bool | *false
-		secretData: {string: string} | *{}
+		secretData: [string]: string
 		type:       string | *""
 	}
 
