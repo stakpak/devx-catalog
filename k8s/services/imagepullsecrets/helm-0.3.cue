@@ -50,7 +50,7 @@ import (
 	}
 	serviceMonitor: {
 		scrapeInterval: string | *"5s"
-		tlsConfig:      {string: string} | *{}
+		tlsConfig:      [string]: string
 	}
 	developmentMode: {
 		enabled: bool | *false
