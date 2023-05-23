@@ -14,7 +14,9 @@ import (
 	podAnnotations:     k8s.#Annotations | *{}
 	podSecurityContext: v1.#PodSecurityContext | *{
 		runAsNonRoot:   true
-		seccompProfile: "RuntimeDefault"
+		seccompProfile: {
+			type: "RuntimeDefault"
+		}
 	}
 	securityContext: v1.#SecurityContext | *{
 		allowPrivilegeEscalation: false

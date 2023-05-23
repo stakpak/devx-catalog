@@ -14,7 +14,7 @@ import (
 	helm: {
 		repoType: "default"
 		url:      "https://kubernetes-charts.banzaicloud.com"
-		chart:    "banzaicloud-stable/imagepullsecrets"
+		chart:    "imagepullsecrets"
 
 		version: string | *"0.3.12"
 
