@@ -28,7 +28,16 @@ import (
 				namespace: k8s.namespace
 				name:      ecrImps.name
 			}]
-			target: secret: name: "\(ecrImps.name)-image-pull-secret"
+			target: {
+				namespaces: labels: [{
+					matchExpressions: [{
+						key:      "ignore-imps"
+						operator: "DoesNotExist"
+						values: []
+					}]
+				}]
+				secret: name: "\(ecrImps.name)-image-pull-secret"
+			}
 		}
 	}
 }
