@@ -2,30 +2,33 @@ package components
 
 import (
 	"guku.io/devx/v1"
-	"guku.io/devx/k8s"
+	k8sr "guku.io/devx/k8s"
 	"guku.io/devx/v1/traits"
 )
 
 #ECRImagePullSecret: {
 	traits.#KubernetesResources
 
-	ecr: {
+	k8s: {
+		namespace: string
+		...
+	}
+	ecrImps: {
 		name:             string
-		namespace:        string
 		accessKeySecret?: string | v1.#Secret
 	}
 
-	k8sResources: "image-pull-secret-\(ecr.name)": {
-		k8s.#KubernetesResource
+	k8sResources: "image-pull-secret-\(ecrImps.name)": {
+		k8sr.#KubernetesResource
 		apiVersion: "images.banzaicloud.io/v1alpha1"
 		kind:       "ImagePullSecret"
-		metadata: name: ecr.name
+		metadata: name: ecrImps.name
 		spec: {
 			registry: credentials: [{
-				namespace: ecr.namespace
-				name:      ecr.name
+				namespace: k8s.namespace
+				name:      ecrImps.name
 			}]
-			target: secret: name: ecr.name
+			target: secret: name: ecrImps.name
 		}
 	}
 }

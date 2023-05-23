@@ -8,10 +8,17 @@ import (
 
 #AWSSecretStore: {
 	traits.#KubernetesResources
+
+	k8s: {
+		namespace: string
+		...
+	}
+	aws: {
+		region: string
+		...
+	}
 	secretStore: {
 		name:             string
-		namespace:        string
-		region:           string
 		scope:            "cluster" | "namespace"
 		type:             "ParameterStore" | "SecretsManager"
 		role?:            string
@@ -23,26 +30,26 @@ import (
 	}
 	if secretStore.scope == "namespace" {
 		k8sResources: "secret-store-\(secretStore.name)": resources.#SecretStore & {
-			metadata: namespace: secretStore.namespace
+			metadata: namespace: k8s.namespace
 		}
 	}
 	k8sResources: "secret-store-\(secretStore.name)": {
 		metadata: name: secretStore.name
-		spec: provider: aws: {
+		spec: provider: "aws": {
 			service: secretStore.type
-			region:  secretStore.region
+			region:  aws.region
 			if secretStore.role != _|_ {
 				role: secretStore.role
 			}
 			if (secretStore.accessKeySecret & v1.#Secret) != _|_ {
 				auth: secretRef: {
 					accessKeyIDSecretRef: {
-						namespace: secretStore.namespace
+						namespace: k8s.namespace
 						name:      secretStore.accessKeySecret.name
 						key:       "access-key"
 					}
 					secretAccessKeySecretRef: {
-						namespace: secretStore.namespace
+						namespace: k8s.namespace
 						name:      secretStore.accessKeySecret.name
 						key:       "secret-access-key"
 					}
