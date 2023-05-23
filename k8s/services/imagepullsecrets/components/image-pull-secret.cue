@@ -28,7 +28,7 @@ import (
 				namespace: k8s.namespace
 				name:      ecrImps.name
 			}]
-			target: secret: name: ecrImps.name
+			target: secret: name: "\(ecrImps.name)-image-pull-secret"
 		}
 	}
 }
