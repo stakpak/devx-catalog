@@ -20,7 +20,8 @@ import (
 #KubernetesResources: v1.#Trait & {
 	$metadata: traits: KubernetesResources: null
 	k8s!: {
-		name!: string
+		name!:      string
+		namespace?: string
 		version: {
 			major:  uint | *1
 			minor!: uint
