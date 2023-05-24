@@ -1,20 +1,26 @@
 package longhorn
 
+import (
+	"guku.io/devx/k8s"
+	"k8s.io/api/core/v1"
+)
+
 #KubeVersion: [=~"^1\\.4\\."]: minor: >=21
 #Values: [=~"^1\\.4\\."]: {
 	global: {
 		cattle: {
-			systemDefaultRegistry: string | *"k"
+			systemDefaultRegistry: string | *""
 			windowsCluster: {
-				enabled: bool | *false
-				tolerations: [
-					{
-						key:      string | *"cattle.io/os"
-						linux:    string | *"linux"
-						effect:   string | *"NoSchedule"
-						operator: string | *"Equal"
-					},
-				]
+				enabled:     bool | *false
+				tolerations: [...v1.#Toleration] | *[{
+					key:      string | *"cattle.io/os"
+					value:    string | *"linux"
+					effect:   string | *"NoSchedule"
+					operator: string | *"Equal"
+				}]
+				nodeSelector: {
+					"kubernetes.io/os": "linux"
+				}
 				defaultSetting: {
 					taintToleration:                     "cattle.io/os=linux:NoSchedule"
 					systemManagedComponentsNodeSelector: "kubernetes.io/os:linux"
@@ -26,31 +32,31 @@ package longhorn
 		longhorn: {
 			engine: {
 				repository: string | *"longhornio/longhorn-engine"
-				tag:        string | *"v1.4.0"
+				tag:        string | *"v1.4.2"
 			}
 			manager: {
 				repository: string | *"longhornio/longhorn-manager"
-				tag:        string | *"v1.4.0"
+				tag:        string | *"v1.4.2"
 			}
 			ui: {
 				repository: string | *"longhornio/longhorn-ui"
-				tag:        string | *"v1.4.0"
+				tag:        string | *"v1.4.2"
 			}
 			instanceManager: {
 				repository: string | *"longhornio/longhorn-instance-manager"
-				tag:        string | *"v1.4.0"
+				tag:        string | *"v1.4.2"
 			}
 			shareManager: {
 				repository: string | *"longhornio/longhorn-share-manager"
-				tag:        string | *"v1.4.0"
+				tag:        string | *"v1.4.2"
 			}
 			backingImageManager: {
 				repository: string | *"longhornio/backing-image-manager"
-				tag:        string | *"v1.4.0"
+				tag:        string | *"v1.4.2"
 			}
 			supportBundleKit: {
 				repository: string | *"longhornio/support-bundle-kit"
-				tag:        string | *"v0.0.17"
+				tag:        string | *"v0.0.24"
 			}
 		}
 		csi: {
@@ -68,11 +74,11 @@ package longhorn
 			}
 			resizer: {
 				repository: string | *"longhornio/csi-resizer"
-				tag:        string | *"v5.0.1"
+				tag:        string | *"v1.3.0"
 			}
 			snapshotter: {
 				repository: string | *"longhornio/csi-snapshotter"
-				tag:        string | *"v2.1.1"
+				tag:        string | *"v5.0.1"
 			}
 			livenessProbe: {
 				repository: string | *"longhornio/livenessprobe"
@@ -194,50 +200,30 @@ package longhorn
 			format: "json" | *"plain"
 		}
 		priorityClass: "~"
-		tolerations:   [{
-			key:      string
-			operator: string
-			value:    string
-			effect:   string
-		}] | *[]
-		nodeSelector:       {string: string} | *{}
-		serviceAnnotations: {string: string} | *{}
+		tolerations: [...v1.#Toleration]
+		nodeSelector:       k8s.#Labels
+		serviceAnnotations: k8s.#Annotations
 	}
 
 	longhornUI: {
 		replicas:      int | *2
 		priorityClass: "~"
-		tolerations:   [{
-			key:      string
-			operator: string
-			value:    string
-			effect:   string
-		}] | *[]
-		nodeSelector: {string: string} | *{}
+		tolerations: [...v1.#Toleration]
+		nodeSelector: k8s.#Labels
 	}
 
 	longhornAdmissionWebhook: {
 		replicas:      int | *2
 		priorityClass: "~"
-		tolerations:   [{
-			key:      string
-			operator: string
-			value:    string
-			effect:   string
-		}] | *[]
-		nodeSelector: {string: string} | *{}
+		tolerations: [...v1.#Toleration]
+		nodeSelector: k8s.#Labels
 	}
 
 	longhornRecoveryBackend: {
 		replicas:      int | *2
 		priorityClass: "~"
-		tolerations:   [{
-			key:      string
-			operator: string
-			value:    string
-			effect:   string
-		}] | *[]
-		nodeSelector: {string: string} | *{}
+		tolerations: [...v1.#Toleration]
+		nodeSelector: k8s.#Labels
 	}
 
 	ingress: {
@@ -248,21 +234,25 @@ package longhorn
 		secureBackends:   bool | *false
 		tlsSecret:        string | *"longhorn.local-tls"
 		path:             string | *"/"
-		annotations:      {string: string} | *{}
+		annotations:      k8s.#Annotations
 		secrets:          [{
 			name:        string
 			key:         string
 			certificate: string
-		}] | *[]
+		}] | *[{
+			name: "longhorn.local-tls"
+			key:  ""
+			cert: ""
+		}]
 	}
 
 	enablePSP: bool | *false
 
 	namespaceOverride: string | *""
 
-	annotations: {string: string} | *{}
+	annotations: k8s.#Annotations
 
 	serviceAccount: {
-		annotations: {string: string} | *{}
+		annotations: k8s.#Annotations
 	}
 }
