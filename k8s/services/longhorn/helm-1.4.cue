@@ -100,14 +100,14 @@ import (
 		}
 	}
 	persistence: {
-		defaultClass:              bool | *true
-		defaultFsType:             "ext4"
-		defaultMkfsParams:         ""
-		defaultClassReplicaCount:  int | *3
-		defaultDataLocality:       "best-effort" | *"disabled"
-		defaultReplicaAutoBalance: "disabled" | "least-effort" | "best-effort" | *"ignored"
-		reclaimPolicy:             "Delete"
-		migratable:                bool | *false
+		defaultClass:             bool | *true
+		defaultFsType:            "ext4"
+		defaultMkfsParams:        ""
+		defaultClassReplicaCount: int | *3
+		defaultDataLocality:      "best-effort" | *"disabled"
+		// defaultReplicaAutoBalance: "disabled" | "least-effort" | "best-effort" | *"ignored"
+		reclaimPolicy: "Delete"
+		migratable:    bool | *false
 		recurringJobSelector: {
 			enable: bool | *false
 			jobList: []
@@ -161,6 +161,7 @@ import (
 		replicaZoneSoftAntiAffinity:                              "~"
 		nodeDownPodDeletionPolicy:                                "~"
 		allowNodeDrainWithLastHealthyReplica:                     "~"
+		nodeDrainPolicy:                                          "~"
 		mkfsExt4Parameters:                                       "~"
 		disableReplicaRebuild:                                    "~"
 		replicaReplenishmentWaitInterval:                         "~"
@@ -205,6 +206,12 @@ import (
 		serviceAnnotations: k8s.#Annotations
 	}
 
+	longhornDriver: {
+		priorityClass: "~"
+		tolerations: [...v1.#Toleration]
+		nodeSelector: k8s.#Labels
+	}
+
 	longhornUI: {
 		replicas:      int | *2
 		priorityClass: "~"
@@ -239,11 +246,7 @@ import (
 			name:        string
 			key:         string
 			certificate: string
-		}] | *[{
-			name: "longhorn.local-tls"
-			key:  ""
-			cert: ""
-		}]
+		}] | *[]
 	}
 
 	enablePSP: bool | *false
