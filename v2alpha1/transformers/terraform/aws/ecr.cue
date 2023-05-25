@@ -12,7 +12,7 @@ import (
 	traits.#Workflow
 	$metadata: _
 	workflow:  _
-	$resources: "\($metadata.id)": schema.#Terraform & {
+	$resources: "\($metadata.id)-ecr": schema.#Terraform & {
 		for _, task in workflow.tasks if (task & tasks.#BuildPushECR) != _|_ {
 			resource: {
 				aws_ecr_repository: "\(task.repository)": {
