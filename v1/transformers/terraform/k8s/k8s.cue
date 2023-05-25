@@ -47,3 +47,32 @@ import (
 		}
 	}
 }
+
+#AddLocalHelmProvider: v1.#Transformer & {
+	traits.#Helm
+	k8s: {
+		kubeconfig: string
+		context:    string
+		...
+	}
+	$resources: terraform: schema.#Terraform & {
+		provider: helm: kubernetes: {
+			config_path:    k8s.kubeconfig
+			config_context: k8s.context
+		}
+	}
+}
+
+#AddLocalKubernetesProvider: v1.#Transformer & {
+	k8s: {
+		kubeconfig: string
+		context:    string
+		...
+	}
+	$resources: terraform: schema.#Terraform & {
+		provider: kubernetes: {
+			config_path:    k8s.kubeconfig
+			config_context: k8s.context
+		}
+	}
+}
