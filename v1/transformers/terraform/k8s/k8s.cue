@@ -50,32 +50,30 @@ import (
 
 #AddLocalHelmProvider: v1.#Transformer & {
 	traits.#Helm
-	k8s: {
-		kubeconfig: string | *"~/.kube/config"
-		context?:   string
-		...
+	kubeconfig: {
+		path:     string | *"~/.kube/config"
+		context?: string
 	}
 	$resources: terraform: schema.#Terraform & {
 		provider: helm: kubernetes: {
-			config_path: k8s.kubeconfig
-			if k8s.context != _|_ {
-				config_context: k8s.context
+			config_path: kubeconfig.path
+			if kubeconfig.context != _|_ {
+				config_context: kubeconfig.context
 			}
 		}
 	}
 }
 
 #AddLocalKubernetesProvider: v1.#Transformer & {
-	k8s: {
-		kubeconfig: string | *"~/.kube/config"
-		context?:   string
-		...
+	kubeconfig: {
+		path:     string | *"~/.kube/config"
+		context?: string
 	}
 	$resources: terraform: schema.#Terraform & {
 		provider: kubernetes: {
-			config_path: k8s.kubeconfig
-			if k8s.context != _|_ {
-				config_context: k8s.context
+			config_path: kubeconfig.path
+			if kubeconfig.context != _|_ {
+				config_context: kubeconfig.context
 			}
 		}
 	}
