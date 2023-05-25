@@ -40,8 +40,9 @@ import (
 								rulePriority: 2
 								description:  "Keep last 30 tagged images"
 								selection: {
-									tagStatus:   "tagged"
-									countType:   "imageCountMoreThan"
+									tagStatus: "tagged"
+									countType: "imageCountMoreThan"
+									tagPrefixList: ["v"]
 									countNumber: 30
 								}
 								action: type: "expire"
