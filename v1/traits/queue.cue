@@ -10,6 +10,9 @@ import (
 	rabbitmq: {
 		name:    string
 		version: string | *"3.10.10"
-		host:    string
+
+		port: uint | *5672
+
+		host: string
 	}
 }
