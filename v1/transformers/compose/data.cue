@@ -257,3 +257,24 @@ import (
 		}
 	}
 }
+
+// add a compose service for a redis instance
+#AddRabbitMQ: v1.#Transformer & {
+	traits.#RabbitMQ
+	$metadata: _
+	$dependencies: [...string]
+
+	rabbitmq: host:      "\($metadata.id)"
+	$resources: compose: #Compose & {
+		services: "\($metadata.id)": {
+			image: "rabbitmq:\(rabbitmq.version)"
+			ports: [
+				"\(rabbitmq.port)",
+			]
+			depends_on: [
+				for id in $dependencies if services[id] != _|_ {id},
+			]
+			restart: "no"
+		}
+	}
+}

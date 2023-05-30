@@ -18,15 +18,6 @@ import (
 	}
 }
 
-// a user account
-#User: v1.#Trait & {
-	$metadata: traits: User: null
-	users: [string]: {
-		username: string
-		password: string | v1.#Secret
-	}
-}
-
 // a database
 #Database: v1.#Trait & {
 	$metadata: traits: Database: null
@@ -53,33 +44,5 @@ import (
 		password: string | v1.#Secret
 
 		sizeGB?: uint
-	}
-}
-
-// a postgres database (DEPRECATED)
-#Postgres: v1.#Trait & {
-	$metadata: traits: Postgres: null
-
-	version:    string @guku(required)
-	persistent: bool | *true
-	port:       uint | *5432
-	database:   string | *"default"
-
-	host:     string
-	username: string
-	password: string
-	url:      "postgresql://\(username):\(password)@\(host):\(port)/\(database)"
-}
-
-// a redis instance
-#Redis: v1.#Trait & {
-	$metadata: traits: Redis: null
-	redis: {
-		name:    string | *$metadata.id
-		version: string | *"7.0"
-
-		port: uint | *6379
-
-		host: string
 	}
 }
