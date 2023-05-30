@@ -212,6 +212,7 @@ import (
 }
 
 #AddKafkaUser: v1.#Transformer & {
+	traits.#Kafka
 	traits.#User
 	kafka: {
 		name: string
@@ -275,6 +276,43 @@ import (
 				for id in $dependencies if services[id] != _|_ {id},
 			]
 			restart: "no"
+		}
+	}
+}
+
+#AddRabbitMQUser: v1.#Transformer & {
+	traits.#RabbitMQ
+	traits.#User
+	rabbitmq: _
+	users: [string]: {
+		username: string
+		password: string | *"testing-password"
+	}
+	$metadata: _
+	$resources: compose: #Compose & {
+		services: "\($metadata.id)": {
+			for _, user in users {
+				_username: string
+				_password: string
+				if (user.username & string) != _|_ {
+					_username: user.username
+				}
+				if (user.username & v1.#Secret) != _|_ {
+					_username: user.username.name
+				}
+				if (user.password & string) != _|_ {
+					_password: user.password
+				}
+				if (user.password & v1.#Secret) != _|_ {
+					_password: user.password.name
+				}
+				environment: {
+					RABBITMQ_DEFAULT_USER: _username
+					RABBITMQ_DEFAULT_PASS: _password
+					...
+				}
+			}
+			...
 		}
 	}
 }

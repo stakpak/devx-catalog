@@ -11,15 +11,13 @@ import (
 	flows: {
 		"compose/add-service": pipeline: [compose.#AddComposeService]
 		"compose/expose-service": pipeline: [compose.#ExposeComposeService]
+		"compose/add-volume": pipeline: [compose.#AddComposeVolume]
 		"compose/add-database": pipeline: [compose.#AddDatabase]
 		"compose/add-redis": pipeline: [compose.#AddRedis]
 		"compose/add-rabbitmq": pipeline: [compose.#AddRabbitMQ]
-		"compose/add-volume": pipeline: [compose.#AddComposeVolume]
+		"compose/add-rabbitmq-user": pipeline: [compose.#AddRabbitMQUser]
 		"compose/add-kafka": pipeline: [compose.#AddKafka]
-		"compose/add-kafka-user": pipeline: [
-			compose.#AddKafka,
-			compose.#AddKafkaUser,
-		]
+		"compose/add-kafka-user": pipeline: [compose.#AddKafkaUser]
 
 		"ignore-secret": {
 			match: traits: Secret: null
