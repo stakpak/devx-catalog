@@ -18,12 +18,24 @@ import (
 			if database.engine == "postgres" {
 				image: "postgres:\(database.version)-alpine"
 			}
+			if database.engine == "mongodb" {
+				image: "mongo:\(database.version)"
+			}
+			if database.engine == "mysql" {
+				image: "mysql:\(database.version)"
+			}
 			ports: [
 				"\(database.port)",
 			]
 			if database.persistent {
 				if database.engine == "postgres" {
 					volumes: ["\($metadata.id)-data:/var/lib/postgresql/data"]
+				}
+				if database.engine == "mongodb" {
+					volumes: ["\($metadata.id)-data:/data/db"]
+				}
+				if database.engine == "mysql" {
+					volumes: ["\($metadata.id)-data:/var/lib/mysql"]
 				}
 			}
 
@@ -47,6 +59,25 @@ import (
 					POSTGRES_USER:     _username
 					POSTGRES_PASSWORD: _password
 					POSTGRES_DB:       database.database
+					...
+				}
+			}
+			if database.engine == "mongodb" {
+				environment: {
+					MONGO_INITDB_ROOT_USERNAME: _username
+					MONGO_INITDB_ROOT_PASSWORD: _password
+					...
+				}
+			}
+			if database.engine == "mysql" {
+				environment: {
+					if _username != "root" {
+						MYSQL_USER:     _username
+						MYSQL_PASSWORD: _password
+					}
+					MYSQL_ROOT_PASSWORD: _password
+					MYSQL_DATABASE:      database.database
+					...
 				}
 			}
 

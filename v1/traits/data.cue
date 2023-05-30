@@ -32,12 +32,18 @@ import (
 	$metadata: traits: Database: null
 	database: {
 		name:       string | *$metadata.id
-		engine:     "postgres"
-		version:    string @guku(required)
+		engine:     "postgres" | "mongodb" | "mysql"
+		version!:   string
 		persistent: bool | *true
 
 		if engine == "postgres" {
 			port: uint | *5432
+		}
+		if engine == "mongodb" {
+			port: uint | *27017
+		}
+		if engine == "mysql" {
+			port: uint | *3306
 		}
 
 		database: string | *"main"
