@@ -4,6 +4,7 @@ import (
 	"guku.io/devx/v1"
 	"guku.io/devx/v2alpha1"
 	"guku.io/devx/v1/transformers/compose"
+	c "guku.io/devx/v1/components"
 )
 
 #Compose: v2alpha1.#StackBuilder & {
@@ -42,4 +43,27 @@ import (
 			}]
 		}
 	}
+}
+
+#ComposeWithS3: v2alpha1.#StackBuilder & #Compose & {
+	components: {
+		myminio: {
+			c.#Minio
+			minio: {
+				urlScheme: "http"
+				userKeys: default: {
+					accessKey:    "admin"
+					accessSecret: "adminadmin"
+				}
+				url: _
+			}
+		}
+
+		[string]: s3?: {
+			url:          myminio.minio.url
+			accessKey:    myminio.minio.userKeys.default.accessKey
+			accessSecret: myminio.minio.userKeys.default.accessSecret
+		}
+	}
+	flows: "compose/add-s3bucket": pipeline: [compose.#AddS3Bucket]
 }
