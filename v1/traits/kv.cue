@@ -9,7 +9,7 @@ import (
 	$metadata: traits: Redis: null
 	redis: {
 		name:    string | *$metadata.id
-		version: string | *"7.0"
+		version: string | int | *"7.0"
 
 		port: uint | *6379
 
