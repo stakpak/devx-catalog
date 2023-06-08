@@ -4,6 +4,7 @@ import (
 	"guku.io/devx/v1"
 	"guku.io/devx/v1/traits"
 	schema "guku.io/devx/v1/transformers/terraform"
+	helpers "guku.io/devx/v1/transformers/terraform/digitalocean/helpers"
 )
 
 #AddKubernetesCluster: v1.#Transformer & {
@@ -13,7 +14,7 @@ import (
 	k8s: version: minor: <=26 & >=24
 	digitalocean: {
 		providerVersion: string | *"2.28.1"
-		region:          "nyc1" | "nyc3" | "ams3" | "sfo3" | "sgp1" | "lon1" | "fra1" | "tor1" | "blr1" | "syd1"
+		region:          helpers.#Region
 		doks: {
 			nodeSize:      *"s-1vcpu-2gb" | "s-2vcpu-2gb" | "s-1vcpu-3gb" | "s-2vcpu-4gb" | "c-2" | "s-4vcpu-8gb" | "g-2vcpu-8gb" | "gd-2vcpu-8gb" | "c-4" | "s-6vcpu-16gb" | "g-4vcpu-16gb" | "gd-4vcpu-16gb" | "c-8" | "s-8vcpu-32gb" | "g-8vcpu-32gb" | "gd-8vcpu-32gb" | "c-16" | "s-12vcpu-48gb" | "s-16vcpu-64gb" | "g-16vcpu-64gb" | "gd-16vcpu-64gb" | "c-32" | "s-20vcpu-96gb" | "s-24vcpu-128gb" | "g-32vcpu-128gb" | "gd-32vcpu-128gb" | "g-40vcpu-160gb" | "gd-40vcpu-160gb" | "s-32vcpu-192gb"
 			minSize:       uint | *1
