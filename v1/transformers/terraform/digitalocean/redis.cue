@@ -5,7 +5,7 @@ import (
 	"guku.io/devx/v1/traits"
 	schema "guku.io/devx/v1/transformers/terraform"
 	helpers "guku.io/devx/v1/transformers/terraform/digitalocean/helpers"
-
+	"strconv"
 )
 
 #AddRedisCluster: v1.#Transformer & {
@@ -32,7 +32,7 @@ import (
 		resource: digitalocean_database_cluster: "\(redis.name)": {
 			name:       redis.name
 			region:     digitalocean.region
-			version:    redis.version
+			version:    strconv.Atoi(redis.version)
 			engine:     digitalocean.databaseCluster.engine
 			node_count: digitalocean.databaseCluster.nodeCount
 			size:       digitalocean.databaseCluster.nodeSize
