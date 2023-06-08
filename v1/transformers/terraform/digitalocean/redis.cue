@@ -31,7 +31,7 @@ import (
 		resource: digitalocean_database_cluster: "\(redis.name)": {
 			name:       redis.name
 			region:     digitalocean.region
-			version:    strconv.Atoi(redis.version) <= 7 & strconv.Atoi(redis.version) >= 6 
+			version:    strconv.Atoi(redis.version) & <= 7 & >= 6 
 			engine:     digitalocean.databaseCluster.engine
 			node_count: digitalocean.databaseCluster.nodeCount
 			size:       digitalocean.databaseCluster.nodeSize
