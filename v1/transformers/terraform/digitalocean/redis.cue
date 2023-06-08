@@ -11,7 +11,7 @@ import (
 #AddRedisCluster: v1.#Transformer & {
 	traits.#Redis
 	redis: _
-	redis: version: <=7 & >=6
+	redis: version: <= "7" & >= "6"
 	digitalocean: {
 		providerVersion: string | *"2.28.1"
 		region:          helpers.#Region

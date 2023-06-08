@@ -1,6 +1,6 @@
 package helpers
 
-import "list"
+import "net"
 
 #Region: "nyc1" | "nyc3" | "ams3" | "sfo3" | "sgp1" | "lon1" | "fra1" | "tor1" | "blr1" | "syd1"
 
@@ -15,5 +15,5 @@ import "list"
 } | {
 	droplet: name: string
 } | {
-	ip: list.Repeat([ uint8], 4)
+	ip: net.IP
 }
