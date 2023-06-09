@@ -3,7 +3,6 @@ package rabbitmq
 import (
 	"k8s.io/api/core/v1"
 	"guku.io/devx/k8s"
-
 )
 
 #KubeVersion: [=~"^3\\.4\\."]: minor: >=21
