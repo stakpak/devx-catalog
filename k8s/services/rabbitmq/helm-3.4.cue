@@ -9,18 +9,18 @@ import (
 #KubeVersion: [=~"^3\\.4\\."]: minor: >=21
 #Values: [=~"^3\\.4\\."]: {
 	global: {
-		imageRegistry: ""
+		imageRegistry: string | *""
 		imagePullSecrets: [...v1.#LocalObjectReference]
-		storageClass: ""
+		storageClass: string | *""
 	}
 
-	kubeVersion:       #KubeVersion
+	kubeVersion:       string | *""
 	nameOverride:      string | *""
 	fullnameOverride:  string | *""
 	commonLabels:      k8s.#Labels
 	commonAnnotations: k8s.#Annotations
-	clusterDomain:     "cluster.local"
-	extraDeploy: []
+	clusterDomain:     string | *"cluster.local"
+	extraDeploy: [...]
 	diagnosticMode: {
 		enabled: bool | *false
 	}
@@ -51,7 +51,7 @@ import (
 			pullSecrets: [...v1.#LocalObjectReference]
 		}
 		replicaCount: uint | *1
-		topologySpreadConstraints: []
+		topologySpreadConstraints: [...]
 		schedulerName:                 string | *""
 		terminationGracePeriodSeconds: string | *""
 		livenessProbe:                 v1.#Probe | *{
@@ -97,7 +97,7 @@ import (
 		}
 		command: v1.#Command | *[]
 		args:    v1.#Args | *[]
-		hostAliases: []
+		hostAliases: [...]
 		podLabels:             k8s.#Labels
 		podAnnotations:        k8s.#Annotations
 		podAffinityPreset:     string | *""
@@ -107,20 +107,20 @@ import (
 		nodeSelector:          v1.#NodeSelector
 		tolerations: [...v1.#Toleration]
 		updateStrategy: {
-			type: "RollingUpdate"
+			type: string | *"RollingUpdate"
 		}
 		priorityClassName: string | *""
 		lifecycleHooks: {}
 		containerPorts: {
 			metrics: k8s.#Port | *9782
 		}
-		extraEnvVars: []
+		extraEnvVars: [...]
 		extraEnvVarsCM:     string | *""
 		extraEnvVarsSecret: string | *""
-		extraVolumes: []
-		extraVolumeMounts: []
-		sidecars: []
-		initContainers: []
+		extraVolumes: [...]
+		extraVolumeMounts: [...]
+		sidecars: [...]
+		initContainers: [...]
 		rbac: {
 			create: bool | *true
 		}
@@ -130,15 +130,15 @@ import (
 
 	msgTopologyOperator: {
 		image: {
-			registry:   "docker.io"
-			repository: "bitnami/rmq-messaging-topology-operator"
-			tag:        "1.10.3-scratch-r1"
-			digest:     ""
-			pullPolicy: "IfNotPresent"
+			registry:   string | *"docker.io"
+			repository: string | *"bitnami/rmq-messaging-topology-operator"
+			tag:        string | *"1.10.3-scratch-r1"
+			digest:     string | *""
+			pullPolicy: string | *"IfNotPresent"
 			pullSecrets: [...v1.#LocalObjectReference]
 		}
 		replicaCount: uint | *1
-		topologySpreadConstraints: []
+		topologySpreadConstraints: [...]
 		schedulerName:                 string | *""
 		terminationGracePeriodSeconds: string | *""
 		hostNetwork:                   string | *"false"
@@ -190,7 +190,7 @@ import (
 		command:          v1.#Command | *[]
 		args:             v1.#Args | *[]
 		fullnameOverride: string | *""
-		hostAliases: []
+		hostAliases: [...]
 		podLabels:             k8s.#Labels
 		podAnnotations:        k8s.#Annotations
 		podAffinityPreset:     string | *""
@@ -203,17 +203,17 @@ import (
 			type: string | *"RollingUpdate"
 		}
 		priorityClassName: string | *""
-		lifecycleHooks: {}
+		lifecycleHooks:    _ | *{}
 		containerPorts: {
 			metrics: k8s.#Port | *8080
 		}
-		extraEnvVars: []
+		extraEnvVars: [...]
 		extraEnvVarsCM:     string | *""
 		extraEnvVarsSecret: string | *""
-		extraVolumes: []
-		extraVolumeMounts: []
-		sidecars: []
-		initContainers: []
+		extraVolumes: [...]
+		extraVolumeMounts: [...]
+		sidecars: [...]
+		initContainers: [...]
 		rbac: {
 			create: bool | *true
 		}
@@ -230,27 +230,27 @@ import (
 			}
 			clusterIP:      string | *""
 			loadBalancerIP: string | *""
-			extraPorts: []
-			loadBalancerSourceRanges: []
+			extraPorts: [...]
+			loadBalancerSourceRanges: [...]
 			externalTrafficPolicy: string | *"Cluster"
-			annotations: {}
-			sessionAffinity: string | *"None"
-			sessionAffinityConfig: {}
+			annotations:           k8s.#Annotations
+			sessionAffinity:       string | *"None"
+			sessionAffinityConfig: _ | *{}
 		}
 	}
 	useCertManager: bool | *false
 }
 
 #ServiceMonitor: {
-	enabled:     bool | *false
-	jobLabel:    k8s.#Labels | *"app.kubernetes.io/name"
-	honorLabels: false
-	selector: {}
+	enabled:       bool | *false
+	jobLabel:      k8s.#Labels | *"app.kubernetes.io/name"
+	honorLabels:   bool | *false
+	selector:      _ | *{}
 	scrapeTimeout: string | *""
 	interval:      string | *""
-	metricRelabelings: []
-	relabelings: []
-	labels: {}
+	metricRelabelings: [...]
+	relabelings: [...]
+	labels: k8s.#Labels
 }
 
 #ServiceAccount: {
@@ -278,9 +278,9 @@ import (
 		http: ""
 	}
 	clusterIP: string | *""
-	extraPorts: []
+	extraPorts: [...]
 	loadBalancerIP: string | *""
-	loadBalancerSourceRanges: []
+	loadBalancerSourceRanges: [...]
 	externalTrafficPolicy: string | *"Cluster"
 
 	// -- Additional service annotations
@@ -288,7 +288,7 @@ import (
 		"prometheus.io/scrape": "true"
 		"prometheus.io/port":   #Metrics.service.port
 	}
-	sessionAffinity: string | *"None"
-	sessionAffinityConfig: {}
-	serviceMonitor: #ServiceMonitor
+	sessionAffinity:       string | *"None"
+	sessionAffinityConfig: _ | *{}
+	serviceMonitor:        #ServiceMonitor
 }
