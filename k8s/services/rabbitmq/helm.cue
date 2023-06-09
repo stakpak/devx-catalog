@@ -12,7 +12,7 @@ import (
 		input: #KubeVersion
 	}).result
 	helm: {
-		repoType: "default"
+		repoType: "oci"
 		url:      "oci://registry-1.docker.io/bitnamicharts"
 		chart:    "rabbitmq-cluster-operator"
 
