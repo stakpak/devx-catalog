@@ -285,7 +285,7 @@ import (
 	// -- Additional service annotations
 	annotations: k8s.#Annotations | *{
 		"prometheus.io/scrape": "true"
-		"prometheus.io/port":   #Metrics.service.port
+		"prometheus.io/port":   port
 	}
 	sessionAffinity:       string | *"None"
 	sessionAffinityConfig: _ | *{}
