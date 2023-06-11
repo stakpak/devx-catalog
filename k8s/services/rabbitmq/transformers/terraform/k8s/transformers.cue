@@ -22,7 +22,7 @@ import (
 
 	$resources: terraform: schema.#Terraform & {
 		resource: kubernetes_manifest: "\($metadata.id)-rabbit-mq-cluster": {
-			manifest: resources.#MongoDBCommunity & {
+			manifest: resources.#RabbitMQCluster & {
 				metadata: {
 					name:      $metadata.id
 					namespace: k8s.namespace
