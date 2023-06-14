@@ -110,6 +110,23 @@ import (
 	}
 }
 
+// a component that can be scheduled as a cron job
+#Cronable: v1.#Trait & {
+	$metadata: traits: Schedulable: null
+
+	cron: {
+		// Example of job definition:
+		// .---------------- minute (0 - 59)
+		// |  .------------- hour (0 - 23)
+		// |  |  .---------- day of month (1 - 31)
+		// |  |  |  .------- month (1 - 12)
+		// |  |  |  |  .---- day of week (0 - 6) (Sunday=0 or 7) OR sun,mon,tue,wed,thu,fri,sat
+		// |  |  |  |  |
+		// *  *  *  *  *
+		schedule: string
+	}
+}
+
 // a component that has endpoints that can be exposed
 #Exposable: v1.#Trait & {
 	$metadata: traits: Exposable: null
