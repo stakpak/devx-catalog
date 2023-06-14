@@ -112,7 +112,7 @@ import (
 
 // a component that can be scheduled as a cron job
 #Cronable: v1.#Trait & {
-	$metadata: traits: Schedulable: null
+	$metadata: traits: Cronable: null
 
 	cron: {
 		// Example of job definition:
