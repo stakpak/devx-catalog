@@ -1,4 +1,4 @@
-package mongodb
+package redis
 
 import (
 	"k8s.io/api/core/v1"
@@ -6,83 +6,6 @@ import (
 )
 
 #KubeVersion: [=~"^17\\.11\\."]: minor: >=16
-#Values: [=~"^17\\.11\\."]: {
-	// Redis architecture
-	//
-	// Allowed values: `standalone` or `replication`
-	architecture?: "standalone" | "replication"
-
-	// Authentication configuration
-	auth?: {
-		// Use password authentication
-		enabled?: bool
-
-		// Redis password
-		//
-		// Defaults to a random 10-character alphanumeric string if not
-		// set
-		password?: string
-	}
-
-	// Master replicas settings
-	master?: {
-		// Workload Kind
-		//
-		// Allowed values: `Deployment` or `StatefulSet`
-		kind?: "Deployment" | "StatefulSet"
-
-		// Persistence for master replicas
-		persistence?: {
-			// Enable persistence
-			//
-			// Enable persistence using Persistent Volume Claims
-			enabled?: bool
-
-			// Persistent Volume Size
-			size?: string
-		}
-	}
-
-	// Redis replicas settings
-	replica?: {
-		// Number of Redis replicas
-		replicaCount?: int
-
-		// Persistence for Redis replicas
-		persistence?: {
-			// Enable persistence
-			//
-			// Enable persistence using Persistent Volume Claims
-			enabled?: bool
-
-			// Persistent Volume Size
-			size?: string
-		}
-	}
-	volumePermissions?: {
-		// Enable Init Containers
-		//
-		// Use an init container to set required folder permissions on the
-		// data volume before mounting it in the final destination
-		enabled?: bool
-	}
-
-	// Prometheus metrics details
-	metrics?: {
-		// Create Prometheus metrics exporter
-		//
-		// Create a side-car container to expose Prometheus metrics
-		enabled?: bool
-		serviceMonitor?: {
-			// Create Prometheus Operator ServiceMonitor
-			//
-			// Create a ServiceMonitor to track metrics using Prometheus
-			// Operator
-			enabled?: bool
-		}
-	}
-}
-
 #Values: [=~"^17\\.11\\."]: {
 	global: {
 		imageRegistry: string | *""
@@ -221,11 +144,12 @@ import (
 	//# ref: https://redis.io/topics/config
 	//#
 	commonConfiguration: string | *"""
-																																																																										# Enable AOF https://redis.io/topics/persistence#append-only-file
-																																																																										appendonly yes
-																																																																										# Disable RDB persistence, AOF persistence already enabled.
-																																																																										save \"\"
-																																																																										string | """
+		# Enable AOF https://redis.io/topics/persistence#append-only-file
+		appendonly yes
+		# Disable RDB persistence, AOF persistence already enabled.
+		save \"\"
+		string |
+		"""
 
 	//# @param existingConfigmap The name of an existing ConfigMap with your custom configuration for Redis&reg; nodes//# @param existingConfigmap The name of an existing ConfigMap with your custom configuration for Redis&reg; nodes
 	//#
@@ -511,14 +435,14 @@ import (
 		//#    imagePullPolicy: Always
 		//#    command: ['sh', '-c', 'echo "hello world"']
 		//#
-		initContainers: []
+		initContainers: [...]
 		//# Persistence parameters
 		//# ref: https://kubernetes.io/docs/user-guide/persistent-volumes/
 		//#
 		persistence: {
 			//# @param master.persistence.enabled Enable persistence on Redis&reg; master nodes using Persistent Volume Claims
 			//#
-			enabled: bool | *true
+			enabled: bool | *false
 			//# @param master.persistence.medium Provide a medium for `emptyDir` volumes.
 			//#
 			medium: string | *""
@@ -528,7 +452,7 @@ import (
 			//# @param master.persistence.path The path the volume will be mounted at on Redis&reg; master containers
 			//# NOTE: Useful when using different Redis&reg; images
 			//#
-			path: "/data"
+			path: string | *"/data"
 			//# @param master.persistence.subPath The subdirectory of the volume to mount on Redis&reg; master containers
 			//# NOTE: Useful in dev environments
 			//#
@@ -544,28 +468,28 @@ import (
 			storageClass: string | *""
 			//# @param master.persistence.accessModes Persistent Volume access modes
 			//#
-			accessModes: [
-				"ReadWriteOnce",
+			accessModes: [...string] | *[
+					"ReadWriteOnce",
 			]
 			//# @param master.persistence.size Persistent Volume size
 			//#
-			size: "8Gi"
+			size: string | *"8Gi"
 			//# @param master.persistence.annotations Additional custom annotations for the PVC
 			//#
-			annotations: {}
+			annotations: v1.#Annotations
 			//# @param master.persistence.labels Additional custom labels for the PVC
 			//#
-			labels: {}
+			labels: v1.#Labels
 			//# @param master.persistence.selector Additional labels to match for the PVC
 			//# e.g:
 			//# selector:
 			//#   matchLabels:
 			//#     app: my-app
 			//#
-			selector: {}
+			selector: [...]
 			//# @param master.persistence.dataSource Custom PVC data source
 			//#
-			dataSource: {}
+			dataSource: _ | *{}
 			//# @param master.persistence.existingClaim Use a existing PVC which must be created manually before bound
 			//# NOTE: requires master.persistence.enabled: bool | *true
 			//#
@@ -576,11 +500,11 @@ import (
 		service: {
 			//# @param master.service.type Redis&reg; master service type
 			//#
-			type: "ClusterIP"
+			type: string | *"ClusterIP"
 			//# @param master.service.ports.redis Redis&reg; master service port
 			//#
 			ports: {
-				redis: 6379
+				redis: uint | *6379
 			}
 			//# @param master.service.nodePorts.redis Node port for Redis&reg; master
 			//# ref: https://kubernetes.io/docs/concepts/services-networking/service/#type-nodeport
@@ -592,14 +516,14 @@ import (
 			//# @param master.service.externalTrafficPolicy Redis&reg; master service external traffic policy
 			//# ref: https://kubernetes.io/docs/tasks/access-application-cluster/create-external-load-balancer/#preserving-the-client-source-ip
 			//#
-			externalTrafficPolicy: "Cluster"
+			externalTrafficPolicy: string | *"Cluster"
 			//# @param master.service.extraPorts Extra ports to expose (normally used with the `sidecar` value)
 			//#
-			extraPorts: []
+			extraPorts: [...]
 			//# @param master.service.internalTrafficPolicy Redis&reg; master service internal traffic policy (requires Kubernetes v1.22 or greater to be usable)
 			//# ref: https://kubernetes.io/docs/concepts/services-networking/service-traffic-policy/
 			//#
-			internalTrafficPolicy: "Cluster"
+			internalTrafficPolicy: string | *"Cluster"
 			//# @param master.service.clusterIP Redis&reg; master service Cluster IP
 			//#
 			clusterIP: string | *""
@@ -613,7 +537,7 @@ import (
 			//# loadBalancerSourceRanges:
 			//#   - 10.10.10.0/24
 			//#
-			loadBalancerSourceRanges: []
+			loadBalancerSourceRanges: [...string]
 			//# @param master.service.externalIPs Redis&reg; master service External IPs
 			//# https://kubernetes.io/docs/concepts/services-networking/service/#external-ips
 			//# e.g.
@@ -621,25 +545,25 @@ import (
 			//#   - 10.10.10.1
 			//#   - 201.22.30.1
 			//#
-			externalIPs: []
+			externalIPs: [...string]
 			//# @param master.service.annotations Additional custom annotations for Redis&reg; master service
 			//#
-			annotations: {}
+			annotations: v1.#Annotations
 			//# @param master.service.sessionAffinity Session Affinity for Kubernetes service, can be "None" or "ClientIP"
 			//# If "ClientIP", consecutive client requests will be directed to the same Pod
 			//# ref: https://kubernetes.io/docs/concepts/services-networking/service/#virtual-ips-and-service-proxies
 			//#
-			sessionAffinity: "None"
+			sessionAffinity: string | *"None"
 			//# @param master.service.sessionAffinityConfig Additional settings for the sessionAffinity
 			//# sessionAffinityConfig:
 			//#   clientIP:
 			//#     timeoutSeconds: 300
 			//#
-			sessionAffinityConfig: {}
+			sessionAffinityConfig: _ | *{}
 		}
 		//# @param master.terminationGracePeriodSeconds Integer setting the termination grace period for the redis-master pods
 		//#
-		terminationGracePeriodSeconds: 30
+		terminationGracePeriodSeconds: uint | *30
 		//# ServiceAccount configuration
 		//#
 		serviceAccount: {
@@ -656,7 +580,7 @@ import (
 			automountServiceAccountToken: bool | *true
 			//# @param master.serviceAccount.annotations Additional custom annotations for the ServiceAccount
 			//#
-			annotations: {}
+			annotations: v1.#Annotations
 		}
 	}
 
@@ -666,7 +590,7 @@ import (
 	replica: {
 		//# @param replica.replicaCount Number of Redis&reg; replicas to deploy
 		//#
-		replicaCount: 3
+		replicaCount: uint | *3
 		//# @param replica.configuration Configuration for Redis&reg; replicas nodes
 		//# ref: https://redis.io/topics/config
 		//#
@@ -675,33 +599,36 @@ import (
 		//# Commands will be completely disabled by renaming each to an empty string.
 		//# ref: https://redis.io/topics/security#disabling-of-specific-commands
 		//#
-		disableCommands: [
-			"FLUSHDB",
-			"FLUSHALL",
+		disableCommands: [...string] | *[
+					"FLUSHDB",
+					"FLUSHALL",
 		]
 		//# @param replica.command Override default container command (useful when using custom images)
 		//#
-		command: []
+		command: [...string]
 		//# @param replica.args Override default container args (useful when using custom images)
 		//#
-		args: []
+		args: [...string]
 		//# @param replica.preExecCmds Additional commands to run prior to starting Redis&reg; replicas
 		//#
-		preExecCmds: []
+		preExecCmds: [...string]
 		//# @param replica.extraFlags Array with additional command line flags for Redis&reg; replicas
 		//# e.g:
 		//# extraFlags:
 		//#  - "--maxmemory-policy volatile-ttl"
 		//#  - "--repl-backlog-size 1024mb"
 		//#
-		extraFlags: []
+		extraFlags: [...string]
 		//# @param replica.extraEnvVars Array with extra environment variables to add to Redis&reg; replicas nodes
 		//# e.g:
 		//# extraEnvVars:
 		//#   - name: FOO
 		//#     value: "bar"
 		//#
-		extraEnvVars: []
+		extraEnvVars: [...{
+			name:  string
+			value: string
+		}]
 		//# @param replica.extraEnvVarsCM Name of existing ConfigMap containing extra env vars for Redis&reg; replicas nodes
 		//#
 		extraEnvVarsCM: string | *""
@@ -715,12 +642,12 @@ import (
 		externalMaster: {
 			enabled: bool | *false
 			host:    string | *""
-			port:    6379
+			port:    uint | *6379
 		}
 		//# @param replica.containerPorts.redis Container port to open on Redis&reg; replicas nodes
 		//#
 		containerPorts: {
-			redis: 6379
+			redis: uint | *6379
 		}
 		//# Configure extra options for Redis&reg; containers' liveness and readiness probes
 		//# ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-probes/#configure-probes
@@ -733,11 +660,11 @@ import (
 		//#
 		startupProbe: {
 			enabled:             bool | *true
-			initialDelaySeconds: 10
-			periodSeconds:       10
+			initialDelaySeconds: uint | *10
+			periodSeconds:       uint | *10
 			timeoutSeconds:      uint | *5
-			successThreshold:    1
-			failureThreshold:    22
+			successThreshold:    uint | *1
+			failureThreshold:    uint | *22
 		}
 		//# @param replica.livenessProbe.enabled Enable livenessProbe on Redis&reg; replicas nodes
 		//# @param replica.livenessProbe.initialDelaySeconds Initial delay seconds for livenessProbe
@@ -748,10 +675,10 @@ import (
 		//#
 		livenessProbe: {
 			enabled:             bool | *true
-			initialDelaySeconds: 20
+			initialDelaySeconds: uint | *20
 			periodSeconds:       uint | *5
 			timeoutSeconds:      uint | *5
-			successThreshold:    1
+			successThreshold:    uint | *1
 			failureThreshold:    uint | *5
 		}
 		//# @param replica.readinessProbe.enabled Enable readinessProbe on Redis&reg; replicas nodes
@@ -763,27 +690,27 @@ import (
 		//#
 		readinessProbe: {
 			enabled:             bool | *true
-			initialDelaySeconds: 20
+			initialDelaySeconds: uint | *20
 			periodSeconds:       uint | *5
-			timeoutSeconds:      1
-			successThreshold:    1
+			timeoutSeconds:      uint | 1
+			successThreshold:    uint | *1
 			failureThreshold:    uint | *5
 		}
 		//# @param replica.customStartupProbe Custom startupProbe that overrides the default one
 		//#
-		customStartupProbe: {}
+		customStartupProbe: v1.#Probe | *{}
 		//# @param replica.customLivenessProbe Custom livenessProbe that overrides the default one
 		//#
-		customLivenessProbe: {}
+		customLivenessProbe: v1.#Probe | *{}
 		//# @param replica.customReadinessProbe Custom readinessProbe that overrides the default one
 		//#
-		customReadinessProbe: {}
+		customReadinessProbe: v1.#Probe | *{}
 		//# Redis&reg; replicas resource requests and limits
 		//# ref: https://kubernetes.io/docs/user-guide/compute-resources/
 		//# @param replica.resources.limits The resources limits for the Redis&reg; replicas containers
 		//# @param replica.resources.requests The requested resources for the Redis&reg; replicas containers
 		//#
-		resources: {
+		resources: v1.#ResourceRequirements | *{
 			// We usually recommend not to specify default resources and to leave this as a conscious
 			// choice for the user. This also increases chances charts run on environments with little
 			// resources, such as Minikube. If you do want to specify resources, uncomment the following
@@ -800,8 +727,8 @@ import (
 		//# @param replica.podSecurityContext.enabled Enabled Redis&reg; replicas pods' Security Context
 		//# @param replica.podSecurityContext.fsGroup Set Redis&reg; replicas pod's Security Context fsGroup
 		//#
-		podSecurityContext: {
-			enabled: bool | *true
+		podSecurityContext: v1.#PodSecurityContext | *{
+			enabled: true
 			fsGroup: 1001
 		}
 		//# Configure Container Security Context
@@ -809,8 +736,8 @@ import (
 		//# @param replica.containerSecurityContext.enabled Enabled Redis&reg; replicas containers' Security Context
 		//# @param replica.containerSecurityContext.runAsUser Set Redis&reg; replicas containers' Security Context runAsUser
 		//#
-		containerSecurityContext: {
-			enabled:   bool | *true
+		containerSecurityContext: v1.#PodSecurityContext | *{
+			enabled:   true
 			runAsUser: 1001
 		}
 		//# @param replica.schedulerName Alternate scheduler for Redis&reg; replicas pods
@@ -825,11 +752,11 @@ import (
 			//# StrategyType
 			//# Can be set to RollingUpdate, OnDelete (statefulset), Recreate (deployment)
 			//#
-			type: "RollingUpdate"
+			type: "OnDelete" | *"Recreate" | "RollingUpdate"
 		}
 		//# @param replica.minReadySeconds How many seconds a pod needs to be ready before killing the next, during update
 		//#
-		minReadySeconds: 0
+		minReadySeconds: uint | *0
 		//# @param replica.priorityClassName Redis&reg; replicas pods' priorityClassName
 		//#
 		priorityClassName: string | *""
@@ -840,15 +767,15 @@ import (
 		//# @param replica.hostAliases Redis&reg; replicas pods host aliases
 		//# https://kubernetes.io/docs/concepts/services-networking/add-entries-to-pod-etc-hosts-with-host-aliases/
 		//#
-		hostAliases: []
+		hostAliases: [...string]
 		//# @param replica.podLabels Extra labels for Redis&reg; replicas pods
 		//# ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
 		//#
-		podLabels: {}
+		podLabels: k8s.#Labels
 		//# @param replica.podAnnotations Annotations for Redis&reg; replicas pods
 		//# ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
 		//#
-		podAnnotations: {}
+		podAnnotations: k8s.#Annotations
 		//# @param replica.shareProcessNamespace Share a single process namespace between all of the containers in Redis&reg; replicas pods
 		//# ref: https://kubernetes.io/docs/tasks/configure-pod-container/share-process-namespace/
 		//#
@@ -860,7 +787,7 @@ import (
 		//# @param replica.podAntiAffinityPreset Pod anti-affinity preset. Ignored if `replica.affinity` is set. Allowed values: `soft` or `hard`
 		//# ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
 		//#
-		podAntiAffinityPreset: "soft"
+		podAntiAffinityPreset: "hard" | *"soft"
 		//# Node affinity preset
 		//# ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
 		//#
@@ -877,21 +804,21 @@ import (
 			//#   - e2e-az1
 			//#   - e2e-az2
 			//#
-			values: []
+			values: [...string]
 		}
 		//# @param replica.affinity Affinity for Redis&reg; replicas pods assignment
 		//# ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
 		//# NOTE: `replica.podAffinityPreset`, `replica.podAntiAffinityPreset`, and `replica.nodeAffinityPreset` will be ignored when it's set
 		//#
-		affinity: {}
+		affinity: v1.#Affinity
 		//# @param replica.nodeSelector Node labels for Redis&reg; replicas pods assignment
 		//# ref: https://kubernetes.io/docs/user-guide/node-selection/
 		//#
-		nodeSelector: {}
+		nodeSelector: v1.#Labels
 		//# @param replica.tolerations Tolerations for Redis&reg; replicas pods assignment
 		//# ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
 		//#
-		tolerations: []
+		tolerations: [...v1.#Toleration]
 		//# @param replica.topologySpreadConstraints Spread Constraints for Redis&reg; replicas pod assignment
 		//# ref: https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/
 		//# E.g.
@@ -900,7 +827,7 @@ import (
 		//#     topologyKey: node
 		//#     whenUnsatisfiable: DoNotSchedule
 		//#
-		topologySpreadConstraints: []
+		topologySpreadConstraints: [...]
 		//# @param replica.dnsPolicy DNS Policy for Redis&reg; replica pods
 		//# ref: https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/
 		//# E.g.
@@ -916,16 +843,16 @@ import (
 		//#     value: "4"
 		//#   - name: single-request-reopen
 		//#
-		dnsConfig: {}
+		dnsConfig: v1.#PodDNSConfig
 		//# @param replica.lifecycleHooks for the Redis&reg; replica container(s) to automate configuration before or after startup
 		//#
-		lifecycleHooks: {}
+		lifecycleHooks: _ | *{}
 		//# @param replica.extraVolumes Optionally specify extra list of additional volumes for the Redis&reg; replicas pod(s)
 		//#
-		extraVolumes: []
+		extraVolumes: [...v1.#Volume]
 		//# @param replica.extraVolumeMounts Optionally specify extra list of additional volumeMounts for the Redis&reg; replicas container(s)
 		//#
-		extraVolumeMounts: []
+		extraVolumeMounts: [...v1.#VolumeMount]
 		//# @param replica.sidecars Add additional sidecar containers to the Redis&reg; replicas pod(s)
 		//# e.g:
 		//# sidecars:
@@ -936,7 +863,7 @@ import (
 		//#       - name: portname
 		//#         containerPort: 1234
 		//#
-		sidecars: []
+		sidecars: [...]
 		//# @param replica.initContainers Add additional init containers to the Redis&reg; replicas pod(s)
 		//# ref: https://kubernetes.io/docs/concepts/workloads/pods/init-containers/
 		//# e.g:
@@ -946,14 +873,14 @@ import (
 		//#    imagePullPolicy: Always
 		//#    command: ['sh', '-c', 'echo "hello world"']
 		//#
-		initContainers: []
+		initContainers: [...]
 		//# Persistence Parameters
 		//# ref: https://kubernetes.io/docs/user-guide/persistent-volumes/
 		//#
 		persistence: {
 			//# @param replica.persistence.enabled Enable persistence on Redis&reg; replicas nodes using Persistent Volume Claims
 			//#
-			enabled: bool | *true
+			enabled: bool | *false
 			//# @param replica.persistence.medium Provide a medium for `emptyDir` volumes.
 			//#
 			medium: string | *""
@@ -963,7 +890,7 @@ import (
 			//#  @param replica.persistence.path The path the volume will be mounted at on Redis&reg; replicas containers
 			//# NOTE: Useful when using different Redis&reg; images
 			//#
-			path: "/data"
+			path: string | *"/data"
 			//# @param replica.persistence.subPath The subdirectory of the volume to mount on Redis&reg; replicas containers
 			//# NOTE: Useful in dev environments
 			//#
@@ -979,28 +906,28 @@ import (
 			storageClass: string | *""
 			//# @param replica.persistence.accessModes Persistent Volume access modes
 			//#
-			accessModes: [
-				"ReadWriteOnce",
+			accessModes: [...] | *[
+					"ReadWriteOnce",
 			]
 			//# @param replica.persistence.size Persistent Volume size
 			//#
-			size: "8Gi"
+			size: string | *"8Gi"
 			//# @param replica.persistence.annotations Additional custom annotations for the PVC
 			//#
-			annotations: {}
+			annotations: k8s.#Annotations
 			//# @param replica.persistence.labels Additional custom labels for the PVC
 			//#
-			labels: {}
+			labels: k8s.#Labels
 			//# @param replica.persistence.selector Additional labels to match for the PVC
 			//# e.g:
 			//# selector:
 			//#   matchLabels:
 			//#     app: my-app
 			//#
-			selector: {}
+			selector: _ | *{}
 			//# @param replica.persistence.dataSource Custom PVC data source
 			//#
-			dataSource: {}
+			dataSource: _ | *{}
 			//# @param replica.persistence.existingClaim Use a existing PVC which must be created manually before bound
 			//# NOTE: requires replica.persistence.enabled: bool | *true
 			//#
@@ -1011,11 +938,11 @@ import (
 		service: {
 			//# @param replica.service.type Redis&reg; replicas service type
 			//#
-			type: "ClusterIP"
+			type: string | *"ClusterIP"
 			//# @param replica.service.ports.redis Redis&reg; replicas service port
 			//#
 			ports: {
-				redis: 6379
+				redis: uint | *6379
 			}
 			//# @param replica.service.nodePorts.redis Node port for Redis&reg; replicas
 			//# ref: https://kubernetes.io/docs/concepts/services-networking/service/#type-nodeport
@@ -1027,14 +954,14 @@ import (
 			//# @param replica.service.externalTrafficPolicy Redis&reg; replicas service external traffic policy
 			//# ref: https://kubernetes.io/docs/tasks/access-application-cluster/create-external-load-balancer/#preserving-the-client-source-ip
 			//#
-			externalTrafficPolicy: "Cluster"
+			externalTrafficPolicy: string | *"Cluster"
 			//# @param replica.service.internalTrafficPolicy Redis&reg; replicas service internal traffic policy (requires Kubernetes v1.22 or greater to be usable)
 			//# ref: https://kubernetes.io/docs/concepts/services-networking/service-traffic-policy/
 			//#
-			internalTrafficPolicy: "Cluster"
+			internalTrafficPolicy: string | *"Cluster"
 			//# @param replica.service.extraPorts Extra ports to expose (normally used with the `sidecar` value)
 			//#
-			extraPorts: []
+			extraPorts: [...]
 			//# @param replica.service.clusterIP Redis&reg; replicas service Cluster IP
 			//#
 			clusterIP: string | *""
@@ -1048,25 +975,25 @@ import (
 			//# loadBalancerSourceRanges:
 			//#   - 10.10.10.0/24
 			//#
-			loadBalancerSourceRanges: []
+			loadBalancerSourceRanges: [...string]
 			//# @param replica.service.annotations Additional custom annotations for Redis&reg; replicas service
 			//#
-			annotations: {}
+			annotations: k8s.#Annotations
 			//# @param replica.service.sessionAffinity Session Affinity for Kubernetes service, can be "None" or "ClientIP"
 			//# If "ClientIP", consecutive client requests will be directed to the same Pod
 			//# ref: https://kubernetes.io/docs/concepts/services-networking/service/#virtual-ips-and-service-proxies
 			//#
-			sessionAffinity: "None"
+			sessionAffinity: string | *"None"
 			//# @param replica.service.sessionAffinityConfig Additional settings for the sessionAffinity
 			//# sessionAffinityConfig:
 			//#   clientIP:
 			//#     timeoutSeconds: 300
 			//#
-			sessionAffinityConfig: {}
+			sessionAffinityConfig: _ | *{}
 		}
 		//# @param replica.terminationGracePeriodSeconds Integer setting the termination grace period for the redis-replicas pods
 		//#
-		terminationGracePeriodSeconds: 30
+		terminationGracePeriodSeconds: uint | *30
 		//# Autoscaling configuration
 		//#
 		autoscaling: {
@@ -1075,10 +1002,10 @@ import (
 			enabled: bool | *false
 			//# @param replica.autoscaling.minReplicas Minimum replicas for the pod autoscaling
 			//#
-			minReplicas: 1
+			minReplicas: uint | *1
 			//# @param replica.autoscaling.maxReplicas Maximum replicas for the pod autoscaling
 			//#
-			maxReplicas: 11
+			maxReplicas: uint | *11
 			//# @param replica.autoscaling.targetCPU Percentage of CPU to consider when autoscaling
 			//#
 			targetCPU: string | *""
@@ -1102,7 +1029,7 @@ import (
 			automountServiceAccountToken: bool | *true
 			//# @param replica.serviceAccount.annotations Additional custom annotations for the ServiceAccount
 			//#
-			annotations: {}
+			annotations: k8s.#Annotations
 		}
 	}
 	//# @section Redis&reg; Sentinel configuration parameters
@@ -1125,7 +1052,7 @@ import (
 		//# @param sentinel.image.debug Enable image debug mode
 		//#
 		image: {
-			registry:   "docker.io"
+			registry:   string | *"docker.io"
 			repository: "bitnami/redis-sentinel"
 			tag:        "7.0.11-debian-11-r10"
 			digest:     string | *""
@@ -1148,7 +1075,7 @@ import (
 		}
 		//# @param sentinel.annotations Additional custom annotations for Redis&reg; Sentinel resource
 		//#
-		annotations: {}
+		annotations: k8s.#Annotations
 		//# @param sentinel.masterSet Master set name
 		//#
 		masterSet: "mymaster"
@@ -1265,13 +1192,13 @@ import (
 		}
 		//# @param sentinel.customStartupProbe Custom startupProbe that overrides the default one
 		//#
-		customStartupProbe: {}
+		customStartupProbe: v1.#Probe | *{}
 		//# @param sentinel.customLivenessProbe Custom livenessProbe that overrides the default one
 		//#
-		customLivenessProbe: {}
+		customLivenessProbe: v1.#Probe | *{}
 		//# @param sentinel.customReadinessProbe Custom readinessProbe that overrides the default one
 		//#
-		customReadinessProbe: {}
+		customReadinessProbe: v1.#Probe | *{}
 		//# Persistence parameters
 		//# ref: https://kubernetes.io/docs/user-guide/persistent-volumes/
 		//#
@@ -1287,28 +1214,28 @@ import (
 			storageClass: string | *""
 			//# @param sentinel.persistence.accessModes Persistent Volume access modes
 			//#
-			accessModes: [
-				"ReadWriteOnce",
+			accessModes: [...string] | *[
+					"ReadWriteOnce",
 			]
 			//# @param sentinel.persistence.size Persistent Volume size
 			//#
-			size: "100Mi"
+			size: string | *"100Mi"
 			//# @param sentinel.persistence.annotations Additional custom annotations for the PVC
 			//#
-			annotations: {}
+			annotations: k8s.#Annotations
 			//# @param sentinel.persistence.labels Additional custom labels for the PVC
 			//#
-			labels: {}
+			labels: k8s.#Labels
 			//# @param sentinel.persistence.selector Additional labels to match for the PVC
 			//# e.g:
 			//# selector:
 			//#   matchLabels:
 			//#     app: my-app
 			//#
-			selector: {}
+			selector: _ | *{}
 			//# @param sentinel.persistence.dataSource Custom PVC data source
 			//#
-			dataSource: {}
+			dataSource: _ | *{}
 			//# @param sentinel.persistence.medium Provide a medium for `emptyDir` volumes.
 			//#
 			medium: string | *""
@@ -1321,7 +1248,7 @@ import (
 		//# @param sentinel.resources.limits The resources limits for the Redis&reg; Sentinel containers
 		//# @param sentinel.resources.requests The requested resources for the Redis&reg; Sentinel containers
 		//#
-		resources: {
+		resources: v1.#ResourceRequirements | *{
 			limits: {}
 			requests: {}
 		}
@@ -1330,31 +1257,31 @@ import (
 		//# @param sentinel.containerSecurityContext.enabled Enabled Redis&reg; Sentinel containers' Security Context
 		//# @param sentinel.containerSecurityContext.runAsUser Set Redis&reg; Sentinel containers' Security Context runAsUser
 		//#
-		containerSecurityContext: {
-			enabled:   bool | *true
+		containerSecurityContext: v1.#PodSecurityContext | *{
+			enabled:   true
 			runAsUser: 1001
 		}
 		//# @param sentinel.lifecycleHooks for the Redis&reg; sentinel container(s) to automate configuration before or after startup
 		//#
-		lifecycleHooks: {}
+		lifecycleHooks: _ | *{}
 		//# @param sentinel.extraVolumes Optionally specify extra list of additional volumes for the Redis&reg; Sentinel
 		//#
-		extraVolumes: []
+		extraVolumes: [...v1.#Volume]
 		//# @param sentinel.extraVolumeMounts Optionally specify extra list of additional volumeMounts for the Redis&reg; Sentinel container(s)
 		//#
-		extraVolumeMounts: []
+		extraVolumeMounts: [...v1.#VolumeMount]
 		//# Redis&reg; Sentinel service parameters
 		//#
 		service: {
 			//# @param sentinel.service.type Redis&reg; Sentinel service type
 			//#
-			type: "ClusterIP"
+			type: string | *"ClusterIP"
 			//# @param sentinel.service.ports.redis Redis&reg; service port for Redis&reg;
 			//# @param sentinel.service.ports.sentinel Redis&reg; service port for Redis&reg; Sentinel
 			//#
 			ports: {
-				redis:    6379
-				sentinel: 26379
+				redis:    uint | *6379
+				sentinel: uint | *26379
 			}
 			//# @param sentinel.service.nodePorts.redis Node port for Redis&reg;
 			//# @param sentinel.service.nodePorts.sentinel Node port for Sentinel
@@ -1370,10 +1297,10 @@ import (
 			//# @param sentinel.service.externalTrafficPolicy Redis&reg; Sentinel service external traffic policy
 			//# ref: https://kubernetes.io/docs/tasks/access-application-cluster/create-external-load-balancer/#preserving-the-client-source-ip
 			//#
-			externalTrafficPolicy: "Cluster"
+			externalTrafficPolicy: string | *"Cluster"
 			//# @param sentinel.service.extraPorts Extra ports to expose (normally used with the `sidecar` value)
 			//#
-			extraPorts: []
+			extraPorts: [...]
 			//# @param sentinel.service.clusterIP Redis&reg; Sentinel service Cluster IP
 			//#
 			clusterIP: string | *""
@@ -1387,32 +1314,32 @@ import (
 			//# loadBalancerSourceRanges:
 			//#   - 10.10.10.0/24
 			//#
-			loadBalancerSourceRanges: []
+			loadBalancerSourceRanges: [...string]
 			//# @param sentinel.service.annotations Additional custom annotations for Redis&reg; Sentinel service
 			//#
-			annotations: {}
+			annotations: k8s.#Annotations
 			//# @param sentinel.service.sessionAffinity Session Affinity for Kubernetes service, can be "None" or "ClientIP"
 			//# If "ClientIP", consecutive client requests will be directed to the same Pod
 			//# ref: https://kubernetes.io/docs/concepts/services-networking/service/#virtual-ips-and-service-proxies
 			//#
-			sessionAffinity: "None"
+			sessionAffinity: string | *"None"
 			//# @param sentinel.service.sessionAffinityConfig Additional settings for the sessionAffinity
 			//# sessionAffinityConfig:
 			//#   clientIP:
 			//#     timeoutSeconds: 300
 			//#
-			sessionAffinityConfig: {}
+			sessionAffinityConfig: _ | *{}
 			//# Headless service properties
 			//#
 			headless: {
 				//# @param sentinel.service.headless.annotations Annotations for the headless service.
 				//#
-				annotations: {}
+				annotations: k8s.#Annotations
 			}
 		}
 		//# @param sentinel.terminationGracePeriodSeconds Integer setting the termination grace period for the redis-node pods
 		//#
-		terminationGracePeriodSeconds: 30
+		terminationGracePeriodSeconds: uint | *30
 	}
 
 	//# @section Other Parameters
@@ -1453,7 +1380,7 @@ import (
 		//#                 values:
 		//#                   - frontend
 		//#
-		extraIngress: []
+		extraIngress: [...]
 		//# @param networkPolicy.extraEgress Add extra egress rules to the NetworkPolicy
 		//# e.g:
 		//# extraEgress:
@@ -1470,12 +1397,12 @@ import (
 		//#                 values:
 		//#                   - frontend
 		//#
-		extraEgress: []
+		extraEgress: [...]
 		//# @param networkPolicy.ingressNSMatchLabels Labels to match to allow traffic from other namespaces
 		//# @param networkPolicy.ingressNSPodMatchLabels Pod labels to match to allow traffic from other namespaces
 		//#
-		ingressNSMatchLabels: {}
-		ingressNSPodMatchLabels: {}
+		ingressNSMatchLabels:    k8s.#Labels
+		ingressNSPodMatchLabels: k8s.#Labels
 	}
 	//# PodSecurityPolicy configuration
 	//# ref: https://kubernetes.io/docs/concepts/policy/pod-security-policy/
@@ -1505,7 +1432,7 @@ import (
 		//#       - get
 		//#       - list
 		//#
-		rules: []
+		rules: [...]
 	}
 	//# ServiceAccount configuration
 	//#
@@ -1523,7 +1450,7 @@ import (
 		automountServiceAccountToken: bool | *true
 		//# @param serviceAccount.annotations Additional custom annotations for the ServiceAccount
 		//#
-		annotations: {}
+		annotations: k8s.#Annotations
 	}
 	//# Redis&reg; Pod Disruption Budget configuration
 	//# ref: https://kubernetes.io/docs/tasks/run-application/configure-pdb/
@@ -1534,7 +1461,7 @@ import (
 		create: bool | *false
 		//# @param pdb.minAvailable Min number of pods that must still be available after the eviction
 		//#
-		minAvailable: 1
+		minAvailable: uint | *1
 		//# @param pdb.maxUnavailable Max number of pods that can be unavailable after the eviction
 		//#
 		maxUnavailable: string | *""
@@ -1588,11 +1515,11 @@ import (
 		//# @param metrics.image.pullSecrets Redis&reg; Exporter image pull secrets
 		//#
 		image: {
-			registry:   "docker.io"
-			repository: "bitnami/redis-exporter"
-			tag:        "1.uint | *50.0-debian-11-r13"
+			registry:   string | *"docker.io"
+			repository: string | *"bitnami/redis-exporter"
+			tag:        string | *"1.uint | *50.0-debian-11-r13"
 			digest:     string | *""
-			pullPolicy: "IfNotPresent"
+			pullPolicy: v1.#imagePullPolicy | *"IfNotPresent"
 			//# Optionally specify an array of imagePullSecrets.
 			//# Secrets must be manually created in the namespace.
 			//# ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
@@ -1600,7 +1527,7 @@ import (
 			//# pullSecrets:
 			//#   - myRegistryKeySecretName
 			//#
-			pullSecrets: []
+			pullSecrets: [...string]
 		}
 		//# Configure extra options for Redis&reg; containers' liveness, readiness & startup probes
 		//# ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
@@ -1613,10 +1540,10 @@ import (
 		//#
 		startupProbe: {
 			enabled:             bool | *false
-			initialDelaySeconds: 10
-			periodSeconds:       10
+			initialDelaySeconds: uint | *10
+			periodSeconds:       uint | *10
 			timeoutSeconds:      uint | *5
-			successThreshold:    1
+			successThreshold:    uint | *1
 			failureThreshold:    uint | *5
 		}
 		//# @param metrics.livenessProbe.enabled Enable livenessProbe on Redis&reg; replicas nodes
@@ -1628,10 +1555,10 @@ import (
 		//#
 		livenessProbe: {
 			enabled:             bool | *true
-			initialDelaySeconds: 10
-			periodSeconds:       10
+			initialDelaySeconds: uint | *10
+			periodSeconds:       uint | *10
 			timeoutSeconds:      uint | *5
-			successThreshold:    1
+			successThreshold:    uint | *1
 			failureThreshold:    uint | *5
 		}
 		//# @param metrics.readinessProbe.enabled Enable readinessProbe on Redis&reg; replicas nodes
@@ -1644,23 +1571,23 @@ import (
 		readinessProbe: {
 			enabled:             bool | *true
 			initialDelaySeconds: uint | *5
-			periodSeconds:       10
-			timeoutSeconds:      1
-			successThreshold:    1
-			failureThreshold:    3
+			periodSeconds:       uint | *10
+			timeoutSeconds:      uint | *1
+			successThreshold:    uint | *1
+			failureThreshold:    uint | *3
 		}
 		//# @param metrics.customStartupProbe Custom startupProbe that overrides the default one
 		//#
-		customStartupProbe: {}
+		customStartupProbe: v1.#Probe | *{}
 		//# @param metrics.customLivenessProbe Custom livenessProbe that overrides the default one
 		//#
-		customLivenessProbe: {}
+		customLivenessProbe: v1.#Probe | *{}
 		//# @param metrics.customReadinessProbe Custom readinessProbe that overrides the default one
 		//#
-		customReadinessProbe: {}
+		customReadinessProbe: v1.#Probe | *{}
 		//# @param metrics.command Override default metrics container init command (useful when using custom images)
 		//#
-		command: []
+		command: [...string]
 		//# @param metrics.redisTargetHost A way to specify an alternative Redis&reg; hostname
 		//# Useful for certificate CN/SAN matching
 		//#
@@ -1670,47 +1597,50 @@ import (
 		//# extraArgs:
 		//#   check-keys: myKey,myOtherKey
 		//#
-		extraArgs: {}
+		extraArgs: [string]: string
 		//# @param metrics.extraEnvVars Array with extra environment variables to add to Redis&reg; exporter
 		//# e.g:
 		//# extraEnvVars:
 		//#   - name: FOO
 		//#     value: "bar"
 		//#
-		extraEnvVars: []
+		extraEnvVars: [...{
+			name:  string
+			value: string
+		}]
 		//# Configure Container Security Context
 		//# ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
 		//# @param metrics.containerSecurityContext.enabled Enabled Redis&reg; exporter containers' Security Context
 		//# @param metrics.containerSecurityContext.runAsUser Set Redis&reg; exporter containers' Security Context runAsUser
 		//#
-		containerSecurityContext: {
-			enabled:   bool | *true
+		containerSecurityContext: v1.#PodSecurityContext | *{
+			enabled:   true
 			runAsUser: 1001
 		}
 		//# @param metrics.extraVolumes Optionally specify extra list of additional volumes for the Redis&reg; metrics sidecar
 		//#
-		extraVolumes: []
+		extraVolumes: [...v1.#Volume]
 		//# @param metrics.extraVolumeMounts Optionally specify extra list of additional volumeMounts for the Redis&reg; metrics sidecar
 		//#
-		extraVolumeMounts: []
+		extraVolumeMounts: [...v1.#VolumeMount]
 		//# Redis&reg; exporter resource requests and limits
 		//# ref: https://kubernetes.io/docs/user-guide/compute-resources/
 		//# @param metrics.resources.limits The resources limits for the Redis&reg; exporter container
 		//# @param metrics.resources.requests The requested resources for the Redis&reg; exporter container
 		//#
-		resources: {
+		resources: v1.#ResourceRequirements | *{
 			limits: {}
 			requests: {}
 		}
 		//# @param metrics.podLabels Extra labels for Redis&reg; exporter pods
 		//# ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
 		//#
-		podLabels: {}
+		podLabels: k8s.#Labels
 		//# @param metrics.podAnnotations [object] Annotations for Redis&reg; exporter pods
 		//# ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
 		//#
-		podAnnotations: {
-			"prometheus.io/scrape": "bool | *true"
+		podAnnotations: k8s.#Annotations | *{
+			"prometheus.io/scrape": "true"
 			"prometheus.io/port":   "9121"
 		}
 		//# Redis&reg; exporter service parameters
@@ -1718,17 +1648,17 @@ import (
 		service: {
 			//# @param metrics.service.type Redis&reg; exporter service type
 			//#
-			type: "ClusterIP"
+			type: string | *"ClusterIP"
 			//# @param metrics.service.port Redis&reg; exporter service port
 			//#
-			port: 9121
+			port: uint | *9121
 			//# @param metrics.service.externalTrafficPolicy Redis&reg; exporter service external traffic policy
 			//# ref: https://kubernetes.io/docs/tasks/access-application-cluster/create-external-load-balancer/#preserving-the-client-source-ip
 			//#
-			externalTrafficPolicy: "Cluster"
+			externalTrafficPolicy: string | *"Cluster"
 			//# @param metrics.service.extraPorts Extra ports to expose (normally used with the `sidecar` value)
 			//#
-			extraPorts: []
+			extraPorts: [...]
 			//# @param metrics.service.loadBalancerIP Redis&reg; exporter service Load Balancer IP
 			//# ref: https://kubernetes.io/docs/concepts/services-networking/service/#internal-load-balancer
 			//#
@@ -1739,10 +1669,10 @@ import (
 			//# loadBalancerSourceRanges:
 			//#   - 10.10.10.0/24
 			//#
-			loadBalancerSourceRanges: []
+			loadBalancerSourceRanges: [...string]
 			//# @param metrics.service.annotations Additional custom annotations for Redis&reg; exporter service
 			//#
-			annotations: {}
+			annotations: k8s.#Annotations
 			//# @param metrics.service.clusterIP Redis&reg; exporter service Cluster IP
 			//#
 			clusterIP: string | *""
@@ -1760,25 +1690,25 @@ import (
 			namespace: string | *""
 			//# @param metrics.serviceMonitor.interval The interval at which metrics should be scraped
 			//#
-			interval: "30s"
+			interval: string | *"30s"
 			//# @param metrics.serviceMonitor.scrapeTimeout The timeout after which the scrape is ended
 			//#
 			scrapeTimeout: string | *""
 			//# @param metrics.serviceMonitor.relabellings Metrics RelabelConfigs to apply to samples before scraping.
 			//#
-			relabellings: []
+			relabellings: [...]
 			//# @param metrics.serviceMonitor.metricRelabelings Metrics RelabelConfigs to apply to samples before ingestion.
 			//#
-			metricRelabelings: []
+			metricRelabelings: [...]
 			//# @param metrics.serviceMonitor.honorLabels Specify honorLabels parameter to add the scrape endpoint
 			//#
 			honorLabels: bool | *false
 			//# @param metrics.serviceMonitor.additionalLabels Additional labels that can be used so ServiceMonitor resource(s) can be discovered by Prometheus
 			//#
-			additionalLabels: {}
+			additionalLabels: k8s.#Labels
 			//# @param metrics.serviceMonitor.podTargetLabels Labels from the Kubernetes pod to be transferred to the created metrics
 			//#
-			podTargetLabels: []
+			podTargetLabels: [...string]
 		}
 		//# Custom PrometheusRule to be defined
 		//# ref: https://github.com/coreos/prometheus-operator#customresourcedefinitions
@@ -1792,7 +1722,7 @@ import (
 			namespace: string | *""
 			//# @param metrics.prometheusRule.additionalLabels Additional labels for the prometheusRule
 			//#
-			additionalLabels: {}
+			additionalLabels: k8s.#Labels
 			//# @param metrics.prometheusRule.rules Custom Prometheus rules
 			//# e.g:
 			//# rules:
@@ -1828,7 +1758,7 @@ import (
 			//#        description: |
 			//#          Redis&reg; instance {{ "{{ $labels.instance }}" }} has evicted {{ "{{ $value }}" }} keys in the last uint | *5 minutes.
 			//#
-			rules: []
+			rules: [...]
 		}
 	}
 
@@ -1852,11 +1782,11 @@ import (
 		//# @param volumePermissions.image.pullSecrets Bitnami Shell image pull secrets
 		//#
 		image: {
-			registry:   "docker.io"
-			repository: "bitnami/bitnami-shell"
-			tag:        "11-debian-11-r118"
+			registry:   string | *"docker.io"
+			repository: string | *"bitnami/bitnami-shell"
+			tag:        string | *"11-debian-11-r118"
 			digest:     string | *""
-			pullPolicy: "IfNotPresent"
+			pullPolicy: v1.#imagePullPolicy | *"IfNotPresent"
 			//# Optionally specify an array of imagePullSecrets.
 			//# Secrets must be manually created in the namespace.
 			//# ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
@@ -1864,14 +1794,14 @@ import (
 			//# pullSecrets:
 			//#   - myRegistryKeySecretName
 			//#
-			pullSecrets: []
+			pullSecrets: [...string]
 		}
 		//# Init container's resource requests and limits
 		//# ref: https://kubernetes.io/docs/user-guide/compute-resources/
 		//# @param volumePermissions.resources.limits The resources limits for the init container
 		//# @param volumePermissions.resources.requests The requested resources for the init container
 		//#
-		resources: {
+		resources: v1.#ResourceRequirements | *{
 			limits: {}
 			requests: {}
 		}
@@ -1882,7 +1812,7 @@ import (
 		//#   data folder to auto-determined user&group, using commands: `id -u`:`id -G | cut -d" " -f2`
 		//#   "auto" is especially useful for OpenShift which has scc with dynamic user ids (and 0 is not allowed)
 		//#
-		containerSecurityContext: {
+		containerSecurityContext: v1.#PodSecurityContext | *{
 			runAsUser: 0
 		}
 	}
@@ -1904,11 +1834,11 @@ import (
 		//# @param sysctl.image.pullSecrets Bitnami Shell image pull secrets
 		//#
 		image: {
-			registry:   "docker.io"
-			repository: "bitnami/bitnami-shell"
-			tag:        "11-debian-11-r118"
+			registry:   string | *"docker.io"
+			repository: string | *"bitnami/bitnami-shell"
+			tag:        string | *"11-debian-11-r118"
 			digest:     string | *""
-			pullPolicy: "IfNotPresent"
+			pullPolicy: v1.#imagePullPolicy | *"IfNotPresent"
 			//# Optionally specify an array of imagePullSecrets.
 			//# Secrets must be manually created in the namespace.
 			//# ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
@@ -1916,11 +1846,11 @@ import (
 			//# pullSecrets:
 			//#   - myRegistryKeySecretName
 			//#
-			pullSecrets: []
+			pullSecrets: [...string]
 		}
 		//# @param sysctl.command Override default init-sysctl container command (useful when using custom images)
 		//#
-		command: []
+		command: [...string]
 		//# @param sysctl.mountHostSys Mount the host `/sys` folder to `/host-sys`
 		//#
 		mountHostSys: bool | *false
@@ -1929,7 +1859,7 @@ import (
 		//# @param sysctl.resources.limits The resources limits for the init container
 		//# @param sysctl.resources.requests The requested resources for the init container
 		//#
-		resources: {
+		resources: v1.#ResourceRequirements | *{
 			limits: {}
 			requests: {}
 		}
@@ -1943,9 +1873,9 @@ import (
 	//# @param useExternalDNS.suffix The DNS suffix utilized when `external-dns` is enabled.  Note that we prepend the suffix with the full name of the release.
 	//#
 	useExternalDNS: {
-		enabled:       bool | *false
-		suffix:        string | *""
-		annotationKey: "external-dns.alpha.kubernetes.io/"
-		additionalAnnotations: {}
+		enabled:               bool | *false
+		suffix:                string | *""
+		annotationKey:         string | *"external-dns.alpha.kubernetes.io/"
+		additionalAnnotations: k8s.#Annotations
 	}
 }
