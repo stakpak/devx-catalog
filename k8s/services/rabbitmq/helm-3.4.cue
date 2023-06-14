@@ -103,7 +103,7 @@ import (
 		podAntiAffinityPreset: string | *"soft"
 		nodeAffinityPreset:    v1.#Affinity
 		affinity:              v1.#Affinity
-		nodeSelector:          v1.#NodeSelector
+		nodeSelector:          k8s.#Labels
 		tolerations: [...v1.#Toleration]
 		updateStrategy: {
 			type: string | *"RollingUpdate"
@@ -196,7 +196,7 @@ import (
 		podAntiAffinityPreset: string | *"soft"
 		nodeAffinityPreset:    v1.#Affinity
 		affinity:              v1.#Affinity
-		nodeSelector:          v1.#NodeSelector
+		nodeSelector:          k8s.#Labels
 		tolerations: [...v1.#Toleration]
 		updateStrategy: {
 			type: string | *"RollingUpdate"
