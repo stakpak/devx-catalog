@@ -148,7 +148,6 @@ import (
 		appendonly yes
 		# Disable RDB persistence, AOF persistence already enabled.
 		save \"\"
-		string |
 		"""
 
 	//# @param existingConfigmap The name of an existing ConfigMap with your custom configuration for Redis&reg; nodes//# @param existingConfigmap The name of an existing ConfigMap with your custom configuration for Redis&reg; nodes
@@ -297,7 +296,7 @@ import (
 		//# @param master.kind Use either Deployment or StatefulSet (default)
 		//# ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/
 		//#
-		kind: *"Deployment" | "StatefulSet"
+		kind: "Deployment" | *"StatefulSet"
 		//# @param master.schedulerName Alternate scheduler for Redis&reg; master pods
 		//# ref: https://kubernetes.io/docs/tasks/administer-cluster/configure-multiple-schedulers/
 		//#
@@ -310,7 +309,7 @@ import (
 			//# StrategyType
 			//# Can be set to RollingUpdate, OnDelete (statefulset), Recreate (deployment)
 			//#
-			type: "OnDelete" | *"Recreate" | "RollingUpdate"
+			type: "OnDelete" | "Recreate" | *"RollingUpdate"
 		}
 		//# @param master.minReadySeconds How many seconds a pod needs to be ready before killing the next, during update
 		//#
@@ -476,10 +475,10 @@ import (
 			size: string | *"8Gi"
 			//# @param master.persistence.annotations Additional custom annotations for the PVC
 			//#
-			annotations: v1.#Annotations
+			annotations: k8s.#Annotations
 			//# @param master.persistence.labels Additional custom labels for the PVC
 			//#
-			labels: v1.#Labels
+			labels: k8s.#Labels
 			//# @param master.persistence.selector Additional labels to match for the PVC
 			//# e.g:
 			//# selector:
@@ -548,7 +547,7 @@ import (
 			externalIPs: [...string]
 			//# @param master.service.annotations Additional custom annotations for Redis&reg; master service
 			//#
-			annotations: v1.#Annotations
+			annotations: k8s.#Annotations
 			//# @param master.service.sessionAffinity Session Affinity for Kubernetes service, can be "None" or "ClientIP"
 			//# If "ClientIP", consecutive client requests will be directed to the same Pod
 			//# ref: https://kubernetes.io/docs/concepts/services-networking/service/#virtual-ips-and-service-proxies
@@ -580,7 +579,7 @@ import (
 			automountServiceAccountToken: bool | *true
 			//# @param master.serviceAccount.annotations Additional custom annotations for the ServiceAccount
 			//#
-			annotations: v1.#Annotations
+			annotations: k8s.#Annotations
 		}
 	}
 
@@ -590,7 +589,7 @@ import (
 	replica: {
 		//# @param replica.replicaCount Number of Redis&reg; replicas to deploy
 		//#
-		replicaCount: uint | *3
+		replicaCount: uint | *0
 		//# @param replica.configuration Configuration for Redis&reg; replicas nodes
 		//# ref: https://redis.io/topics/config
 		//#
@@ -692,7 +691,7 @@ import (
 			enabled:             bool | *true
 			initialDelaySeconds: uint | *20
 			periodSeconds:       uint | *5
-			timeoutSeconds:      uint | 1
+			timeoutSeconds:      uint | *1
 			successThreshold:    uint | *1
 			failureThreshold:    uint | *5
 		}
@@ -752,7 +751,7 @@ import (
 			//# StrategyType
 			//# Can be set to RollingUpdate, OnDelete (statefulset), Recreate (deployment)
 			//#
-			type: "OnDelete" | *"Recreate" | "RollingUpdate"
+			type: "OnDelete" | "Recreate" | *"RollingUpdate"
 		}
 		//# @param replica.minReadySeconds How many seconds a pod needs to be ready before killing the next, during update
 		//#
@@ -814,7 +813,7 @@ import (
 		//# @param replica.nodeSelector Node labels for Redis&reg; replicas pods assignment
 		//# ref: https://kubernetes.io/docs/user-guide/node-selection/
 		//#
-		nodeSelector: v1.#Labels
+		nodeSelector: k8s.#Labels
 		//# @param replica.tolerations Tolerations for Redis&reg; replicas pods assignment
 		//# ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
 		//#
