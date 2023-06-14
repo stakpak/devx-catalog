@@ -14,5 +14,9 @@ import (
 		port: uint | *5672
 
 		host: string
+
+		replicas: uint | *1
+
+		persistent: bool | *false
 	}
 }
