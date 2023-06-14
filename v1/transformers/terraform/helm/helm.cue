@@ -12,7 +12,7 @@ import (
 	traits.#Helm
 	$metadata: _
 	helm:      _
-	helm: repoType:        "git" | "oci" | *"default"
+	helm: repoType:        "oci" | *"default"
 	$resources: terraform: schema.#Terraform & {
 		resource: helm_release: "\(helm.release)": {
 			name:             helm.release
