@@ -123,7 +123,7 @@ import (
 		// |  |  |  |  .---- day of week (0 - 6) (Sunday=0 or 7) OR sun,mon,tue,wed,thu,fri,sat
 		// |  |  |  |  |
 		// *  *  *  *  *
-		schedule: string
+		schedule: =~"((((\\d+,)+\\d+|(\\d+(\\/|-)\\d+)|\\d+|\\*) ?){5,7})"
 	}
 }
 
