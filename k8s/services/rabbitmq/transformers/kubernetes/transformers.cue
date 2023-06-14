@@ -36,8 +36,6 @@ import (
 				namespace: k8s.namespace
 			}
 			spec: {
-				version:  rabbitmq.version
-				port:     rabbitmq.port
 				replicas: rabbitmq.replicas
 			}
 		}
