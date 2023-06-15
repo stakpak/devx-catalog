@@ -37,6 +37,7 @@ import (
 			}
 			spec: {
 				replicas: rabbitmq.replicas
+				image: "rabbitmq:\(rabbitmq.version)"
 			}
 		}
 	}
