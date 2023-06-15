@@ -9,9 +9,9 @@ import (
 	$metadata: traits: RabbitMQ: null
 	rabbitmq: {
 		name:    string
-		version: "3.9.29" | "3.10.24" | *"3.11.18" | "3.12.0"
+		version: string | *"3.10.10"
 
-		port: 5672
+		port: uint | *5672
 
 		host: string
 

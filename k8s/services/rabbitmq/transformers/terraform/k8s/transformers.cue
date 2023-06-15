@@ -12,7 +12,12 @@ import (
 	$metadata: _
 	$dependencies: [...string]
 
-	rabbitmq: host: "\($metadata.id).\(k8s.namespace).svc.cluster.local"
+	rabbitmq: {
+		host:    "\($metadata.id).\(k8s.namespace).svc.cluster.local"
+		version: "3.9.29" | "3.10.24" | "3.11.18" | "3.12.0"
+		port:    5672
+	}
+
 	k8s: {
 		namespace: string
 		...
@@ -27,7 +32,7 @@ import (
 				}
 				spec: {
 					replicas: rabbitmq.replicas
-					image: "rabbitmq:\(rabbitmq.version)"
+					image:    "rabbitmq:\(rabbitmq.version)"
 				}
 			}
 		}
