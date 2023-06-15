@@ -23,7 +23,7 @@ import (
 
 	rabbitmq: {
 		host:    "\($metadata.id).\(k8s.namespace).svc.cluster.local"
-		version: "3.9.29" | "3.10.24" | "3.11.18" | "3.12.0"
+		version: "3.9" | "3.10" | "3.11" | "3.12"
 		port:    5672
 	}
 
