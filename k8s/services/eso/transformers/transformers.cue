@@ -19,9 +19,9 @@ import (
 
 	externalSecret: {
 		refreshInterval: *"1h" | string
-		storeRef?: {
+		storeRef: {
 			name: string
-			kind: "SecretStore" | "ClusterSecretStore"
+			kind: *"SecretStore" | "ClusterSecretStore"
 		}
 		decodingStrategy: *"None" | "Base64" | "Base64URL" | "Auto"
 	}
@@ -35,11 +35,9 @@ import (
 				}
 				spec: {
 					refreshInterval: externalSecret.refreshInterval
-					if externalSecret.storeRef != _|_ {
-						secretStoreRef: {
-							name: externalSecret.storeRef.name
-							kind: externalSecret.storeRef.kind
-						}
+					secretStoreRef: {
+						name: externalSecret.storeRef.name
+						kind: externalSecret.storeRef.kind
 					}
 					data: [
 						for _, secret in secrets {
