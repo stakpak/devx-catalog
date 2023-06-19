@@ -17,26 +17,41 @@ import (
 		...
 	}
 
+	externalSecret: {
+		refreshInterval: *"1h" | string
+		storeRef?: {
+			name: string
+			kind: "SecretStore" | "ClusterSecretStore"
+		}
+		decodingStrategy: *"None" | "Base64" | "Base64URL" | "Auto"
+	}
+
 	$resources: terraform: schema.#Terraform & {
-		resource: kubernetes_manifest: "\($metadata.id)-secret-store": {
+		resource: kubernetes_manifest: "\($metadata.id)-external-secret": {
 			manifest: resources.#ExternalSecret & {
 				metadata: {
 					name:      $metadata.id
 					namespace: k8s.namespace
 				}
 				spec: {
-					refreshInterval: *"1h" | string
-					secretStoreRef: {
-						name: string
-						kind: *"SecretStore" | string
+					refreshInterval: externalSecret.refreshInterval
+					if externalSecret.storeRef != _|_ {
+						secretStoreRef: {
+							name: externalSecret.storeRef.name
+							kind: externalSecret.storeRef.kind
+						}
 					}
 					data: [
 						for _, secret in secrets {
-                            secretKey: secret.name
-                            remoteRef: {
-                                key: secret.name
-                                version: secret.version | *"latest"
-                            }
+							secretKey: secret.name
+							remoteRef: {
+								key:     secret.name
+								version: secret.version | *"latest"
+								if secret.property != _|_ {
+									property: secret.property
+								}
+								decodingStrategy: externalSecret.decodingStrategy
+							}
 						},
 					]
 				}
