@@ -38,9 +38,9 @@ import (
 								"containers": [
 									for _, container in containers {
 										{
-											name:  container.name
 											image: container.image
 											args:  container.args
+											command: container.command
 										}
 									},
 								]

@@ -518,26 +518,28 @@ _#CronJobResource: {
 	}
 }
 
-#AddCronJob: #AddUser: v1.#Transformer & {
+#AddCronJob: v1.#Transformer & {
 	traits.#Cronable
 	traits.#Workload
 	$metadata:  _
 	cron:       _
 	containers: _
 	$resources: "\($metadata.id)-cron-job": _#CronJobResource & {
-		schedule: cron.schedule
-		jobTemplate: spec: template: {
-			spec: {
-				"containers": [
-					for _, container in containers {
-						{
-							name:  container.name
-							image: container.image
-							args:  container.args
-						}
-					},
-				]
-				restartPolicy: "OnFailure"
+		spec: {
+			schedule: cron.schedule
+			jobTemplate: spec: template: {
+				spec: {
+					"containers": [
+						for _, container in containers {
+							{
+								image:   container.image
+								args:    container.args
+								command: container.command
+							}
+						},
+					]
+					restartPolicy: "OnFailure" 
+				}
 			}
 		}
 	}
