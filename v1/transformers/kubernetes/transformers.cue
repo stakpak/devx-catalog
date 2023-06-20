@@ -422,6 +422,7 @@ _#IngressResource: {
 	apiVersion: "v1"
 	metadata: name: _#KubernetesName
 }
+
 #AddIngress: v1.#Transformer & {
 	traits.#HTTPRoute
 	$metadata:        _
@@ -495,6 +496,50 @@ _#IngressResource: {
 				apiVersion: string
 				kind:       string
 				resource
+			}
+		}
+	}
+}
+
+_#CronJobResource: {
+	$metadata: labels: {
+		driver: "kubernetes"
+		type:   "k8s.io/batch/v1/cronjob"
+	}
+	kind:       "CronJob"
+	apiVersion: "batch/v1"
+	metadata: name: _#KubernetesName
+	spec: {
+		schedule: =~"((((\\d+,)+\\d+|(\\d+(\\/|-)\\d+)|\\d+|\\*) ?){5,7})"
+		jobTemplate: spec: {
+			template: corev1.#PodTemplateSpec
+			...
+		}
+	}
+}
+
+#AddCronJob: v1.#Transformer & {
+	traits.#Cronable
+	traits.#Workload
+	$metadata:  _
+	cron:       _
+	containers: _
+	$resources: "\($metadata.id)-cron-job": _#CronJobResource & {
+		spec: {
+			schedule: cron.schedule
+			jobTemplate: spec: template: {
+				spec: {
+					"containers": [
+						for _, container in containers {
+							{
+								image:   container.image
+								args:    container.args
+								command: container.command
+							}
+						},
+					]
+					restartPolicy: "OnFailure" 
+				}
 			}
 		}
 	}
