@@ -521,10 +521,12 @@ _#CronJobResource: {
 #AddCronJob: v1.#Transformer & {
 	traits.#Cronable
 	traits.#Workload
-	$metadata:  _
-	cron:       _
-	containers: _
+	$metadata:   _
+	cron:        _
+	containers:  _
+	cronJobName: string | *$metadata.id
 	$resources: "\($metadata.id)-cron-job": _#CronJobResource & {
+		metadata: name: cronJobName
 		spec: {
 			schedule: cron.schedule
 			jobTemplate: spec: template: {
@@ -538,7 +540,7 @@ _#CronJobResource: {
 							}
 						},
 					]
-					restartPolicy: "OnFailure" 
+					restartPolicy: "OnFailure"
 				}
 			}
 		}
