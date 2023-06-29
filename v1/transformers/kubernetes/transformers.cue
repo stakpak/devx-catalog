@@ -76,6 +76,56 @@ _#HPAResource: {
 	metadata: name: _#KubernetesName
 }
 
+_#ContainersSpec: {
+	#InputContainers: _
+	[ for k, container in #InputContainers {
+		{
+			name:    k
+			image:   container.image
+			command: container.command
+			args:    container.args
+			env: [
+				for name, value in container.env {
+					if (value & string) != _|_ {
+						{
+							"name":  name
+							"value": value
+						}
+					}
+					if (value & v1.#Secret) != _|_ {
+						{
+							"name": name
+							valueFrom: secretKeyRef: {
+								"name": value.name & _#KubernetesName
+								if value.property == _|_ {
+									"key": name
+								}
+								if value.property != _|_ {
+									"key": value.property
+								}
+								optional: false
+							}
+						}
+					}
+				},
+			]
+			if container.resources.limits.cpu != _|_ {
+				resources: limits: cpu: container.resources.limits.cpu
+			}
+			if container.resources.limits.memory != _|_ {
+				resources: limits: memory: container.resources.limits.memory
+			}
+			if container.resources.requests.cpu != _|_ {
+				resources: requests: cpu: container.resources.requests.cpu
+			}
+			if container.resources.requests.memory != _|_ {
+				resources: requests: memory: container.resources.requests.memory
+			}
+		}
+	},
+	]
+}
+
 #AddDeployment: v1.#Transformer & {
 	v1.#Component
 	traits.#Workload
@@ -101,53 +151,9 @@ _#HPAResource: {
 					spec: {
 						"serviceAccountName": serviceAccountName
 						restartPolicy:        "Always"
-						"containers": [
-							for k, container in containers {
-								{
-									name:    k
-									image:   container.image
-									command: container.command
-									args:    container.args
-									env: [
-										for name, value in container.env {
-											if (value & string) != _|_ {
-												{
-													"name":  name
-													"value": value
-												}
-											}
-											if (value & v1.#Secret) != _|_ {
-												{
-													"name": name
-													valueFrom: secretKeyRef: {
-														"name": value.name & _#KubernetesName
-														if value.property == _|_ {
-															"key": name
-														}
-														if value.property != _|_ {
-															"key": value.property
-														}
-														optional: false
-													}
-												}
-											}
-										},
-									]
-									if container.resources.limits.cpu != _|_ {
-										resources: limits: cpu: container.resources.limits.cpu
-									}
-									if container.resources.limits.memory != _|_ {
-										resources: limits: memory: container.resources.limits.memory
-									}
-									if container.resources.requests.cpu != _|_ {
-										resources: requests: cpu: container.resources.requests.cpu
-									}
-									if container.resources.requests.memory != _|_ {
-										resources: requests: memory: container.resources.requests.memory
-									}
-								}
-							},
-						]
+						"containers":         _#ContainersSpec & {
+							#InputContainers: containers
+						}
 					}
 				}
 			}
@@ -531,15 +537,9 @@ _#CronJobResource: {
 			schedule: cron.schedule
 			jobTemplate: spec: template: {
 				spec: {
-					"containers": [
-						for _, container in containers {
-							{
-								image:   container.image
-								args:    container.args
-								command: container.command
-							}
-						},
-					]
+					"containers": _#ContainersSpec & {
+						#InputContainers: containers
+					}
 					restartPolicy: "OnFailure"
 				}
 			}
