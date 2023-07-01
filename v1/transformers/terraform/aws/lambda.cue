@@ -23,6 +23,10 @@ import (
 		// 	name: string
 		// 	...
 		// }
+		lambda: {
+			timeout: uint | *5
+			...
+		}
 		...
 	}
 	appName: string | *$metadata.id
@@ -126,6 +130,10 @@ import (
 						}
 					}
 				}
+
+				source_code_hash: "${uuid()}"
+
+				timeout: aws.lambda.timeout
 				// vpc_config: {
 				// 	subnet_ids: "${data.aws_subnets.\(aws.vpc.name).ids}"
 				// 	security_group_ids: [aws_security_group.example.id]
