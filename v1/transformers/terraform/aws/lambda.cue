@@ -138,7 +138,9 @@ import (
 				image_uri:     containers.default.image
 				role:          "${aws_iam_role.lambda_\(appName).arn}"
 
-				memory_size: strconv.Atoi(strings.TrimSuffix(containers.default.resources.requests, "M"))
+				if containers.default.resources.requests.memory != _|_ {
+					memory_size: strconv.Atoi(strings.TrimSuffix(containers.default.resources.requests.memory, "M"))
+				}
 
 				environment: variables: {
 					for k, v in containers.default.env {
