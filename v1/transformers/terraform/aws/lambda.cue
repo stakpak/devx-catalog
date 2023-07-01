@@ -41,9 +41,6 @@ import (
 			// 		},
 			// 	]
 			// }
-			// aws_kms_alias: "\(appName)": {
-			// 	name: "alias/lambda/\(appName)"
-			// }
 			aws_cloudwatch_log_group: "\(appName)": {
 				name: "/aws/lambda/\(appName)"
 			}
@@ -85,14 +82,6 @@ import (
 								]
 								Resource: "${data.aws_cloudwatch_log_group.\(appName).arn}"
 							},
-						{
-								Sid:    "SSMDecrypt"
-								Effect: "Allow"
-								Action: [
-									"kms:Decrypt",
-								]
-								Resource: "${data.aws_kms_alias.\(appName).target_key_arn}"
-							},	
 							{
 								Sid:    "LambdaSecret"
 								Effect: "Allow"
