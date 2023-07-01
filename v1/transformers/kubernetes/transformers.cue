@@ -152,6 +152,7 @@ _#ContainersSpec: {
 						"serviceAccountName": serviceAccountName
 						restartPolicy:        "Always"
 						"containers":         _#ContainersSpec & {
+							_
 							#InputContainers: containers
 						}
 					}
@@ -538,6 +539,7 @@ _#CronJobResource: {
 			jobTemplate: spec: template: {
 				spec: {
 					"containers": _#ContainersSpec & {
+						_
 						#InputContainers: containers
 					}
 					restartPolicy: "OnFailure"
