@@ -41,11 +41,12 @@ import (
 			// 		},
 			// 	]
 			// }
-			aws_cloudwatch_log_group: "\(appName)": {
-				name: "/aws/lambda/\(appName)"
-			}
 		}
 		resource: {
+			aws_cloudwatch_log_group: "\(appName)": {
+				name:              "/aws/lambda/\(appName)"
+				retention_in_days: 14
+			}
 			aws_iam_role: "lambda_\(appName)": {
 				name:               "lambda-\(appName)"
 				assume_role_policy: json.Marshal(resources.#IAMPolicy &
@@ -80,7 +81,7 @@ import (
 									"logs:DescribeLogStreams",
 									"logs:PutLogEvents",
 								]
-								Resource: "${data.aws_cloudwatch_log_group.\(appName).arn}"
+								Resource: "${aws_cloudwatch_log_group.\(appName).arn}"
 							},
 							{
 								Sid:    "LambdaSecret"
@@ -108,9 +109,9 @@ import (
 						]
 					})
 			}
-
 			aws_lambda_function: "\(appName)": {
 				function_name: appName
+				package_type:  "Image"
 				image_uri:     containers.default.image
 				role:          "${aws_iam_role.lambda_\(appName).arn}"
 
