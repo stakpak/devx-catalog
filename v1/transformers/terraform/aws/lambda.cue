@@ -41,9 +41,9 @@ import (
 			// 		},
 			// 	]
 			// }
-			aws_kms_alias: "\(appName)": {
-				name: "alias/lambda/\(appName)"
-			}
+			// aws_kms_alias: "\(appName)": {
+			// 	name: "alias/lambda/\(appName)"
+			// }
 			aws_cloudwatch_log_group: "\(appName)": {
 				name: "/aws/lambda/\(appName)"
 			}
@@ -85,27 +85,14 @@ import (
 								]
 								Resource: "${data.aws_cloudwatch_log_group.\(appName).arn}"
 							},
-							{
+						{
 								Sid:    "SSMDecrypt"
 								Effect: "Allow"
 								Action: [
 									"kms:Decrypt",
 								]
 								Resource: "${data.aws_kms_alias.\(appName).target_key_arn}"
-							},
-							{
-								Sid:    "ECSTaskDefault"
-								Effect: "Allow"
-								Action: [
-									"ecr:GetAuthorizationToken",
-									"ecr:BatchCheckLayerAvailability",
-									"ecr:GetDownloadUrlForLayer",
-									"ecr:BatchGetImage",
-									"logs:CreateLogStream",
-									"logs:PutLogEvents",
-								]
-								Resource: "*"
-							},
+							},	
 							{
 								Sid:    "LambdaSecret"
 								Effect: "Allow"
@@ -133,7 +120,7 @@ import (
 					})
 			}
 
-			resource: aws_lambda_function: "\(appName)": {
+			aws_lambda_function: "\(appName)": {
 				function_name: appName
 				image_uri:     containers.default.image
 				role:          "${aws_iam_role.lambda_\(appName).arn}"
