@@ -130,6 +130,9 @@ _CreateContainers: {
 #AddDeployment: v1.#Transformer & {
 	v1.#Component
 	traits.#Workload
+	config: {
+		imagePullSecrets?: [...corev1.#LocalObjectReference]
+	}
 	$metadata:  _
 	restart:    _
 	containers: _
@@ -530,6 +533,9 @@ _#CronJobResource: {
 #AddCronJob: v1.#Transformer & {
 	traits.#Cronable
 	traits.#Workload
+	config: {
+		imagePullSecrets?: [...corev1.#LocalObjectReference]
+	}
 	$metadata:   _
 	cron:        _
 	containers:  _
@@ -544,7 +550,7 @@ _#CronJobResource: {
 					"containers": (_CreateContainers & {
 						input: containers
 					}).output
-					restartPolicy: "OnFailure"
+					restartPolicy:      "OnFailure"
 					"imagePullSecrets": config.imagePullSecrets
 				}
 			}
