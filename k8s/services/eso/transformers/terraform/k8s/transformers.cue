@@ -28,10 +28,12 @@ import (
 
 	let secretObjs = {
 		for _, secret in secrets {
-			data: secret
-			properties: "\(secret.name)": {
-				if secret.property != _|_ {
-					"\(secret.property)": null
+			"\(secret.name)": {
+				data: secret
+				properties: {
+					if secret.property != _|_ {
+						"\(secret.property)": null
+					}
 				}
 			}
 		}
@@ -39,7 +41,7 @@ import (
 
 	$resources: terraform: schema.#Terraform & {
 		resource: kubernetes_manifest: {
-			for secretName, secret in secretObjs {
+			for secretName, obj in secretObjs {
 				"\(secretName)_external_secret": manifest: resources.#ExternalSecret & {
 					metadata: {
 						name:      secretName
@@ -52,24 +54,24 @@ import (
 							kind: externalSecret.storeRef.kind
 						}
 
-						if len(secret.properties) == 0 {
+						if len(obj.properties) == 0 {
 							data: [{
 								secretKey: "value"
 								remoteRef: {
 									key:              secretName
-									version:          secret.data.version | *"latest"
+									version:          obj.data.version | *"latest"
 									decodingStrategy: externalSecret.decodingStrategy
 								}
 							}]
 						}
 
-						if len(secret.properties) > 0 {
+						if len(obj.properties) > 0 {
 							data: [
-								for propertyName, _ in secret.properties {
+								for propertyName, _ in obj.properties {
 									secretKey: propertyName
 									remoteRef: {
 										key:              secretName
-										version:          secret.data.version | *"latest"
+										version:          obj.data.version | *"latest"
 										property:         propertyName
 										decodingStrategy: externalSecret.decodingStrategy
 									}
