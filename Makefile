@@ -1,5 +1,6 @@
 .PHONY: test
 test:
+	@cue eval ./...
 	@cd test && cue eval
 
 
