@@ -1,10 +1,20 @@
 package kubernetes
 
 import (
+	"strings"
 	"guku.io/devx/v1"
 	"guku.io/devx/v1/traits"
 	resources "guku.io/devx/k8s/services/eso/resources"
 )
+
+#KubernetesResource: {
+	$metadata: labels: {
+		driver: "kubernetes"
+		type:   "\(apiVersion)/\(strings.ToLower(kind))"
+	}
+	apiVersion: string
+	kind:       string
+}
 
 #AddExternalSecret: v1.#Transformer & {
 	traits.#Secret
@@ -26,6 +36,7 @@ import (
 	}
 
 	$resources: "\($metadata.id)-external-secret": resources.#ExternalSecret & {
+		#KubernetesResource
 		metadata: {
 			name:      $metadata.id
 			namespace: k8s.namespace
