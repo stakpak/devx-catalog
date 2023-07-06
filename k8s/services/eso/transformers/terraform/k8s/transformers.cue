@@ -21,7 +21,7 @@ import (
 		refreshInterval: *"1h" | string
 		storeRef: {
 			name: string
-			kind: *"SecretStore" | "ClusterSecretStore"
+			kind: *"ClusterSecretStore" | "SecretStore"
 		}
 		decodingStrategy: *"None" | "Base64" | "Base64URL" | "Auto"
 	}
@@ -45,6 +45,9 @@ import (
 							remoteRef: {
 								key:     secret.name
 								version: secret.version | *"latest"
+								if secret.property == _|_ {
+									property: "value"
+								}
 								if secret.property != _|_ {
 									property: secret.property
 								}

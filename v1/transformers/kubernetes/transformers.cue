@@ -99,7 +99,7 @@ _CreateContainers: {
 								valueFrom: secretKeyRef: {
 									"name": value.name & _#KubernetesName
 									if value.property == _|_ {
-										"key": name
+										"key": "value"
 									}
 									if value.property != _|_ {
 										"key": value.property
