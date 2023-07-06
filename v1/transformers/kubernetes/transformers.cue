@@ -537,22 +537,33 @@ _#CronJobResource: {
 		imagePullSecrets?: [...corev1.#LocalObjectReference]
 		...
 	}
-	$metadata:   _
-	cron:        _
-	containers:  _
-	cronJobName: string | *$metadata.id
-	$resources: "\($metadata.id)-cron-job": _#CronJobResource & {
-		metadata: name: cronJobName
-		spec: {
-			schedule: cron.schedule
-			jobTemplate: spec: template: {
-				spec: {
-					"containers": (_CreateContainers & {
-						input: containers
-					}).output
-					restartPolicy:      "OnFailure"
-					"imagePullSecrets": k8s.imagePullSecrets
+	$metadata:          _
+	cron:               _
+	containers:         _
+	cronJobName:        string | *$metadata.id
+	serviceAccountName: string | *$metadata.id
+	$resources: {
+		"\($metadata.id)-cron-job": _#CronJobResource & {
+			metadata: name: cronJobName
+			spec: {
+				schedule: cron.schedule
+				jobTemplate: spec: template: {
+					spec: {
+						"serviceAccountName": serviceAccountName
+						"containers":         (_CreateContainers & {
+							input: containers
+						}).output
+						restartPolicy:      "OnFailure"
+						"imagePullSecrets": k8s.imagePullSecrets
+					}
 				}
+			}
+		}
+
+		"\(cronJobName)-sa": _#ServiceAccountResource & {
+			metadata: {
+				name: serviceAccountName
+				labels: app: cronJobName
 			}
 		}
 	}
