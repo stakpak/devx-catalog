@@ -137,7 +137,6 @@ _CreateContainers: {
 	$metadata:  _
 	restart:    _
 	containers: _
-	k8s:     _
 
 	appName:            string | *$metadata.id
 	serviceAccountName: string | *$metadata.id
@@ -541,7 +540,6 @@ _#CronJobResource: {
 	$metadata:   _
 	cron:        _
 	containers:  _
-	k8s:      _
 	cronJobName: string | *$metadata.id
 	$resources: "\($metadata.id)-cron-job": _#CronJobResource & {
 		metadata: name: cronJobName
