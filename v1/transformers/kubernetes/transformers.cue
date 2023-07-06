@@ -133,6 +133,7 @@ _CreateContainers: {
 	$metadata:  _
 	restart:    _
 	containers: _
+	config:     _
 
 	appName:            string | *$metadata.id
 	serviceAccountName: string | *$metadata.id
@@ -155,6 +156,7 @@ _CreateContainers: {
 						"containers":         (_CreateContainers & {
 							input: containers
 						}).output
+						"imagePullSecrets": config.imagePullSecrets
 					}
 				}
 			}
@@ -531,6 +533,7 @@ _#CronJobResource: {
 	$metadata:   _
 	cron:        _
 	containers:  _
+	config:      _
 	cronJobName: string | *$metadata.id
 	$resources: "\($metadata.id)-cron-job": _#CronJobResource & {
 		metadata: name: cronJobName
@@ -542,6 +545,7 @@ _#CronJobResource: {
 						input: containers
 					}).output
 					restartPolicy: "OnFailure"
+					"imagePullSecrets": config.imagePullSecrets
 				}
 			}
 		}
