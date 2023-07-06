@@ -130,6 +130,10 @@ _CreateContainers: {
 #AddDeployment: v1.#Transformer & {
 	v1.#Component
 	traits.#Workload
+	k8s: {
+		imagePullSecrets?: [...corev1.#LocalObjectReference]
+		...
+	}
 	$metadata:  _
 	restart:    _
 	containers: _
@@ -155,6 +159,7 @@ _CreateContainers: {
 						"containers":         (_CreateContainers & {
 							input: containers
 						}).output
+						"imagePullSecrets": k8s.imagePullSecrets
 					}
 				}
 			}
@@ -528,6 +533,10 @@ _#CronJobResource: {
 #AddCronJob: v1.#Transformer & {
 	traits.#Cronable
 	traits.#Workload
+	k8s: {
+		imagePullSecrets?: [...corev1.#LocalObjectReference]
+		...
+	}
 	$metadata:   _
 	cron:        _
 	containers:  _
@@ -541,7 +550,8 @@ _#CronJobResource: {
 					"containers": (_CreateContainers & {
 						input: containers
 					}).output
-					restartPolicy: "OnFailure"
+					restartPolicy:      "OnFailure"
+					"imagePullSecrets": k8s.imagePullSecrets
 				}
 			}
 		}
