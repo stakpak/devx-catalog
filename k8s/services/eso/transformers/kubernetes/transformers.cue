@@ -35,34 +35,58 @@ import (
 		decodingStrategy: *"None" | "Base64" | "Base64URL" | "Auto"
 	}
 
-	$resources: "\($metadata.id)-external-secret": resources.#ExternalSecret & {
-		#KubernetesResource
-		metadata: {
-			name:      $metadata.id
-			namespace: k8s.namespace
-		}
-		spec: {
-			refreshInterval: externalSecret.refreshInterval
-			secretStoreRef: {
-				name: externalSecret.storeRef.name
-				kind: externalSecret.storeRef.kind
+	let secretObjs = {
+		for _, secret in secrets {
+			data: secret
+			properties: "\(secret.name)": {
+				if secret.property != _|_ {
+					"\(secret.property)": null
+				}
 			}
-			data: [
-				for _, secret in secrets {
-					secretKey: secret.name
-					remoteRef: {
-						key:     secret.name
-						version: secret.version | *"latest"
-						if secret.property == _|_ {
-							property: "value"
-						}
-						if secret.property != _|_ {
-							property: secret.property
-						}
-						decodingStrategy: externalSecret.decodingStrategy
+		}
+	}
+
+	$resources: {
+		for secretName, secret in secretObjs {
+			"\(secretName)-external-secret": resources.#ExternalSecret & {
+				#KubernetesResource
+				metadata: {
+					name:      secretName
+					namespace: k8s.namespace
+				}
+				spec: {
+					refreshInterval: externalSecret.refreshInterval
+					secretStoreRef: {
+						name: externalSecret.storeRef.name
+						kind: externalSecret.storeRef.kind
 					}
-				},
-			]
+
+					if len(secret.properties) == 0 {
+						data: [{
+							secretKey: "value"
+							remoteRef: {
+								key:              secretName
+								version:          secret.data.version | *"latest"
+								decodingStrategy: externalSecret.decodingStrategy
+							}
+						}]
+					}
+
+					if len(secret.properties) > 0 {
+						data: [
+							for propertyName, _ in secret.properties {
+								secretKey: propertyName
+								remoteRef: {
+									key:              secretName
+									version:          secret.data.version | *"latest"
+									property:         propertyName
+									decodingStrategy: externalSecret.decodingStrategy
+								}
+							},
+						]
+					}
+				}
+			}
 		}
 	}
 }
