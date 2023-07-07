@@ -159,7 +159,9 @@ _CreateContainers: {
 						"containers":         (_CreateContainers & {
 							input: containers
 						}).output
-						"imagePullSecrets": k8s.imagePullSecrets
+						if k8s.imagePullSecrets != _|_ {
+							"imagePullSecrets": k8s.imagePullSecrets
+						}
 					}
 				}
 			}
@@ -553,8 +555,10 @@ _#CronJobResource: {
 						"containers":         (_CreateContainers & {
 							input: containers
 						}).output
-						restartPolicy:      "OnFailure"
-						"imagePullSecrets": k8s.imagePullSecrets
+						restartPolicy: "OnFailure"
+						if k8s.imagePullSecrets != _|_ {
+							"imagePullSecrets": k8s.imagePullSecrets
+						}
 					}
 				}
 			}
