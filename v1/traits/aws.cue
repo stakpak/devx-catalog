@@ -2,8 +2,8 @@ package traits
 
 import (
 	"net"
-	"guku.io/devx/v1"
-	"guku.io/devx/v1/resources/aws"
+	"stakpak.dev/devx/v1"
+	"stakpak.dev/devx/v1/resources/aws"
 )
 
 // a virtual private cloud network

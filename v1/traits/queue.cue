@@ -1,7 +1,7 @@
 package traits
 
 import (
-	"guku.io/devx/v1"
+	"stakpak.dev/devx/v1"
 )
 
 // a RabbitMQ instance

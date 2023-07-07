@@ -1,10 +1,10 @@
 package github
 
 import (
-	"guku.io/devx/v1"
-	"guku.io/devx/v2alpha1/traits"
-	"guku.io/devx/v2alpha1/workflow/tasks"
-	"guku.io/devx/v2alpha1/workflow/triggers"
+	"stakpak.dev/devx/v1"
+	"stakpak.dev/devx/v2alpha1/traits"
+	"stakpak.dev/devx/v2alpha1/workflow/tasks"
+	"stakpak.dev/devx/v2alpha1/workflow/triggers"
 )
 
 #PipelineResource: {

@@ -1,9 +1,9 @@
 package aws
 
 import (
-	"guku.io/devx/v1"
-	"guku.io/devx/v1/traits"
-	schema "guku.io/devx/v1/transformers/terraform"
+	"stakpak.dev/devx/v1"
+	"stakpak.dev/devx/v1/traits"
+	schema "stakpak.dev/devx/v1/transformers/terraform"
 )
 
 // add a parameter store secret

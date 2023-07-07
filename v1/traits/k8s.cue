@@ -1,8 +1,8 @@
 package traits
 
 import (
-	"guku.io/devx/v1"
-	k8sr "guku.io/devx/k8s"
+	"stakpak.dev/devx/v1"
+	k8sr "stakpak.dev/devx/k8s"
 )
 
 #KubernetesCluster: v1.#Trait & {

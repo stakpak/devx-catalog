@@ -1,10 +1,10 @@
 package stacks
 
 import (
-	"guku.io/devx/v1"
-	"guku.io/devx/k8s/services/eso"
-	"guku.io/devx/k8s/services/certm"
-	"guku.io/devx/k8s/services/ingressnginx"
+	"stakpak.dev/devx/v1"
+	"stakpak.dev/devx/k8s/services/eso"
+	"stakpak.dev/devx/k8s/services/certm"
+	"stakpak.dev/devx/k8s/services/ingressnginx"
 )
 
 KubernetesBasicStack: v1.#Stack & {

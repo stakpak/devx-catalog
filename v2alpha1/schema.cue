@@ -1,7 +1,7 @@
 package v2alpha1
 
 import (
-	"guku.io/devx/v1"
+	"stakpak.dev/devx/v1"
 )
 
 #Environments: {

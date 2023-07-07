@@ -5,10 +5,10 @@ import (
 	"strings"
 	"encoding/json"
 	"strconv"
-	"guku.io/devx/v1"
-	"guku.io/devx/v1/traits"
-	resources "guku.io/devx/v1/resources/aws"
-	schema "guku.io/devx/v1/transformers/terraform"
+	"stakpak.dev/devx/v1"
+	"stakpak.dev/devx/v1/traits"
+	resources "stakpak.dev/devx/v1/resources/aws"
+	schema "stakpak.dev/devx/v1/transformers/terraform"
 )
 
 #AddECSPermissions: v1.#Transformer & {

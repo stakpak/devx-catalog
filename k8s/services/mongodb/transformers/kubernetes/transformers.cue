@@ -2,9 +2,9 @@ package kubernetes
 
 import (
 	"strings"
-	"guku.io/devx/v1"
-	"guku.io/devx/v1/traits"
-	"guku.io/devx/k8s/services/mongodb/resources"
+	"stakpak.dev/devx/v1"
+	"stakpak.dev/devx/v1/traits"
+	"stakpak.dev/devx/k8s/services/mongodb/resources"
 	corev1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
 )

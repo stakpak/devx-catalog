@@ -1,6 +1,6 @@
 package traits
 
-import "guku.io/devx/v1"
+import "stakpak.dev/devx/v1"
 
 // an automation workflow
 #Workflow: v1.#Trait & {

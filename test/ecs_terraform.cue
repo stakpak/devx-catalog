@@ -2,9 +2,9 @@ package main
 
 import (
 	"encoding/json"
-	"guku.io/devx/v1"
-	resources "guku.io/devx/v1/resources/aws"
-	"guku.io/devx/v1/transformers/terraform/aws"
+	"stakpak.dev/devx/v1"
+	resources "stakpak.dev/devx/v1/resources/aws"
+	"stakpak.dev/devx/v1/transformers/terraform/aws"
 )
 
 _addService: v1.#TestCase & {

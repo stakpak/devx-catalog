@@ -1,6 +1,6 @@
 package terraform
 
-import "guku.io/devx/v1"
+import "stakpak.dev/devx/v1"
 
 #Terraform: {
 	$metadata: labels: {

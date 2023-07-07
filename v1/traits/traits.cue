@@ -2,7 +2,7 @@ package traits
 
 import (
 	"list"
-	"guku.io/devx/v1"
+	"stakpak.dev/devx/v1"
 )
 
 // a component that runs containers

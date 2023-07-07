@@ -1,7 +1,7 @@
 package istio
 
 import (
-	"guku.io/devx/v1"
+	"stakpak.dev/devx/v1"
 	istiov1beta1 "istio.io/client-go/pkg/apis/security/v1beta1"
 )
 

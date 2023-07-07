@@ -1,7 +1,7 @@
 package triggers
 
 import (
-	"guku.io/devx/v2alpha1/traits"
+	"stakpak.dev/devx/v2alpha1/traits"
 )
 
 #PushEvent: traits.#WorkflowTrigger & {

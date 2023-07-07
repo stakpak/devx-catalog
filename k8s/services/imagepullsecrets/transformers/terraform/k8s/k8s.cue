@@ -1,9 +1,9 @@
 package k8s
 
 import (
-	"guku.io/devx/v1"
-	"guku.io/devx/v1/traits"
-	schema "guku.io/devx/v1/transformers/terraform"
+	"stakpak.dev/devx/v1"
+	"stakpak.dev/devx/v1/traits"
+	schema "stakpak.dev/devx/v1/transformers/terraform"
 )
 
 #AddIAMUserSecret: v1.#Transformer & {

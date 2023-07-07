@@ -1,10 +1,10 @@
 package environments
 
 import (
-	"guku.io/devx/v1"
-	"guku.io/devx/v2alpha1"
-	"guku.io/devx/v1/transformers/compose"
-	c "guku.io/devx/v1/components"
+	"stakpak.dev/devx/v1"
+	"stakpak.dev/devx/v2alpha1"
+	"stakpak.dev/devx/v1/transformers/compose"
+	c "stakpak.dev/devx/v1/components"
 )
 
 #Compose: v2alpha1.#StackBuilder & {

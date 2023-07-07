@@ -1,7 +1,7 @@
 package eso
 
 import (
-	"guku.io/devx/k8s"
+	"stakpak.dev/devx/k8s"
 	"k8s.io/api/core/v1"
 	admv1 "k8s.io/api/admissionregistration/v1"
 )

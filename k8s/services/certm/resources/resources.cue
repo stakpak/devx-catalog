@@ -1,7 +1,7 @@
 package resources
 
 import (
-	"guku.io/devx/k8s"
+	"stakpak.dev/devx/k8s"
 	"github.com/cert-manager/cert-manager/pkg/apis/certmanager/v1"
 )
 

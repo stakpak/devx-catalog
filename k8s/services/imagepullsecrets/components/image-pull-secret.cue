@@ -1,9 +1,9 @@
 package components
 
 import (
-	"guku.io/devx/v1"
-	k8sr "guku.io/devx/k8s"
-	"guku.io/devx/v1/traits"
+	"stakpak.dev/devx/v1"
+	k8sr "stakpak.dev/devx/k8s"
+	"stakpak.dev/devx/v1/traits"
 )
 
 #ECRImagePullSecret: {

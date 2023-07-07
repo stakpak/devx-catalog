@@ -2,8 +2,8 @@ package tasks
 
 import (
 	// "strings"
-	"guku.io/devx/v1"
-	"guku.io/devx/v2alpha1/traits"
+	"stakpak.dev/devx/v1"
+	"stakpak.dev/devx/v2alpha1/traits"
 )
 
 #BuildPushECR: traits.#WorkflowTask & {

@@ -1,6 +1,6 @@
 package components
 
-import "guku.io/devx/v1/traits"
+import "stakpak.dev/devx/v1/traits"
 
 #DynamoDB: this={
 	traits.#Workload

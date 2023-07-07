@@ -1,10 +1,10 @@
 package k8s
 
 import (
-	"guku.io/devx/v1"
-	"guku.io/devx/v1/traits"
-	"guku.io/devx/k8s/services/mongodb/resources"
-	schema "guku.io/devx/v1/transformers/terraform"
+	"stakpak.dev/devx/v1"
+	"stakpak.dev/devx/v1/traits"
+	"stakpak.dev/devx/k8s/services/mongodb/resources"
+	schema "stakpak.dev/devx/v1/transformers/terraform"
 )
 
 #AddDatabase: v1.#Transformer & {

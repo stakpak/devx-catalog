@@ -1,9 +1,9 @@
 package environments
 
 import (
-	"guku.io/devx/v2alpha1"
-	"guku.io/devx/v1/traits"
-	"guku.io/devx/v1/transformers/kubernetes"
+	"stakpak.dev/devx/v2alpha1"
+	"stakpak.dev/devx/v1/traits"
+	"stakpak.dev/devx/v1/transformers/kubernetes"
 )
 
 #Kubernetes: v2alpha1.#StackBuilder & {

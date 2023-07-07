@@ -2,10 +2,10 @@ package aws
 
 import (
 	"encoding/json"
-	"guku.io/devx/v1"
-	"guku.io/devx/v2alpha1/traits"
-	"guku.io/devx/v2alpha1/workflow/tasks"
-	schema "guku.io/devx/v1/transformers/terraform"
+	"stakpak.dev/devx/v1"
+	"stakpak.dev/devx/v2alpha1/traits"
+	"stakpak.dev/devx/v2alpha1/workflow/tasks"
+	schema "stakpak.dev/devx/v1/transformers/terraform"
 )
 
 #AddECRRepository: v1.#Transformer & {

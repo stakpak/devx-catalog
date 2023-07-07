@@ -1,7 +1,7 @@
 package imagepullsecrets
 
 import (
-	"guku.io/devx/k8s"
+	"stakpak.dev/devx/k8s"
 	"k8s.io/api/core/v1"
 )
 
@@ -13,7 +13,7 @@ import (
 	}
 	podAnnotations:     k8s.#Annotations | *{}
 	podSecurityContext: v1.#PodSecurityContext | *{
-		runAsNonRoot:   true
+		runAsNonRoot: true
 		seccompProfile: {
 			type: "RuntimeDefault"
 		}
@@ -52,7 +52,7 @@ import (
 	}
 	serviceMonitor: {
 		scrapeInterval: string | *"5s"
-		tlsConfig:      [string]: string
+		tlsConfig: [string]: string
 	}
 	developmentMode: {
 		enabled: bool | *false
@@ -74,9 +74,9 @@ import (
 	}
 
 	defaultSecret: {
-		enabled:    bool | *false
+		enabled: bool | *false
 		secretData: [string]: string
-		type:       string | *""
+		type: string | *""
 	}
 
 }

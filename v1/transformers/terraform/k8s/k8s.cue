@@ -1,9 +1,9 @@
 package k8s
 
 import (
-	"guku.io/devx/v1"
-	"guku.io/devx/v1/traits"
-	schema "guku.io/devx/v1/transformers/terraform"
+	"stakpak.dev/devx/v1"
+	"stakpak.dev/devx/v1/traits"
+	schema "stakpak.dev/devx/v1/transformers/terraform"
 )
 
 #AddKubernetesResources: v1.#Transformer & {
@@ -38,8 +38,8 @@ import (
 								"containers": [
 									for _, container in containers {
 										{
-											image: container.image
-											args:  container.args
+											image:   container.image
+											args:    container.args
 											command: container.command
 										}
 									},

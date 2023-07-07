@@ -2,8 +2,8 @@ package argocd
 
 import (
 	"encoding/yaml"
-	"guku.io/devx/v1"
-	"guku.io/devx/v1/traits"
+	"stakpak.dev/devx/v1"
+	"stakpak.dev/devx/v1/traits"
 	argoapp "github.com/argoproj/argo-cd/v2/pkg/apis/application/v1alpha1"
 )
 

@@ -1,10 +1,10 @@
 package digitalocean
 
 import (
-	"guku.io/devx/v1"
-	"guku.io/devx/v1/traits"
-	schema "guku.io/devx/v1/transformers/terraform"
-	helpers "guku.io/devx/v1/transformers/terraform/digitalocean/helpers"
+	"stakpak.dev/devx/v1"
+	"stakpak.dev/devx/v1/traits"
+	schema "stakpak.dev/devx/v1/transformers/terraform"
+	helpers "stakpak.dev/devx/v1/transformers/terraform/digitalocean/helpers"
 	"strconv"
 )
 
@@ -31,7 +31,7 @@ import (
 		resource: digitalocean_database_cluster: "\(redis.name)": {
 			name:       redis.name
 			region:     digitalocean.region
-			version:    strconv.Atoi(redis.version) & <= 7 & >= 6 
+			version:    strconv.Atoi(redis.version) & <=7 & >=6
 			engine:     digitalocean.databaseCluster.engine
 			node_count: digitalocean.databaseCluster.nodeCount
 			size:       digitalocean.databaseCluster.nodeSize

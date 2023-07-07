@@ -1,7 +1,7 @@
 package longhorn
 
 import (
-	"guku.io/devx/k8s"
+	"stakpak.dev/devx/k8s"
 	"k8s.io/api/core/v1"
 )
 

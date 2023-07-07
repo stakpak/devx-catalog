@@ -2,8 +2,8 @@ package compose
 
 import (
 	"list"
-	"guku.io/devx/v1"
-	"guku.io/devx/v1/traits"
+	"stakpak.dev/devx/v1"
+	"stakpak.dev/devx/v1/traits"
 )
 
 #Compose: {
@@ -193,7 +193,7 @@ import (
 	}
 }
 
-// add s3 bucket using minio, requires components.#Minio from  "guku.io/devx/v1/components"
+// add s3 bucket using minio, requires components.#Minio from  "stakpak.dev/devx/v1/components"
 #AddS3Bucket: v1.#Transformer & {
 	traits.#S3CompatibleBucket
 

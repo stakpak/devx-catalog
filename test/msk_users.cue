@@ -2,10 +2,10 @@ package main
 
 import (
 	"encoding/json"
-	"guku.io/devx/v1"
-	resources "guku.io/devx/v1/resources/aws"
-	"guku.io/devx/v1/transformers/terraform/aws"
-	schema "guku.io/devx/v1/transformers/terraform"
+	"stakpak.dev/devx/v1"
+	resources "stakpak.dev/devx/v1/resources/aws"
+	"stakpak.dev/devx/v1/transformers/terraform/aws"
+	schema "stakpak.dev/devx/v1/transformers/terraform"
 )
 
 _addMSKUsers: v1.#TestCase & {

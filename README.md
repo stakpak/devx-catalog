@@ -1,1 +1,1 @@
-# DevX Schema and Catalog for https://github.com/devopzilla/guku-devx
+# DevX Schema and Catalog for https://github.com/stakpak/devx

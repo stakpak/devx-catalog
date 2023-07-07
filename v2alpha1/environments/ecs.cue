@@ -1,9 +1,9 @@
 package environments
 
 import (
-	"guku.io/devx/v2alpha1"
-	"guku.io/devx/v1/traits"
-	tfaws "guku.io/devx/v1/transformers/terraform/aws"
+	"stakpak.dev/devx/v2alpha1"
+	"stakpak.dev/devx/v1/traits"
+	tfaws "stakpak.dev/devx/v1/transformers/terraform/aws"
 )
 
 #ECS: v2alpha1.#StackBuilder & {

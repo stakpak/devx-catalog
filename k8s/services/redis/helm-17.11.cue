@@ -2,7 +2,7 @@ package redis
 
 import (
 	"k8s.io/api/core/v1"
-	"guku.io/devx/k8s"
+	"stakpak.dev/devx/k8s"
 )
 
 #KubeVersion: [=~"^17\\.11\\."]: minor: >=16

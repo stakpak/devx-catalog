@@ -1,7 +1,7 @@
 package resources
 
 import (
-	"guku.io/devx/k8s"
+	"stakpak.dev/devx/k8s"
 	"github.com/external-secrets/external-secrets/apis/externalsecrets/v1beta1"
 )
 

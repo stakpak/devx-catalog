@@ -2,9 +2,9 @@ package kubernetes
 
 import (
 	"strings"
-	"guku.io/devx/v1"
-	"guku.io/devx/v1/traits"
-	resources "guku.io/devx/k8s/services/eso/resources"
+	"stakpak.dev/devx/v1"
+	"stakpak.dev/devx/v1/traits"
+	resources "stakpak.dev/devx/k8s/services/eso/resources"
 )
 
 #KubernetesResource: {
