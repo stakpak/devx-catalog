@@ -35,7 +35,7 @@ import (
 			version:    strconv.Atoi(strings.SplitN(redis.version, ".", 2)[0]) & <=7 & >=6
 			engine:     digitalocean.databaseCluster.engine
 			node_count: digitalocean.databaseCluster.nodeCount
-			size:       digitalocean.databaseCluster.nodeSize
+			size:       digitalocean.databaseCluster.size
 		}
 	}
 }
