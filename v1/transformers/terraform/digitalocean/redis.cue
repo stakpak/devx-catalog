@@ -20,7 +20,10 @@ import (
 		}
 		...
 	}
-	redis: host:           "<unknown>"
+	redis: {
+		host: "<unknown>"
+		port: 25061
+	}
 	$resources: terraform: schema.#Terraform & {
 		terraform: {
 			required_providers: {
@@ -42,6 +45,12 @@ import (
 		output: {
 			"digitalocean_database_cluster_\(redis.name)_host": value:         "${digitalocean_database_cluster.\(redis.name).host}"
 			"digitalocean_database_cluster_\(redis.name)_private_host": value: "${digitalocean_database_cluster.\(redis.name).private_host}"
+			"digitalocean_database_cluster_\(redis.name)_port": value:         "${digitalocean_database_cluster.\(redis.name).port}"
+			"digitalocean_database_cluster_\(redis.name)_user": value:         "${digitalocean_database_cluster.\(redis.name).user}"
+			"digitalocean_database_cluster_\(redis.name)_password": {
+				value:     "${digitalocean_database_cluster.\(redis.name).password}"
+				sensitive: true
+			}
 			"digitalocean_database_cluster_\(redis.name)_uri": {
 				value:     "${digitalocean_database_cluster.\(redis.name).uri}"
 				sensitive: true
