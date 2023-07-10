@@ -430,10 +430,10 @@ _#IngressResource: {
 	netv1.#Ingress
 	$metadata: labels: {
 		driver: "kubernetes"
-		type:   "k8s.io/networking/v1/ingress"
+		type:   "networking.k8s.io/v1/ingress"
 	}
 	kind:       "Ingress"
-	apiVersion: "v1"
+	apiVersion: "networking.k8s.io/v1"
 	metadata: name: _#KubernetesName
 }
 
