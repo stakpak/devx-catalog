@@ -42,8 +42,14 @@ import (
 		output: {
 			"digitalocean_database_cluster_\(redis.name)_host": value:         "${digitalocean_database_cluster.\(redis.name).host}"
 			"digitalocean_database_cluster_\(redis.name)_private_host": value: "${digitalocean_database_cluster.\(redis.name).private_host}"
-			"digitalocean_database_cluster_\(redis.name)_uri": value:          "${digitalocean_database_cluster.\(redis.name).uri}"
-			"digitalocean_database_cluster_\(redis.name)_private_uri": value:  "${digitalocean_database_cluster.\(redis.name).private_uri}"
+			"digitalocean_database_cluster_\(redis.name)_uri": {
+				value:     "${digitalocean_database_cluster.\(redis.name).uri}"
+				sensitive: true
+			}
+			"digitalocean_database_cluster_\(redis.name)_private_uri": {
+				value:     "${digitalocean_database_cluster.\(redis.name).private_uri}"
+				sensitive: true
+			}
 		}
 	}
 }
