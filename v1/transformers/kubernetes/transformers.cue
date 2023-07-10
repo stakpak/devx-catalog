@@ -6,6 +6,7 @@ import (
 	"stakpak.dev/devx/v1"
 	"stakpak.dev/devx/v1/traits"
 	appsv1 "k8s.io/api/apps/v1"
+	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
 	netv1 "k8s.io/api/networking/v1"
 	autoscalingv2beta2 "k8s.io/api/autoscaling/v2beta2"
@@ -516,6 +517,7 @@ _#IngressResource: {
 }
 
 _#CronJobResource: {
+	batchv1.#CronJob
 	$metadata: labels: {
 		driver: "kubernetes"
 		type:   "k8s.io/batch/v1/cronjob"
