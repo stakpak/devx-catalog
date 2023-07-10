@@ -6,6 +6,7 @@ import (
 	schema "stakpak.dev/devx/v1/transformers/terraform"
 	helpers "stakpak.dev/devx/v1/transformers/terraform/digitalocean/helpers"
 	"strconv"
+	"strings"
 )
 
 #AddRedisCluster: v1.#Transformer & {
@@ -31,7 +32,7 @@ import (
 		resource: digitalocean_database_cluster: "\(redis.name)": {
 			name:       redis.name
 			region:     digitalocean.region
-			version:    strconv.Atoi(redis.version) & <=7 & >=6
+			version:    strconv.Atoi(strings.SplitN(redis.version, ".", 2)[0]) & <=7 & >=6
 			engine:     digitalocean.databaseCluster.engine
 			node_count: digitalocean.databaseCluster.nodeCount
 			size:       digitalocean.databaseCluster.nodeSize
