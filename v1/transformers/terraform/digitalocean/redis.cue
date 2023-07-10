@@ -20,6 +20,7 @@ import (
 		}
 		...
 	}
+	redis: host:           "<unknown>"
 	$resources: terraform: schema.#Terraform & {
 		terraform: {
 			required_providers: {
