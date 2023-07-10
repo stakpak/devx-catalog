@@ -4,6 +4,7 @@ import (
 	"stakpak.dev/devx/v2alpha1"
 	"stakpak.dev/devx/v1/traits"
 	"stakpak.dev/devx/v1/transformers/kubernetes"
+	corev1 "k8s.io/api/core/v1"
 )
 
 #Kubernetes: v2alpha1.#StackBuilder & {
@@ -29,6 +30,7 @@ import (
 		}
 		enableHPA: bool | *true
 		gateway?:  traits.#GatewaySpec
+		imagePullSecrets?: [...corev1.#LocalObjectReference]
 	}
 
 	components: {
@@ -74,7 +76,21 @@ import (
 		}
 
 		// workloads
-		"k8s/add-deployment": pipeline: [kubernetes.#AddDeployment]
+		"k8s/add-deployment": {
+			exclude: traits: Cronable: null
+			pipeline: [kubernetes.#AddDeployment & {
+				if config.imagePullSecrets != _|_ {
+					k8s: imagePullSecrets: config.imagePullSecrets
+				}
+			}]
+		}
+		"k8s/add-cronjob": pipeline: [
+			kubernetes.#AddCronJob & {
+				if config.imagePullSecrets != _|_ {
+					k8s: imagePullSecrets: config.imagePullSecrets
+				}
+			},
+		]
 		"k8s/add-workload-volumes": pipeline: [kubernetes.#AddWorkloadVolumes]
 
 		if config.httpProbes != _|_ {
