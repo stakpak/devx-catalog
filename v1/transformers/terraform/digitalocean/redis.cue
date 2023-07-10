@@ -48,6 +48,7 @@ import (
 	]
 	digitalocean: {
 		providerVersion: string | *"2.28.1"
+		...
 	}
 	$resources: terraform: schema.#Terraform & {
 		data: {
