@@ -17,7 +17,11 @@ import "stakpak.dev/devx/v1"
 	resource?: [string]: {
 		...
 	}
-	output?: [string]: value: _
+	output?: [string]: {
+		value:        _
+		description?: string
+		sensitive?:   bool
+	}
 }
 
 #SetS3Backend: v1.#Transformer & {
