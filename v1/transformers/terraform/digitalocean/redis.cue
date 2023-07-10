@@ -82,7 +82,7 @@ import (
 			}
 		}
 		resource: digitalocean_database_firewall: "redis-\(redis.name)-rules": {
-			cluster_id: "${data.digitalocean_database_cluster.\(redis.name).id}"
+			cluster_id: "${digitalocean_database_cluster.\(redis.name).id}"
 			rule: [
 				for rule in databaseFirewallRule {
 					{
