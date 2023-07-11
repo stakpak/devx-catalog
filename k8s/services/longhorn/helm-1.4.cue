@@ -114,10 +114,10 @@ import (
 		}
 		backingImage: {
 			enable:               bool | *false
-			name:                 null
-			dataSourceType:       null
-			dataSourceParameters: null
-			expectedChecksum:     null
+			name:                 string | *null
+			dataSourceType:       string | *null
+			dataSourceParameters: string | *null
+			expectedChecksum:     string | *null
 		}
 		defaultNodeSelector: {
 			enable: bool | *false
@@ -126,116 +126,116 @@ import (
 		removeSnapshotsDuringFilesystemTrim: "disabled" | "enabled" | *"ignored"
 	}
 	csi: {
-		kubeletRootDir:          null
-		attacherReplicaCount:    null
-		provisionerReplicaCount: null
-		resizerReplicaCount:     null
-		snapshotterReplicaCount: null
+		kubeletRootDir:          string | *null
+		attacherReplicaCount:    string | *null
+		provisionerReplicaCount: string | *null
+		resizerReplicaCount:     string | *null
+		snapshotterReplicaCount: string | *null
 	}
 	defaultSettings: {
-		backupTarget:                                             null
-		backupTargetCredentialSecret:                             null
-		allowRecurringJobWhileVolumeDetached:                     null
-		createDefaultDiskLabeledNodes:                            null
-		defaultDataPath:                                          null
-		defaultDataLocality:                                      null
-		replicaSoftAntiAffinity:                                  null
-		replicaAutoBalance:                                       null
-		storageOverProvisioningPercentage:                        null
-		storageMinimalAvailablePercentage:                        null
-		upgradeChecker:                                           null
-		defaultReplicaCount:                                      null
-		defaultLonghornStaticStorageClass:                        null
-		backupstorePollInterval:                                  null
-		failedBackupTTL:                                          null
-		restoreVolumeRecurringJobs:                               null
-		recurringSuccessfulJobsHistoryLimit:                      null
-		recurringFailedJobsHistoryLimit:                          null
-		supportBundleFailedHistoryLimit:                          null
-		taintToleration:                                          null
-		systemManagedComponentsNodeSelector:                      null
-		priorityClass:                                            null
-		autoSalvage:                                              null
-		autoDeletePodWhenVolumeDetachedUnexpectedly:              null
-		disableSchedulingOnCordonedNode:                          null
-		replicaZoneSoftAntiAffinity:                              null
-		nodeDownPodDeletionPolicy:                                null
-		allowNodeDrainWithLastHealthyReplica:                     null
-		nodeDrainPolicy:                                          null
-		mkfsExt4Parameters:                                       null
-		disableReplicaRebuild:                                    null
-		replicaReplenishmentWaitInterval:                         null
-		concurrentReplicaRebuildPerNodeLimit:                     null
-		concurrentVolumeBackupRestorePerNodeLimit:                null
-		disableRevisionCounter:                                   null
-		systemManagedPodsImagePullPolicy:                         null
-		allowVolumeCreationWithDegradedAvailability:              null
-		autoCleanupSystemGeneratedSnapshot:                       null
-		concurrentAutomaticEngineUpgradePerNodeLimit:             null
-		backingImageCleanupWaitInterval:                          null
-		backingImageRecoveryWaitInterval:                         null
-		guaranteedEngineManagerCPU:                               null
-		guaranteedReplicaManagerCPU:                              null
-		kubernetesClusterAutoscalerEnabled:                       null
-		orphanAutoDeletion:                                       null
-		storageNetwork:                                           null
-		deletingConfirmationFlag:                                 null
-		engineReplicaTimeout:                                     null
-		snapshotDataIntegrity:                                    null
-		snapshotDataIntegrityImmediateCheckAfterSnapshotCreation: null
-		snapshotDataIntegrityCronjob:                             null
-		removeSnapshotsDuringFilesystemTrim:                      null
-		fastReplicaRebuildEnabled:                                null
-		replicaFileSyncHttpClientTimeout:                         null
+		backupTarget:                                             string | *null
+		backupTargetCredentialSecret:                             string | *null
+		allowRecurringJobWhileVolumeDetached:                     string | *null
+		createDefaultDiskLabeledNodes:                            string | *null
+		defaultDataPath:                                          string | *null
+		defaultDataLocality:                                      string | *null
+		replicaSoftAntiAffinity:                                  string | *null
+		replicaAutoBalance:                                       string | *null
+		storageOverProvisioningPercentage:                        string | *null
+		storageMinimalAvailablePercentage:                        string | *null
+		upgradeChecker:                                           string | *null
+		defaultReplicaCount:                                      string | *null
+		defaultLonghornStaticStorageClass:                        string | *null
+		backupstorePollInterval:                                  string | *null
+		failedBackupTTL:                                          string | *null
+		restoreVolumeRecurringJobs:                               string | *null
+		recurringSuccessfulJobsHistoryLimit:                      string | *null
+		recurringFailedJobsHistoryLimit:                          string | *null
+		supportBundleFailedHistoryLimit:                          string | *null
+		taintToleration:                                          string | *null
+		systemManagedComponentsNodeSelector:                      string | *null
+		priorityClass:                                            string | *null
+		autoSalvage:                                              string | *null
+		autoDeletePodWhenVolumeDetachedUnexpectedly:              string | *null
+		disableSchedulingOnCordonedNode:                          string | *null
+		replicaZoneSoftAntiAffinity:                              string | *null
+		nodeDownPodDeletionPolicy:                                string | *null
+		allowNodeDrainWithLastHealthyReplica:                     string | *null
+		nodeDrainPolicy:                                          string | *null
+		mkfsExt4Parameters:                                       string | *null
+		disableReplicaRebuild:                                    string | *null
+		replicaReplenishmentWaitInterval:                         string | *null
+		concurrentReplicaRebuildPerNodeLimit:                     string | *null
+		concurrentVolumeBackupRestorePerNodeLimit:                string | *null
+		disableRevisionCounter:                                   string | *null
+		systemManagedPodsImagePullPolicy:                         string | *null
+		allowVolumeCreationWithDegradedAvailability:              string | *null
+		autoCleanupSystemGeneratedSnapshot:                       string | *null
+		concurrentAutomaticEngineUpgradePerNodeLimit:             string | *null
+		backingImageCleanupWaitInterval:                          string | *null
+		backingImageRecoveryWaitInterval:                         string | *null
+		guaranteedEngineManagerCPU:                               string | *null
+		guaranteedReplicaManagerCPU:                              string | *null
+		kubernetesClusterAutoscalerEnabled:                       string | *null
+		orphanAutoDeletion:                                       string | *null
+		storageNetwork:                                           string | *null
+		deletingConfirmationFlag:                                 string | *null
+		engineReplicaTimeout:                                     string | *null
+		snapshotDataIntegrity:                                    string | *null
+		snapshotDataIntegrityImmediateCheckAfterSnapshotCreation: string | *null
+		snapshotDataIntegrityCronjob:                             string | *null
+		removeSnapshotsDuringFilesystemTrim:                      string | *null
+		fastReplicaRebuildEnabled:                                string | *null
+		replicaFileSyncHttpClientTimeout:                         string | *null
 	}
 	privateRegistry: {
-		createSecret:   null
-		registryUrl:    null
-		registryUser:   null
-		registryPasswd: null
-		registrySecret: null
+		createSecret:   string | *null
+		registryUrl:    string | *null
+		registryUser:   string | *null
+		registryPasswd: string | *null
+		registrySecret: string | *null
 	}
 
 	longhornManager: {
 		log: {
 			format: "json" | *"plain"
 		}
-		priorityClass: null
+		priorityClass: string | *null
 		tolerations: [...v1.#Toleration]
 		nodeSelector:       k8s.#Labels
 		serviceAnnotations: k8s.#Annotations
 	}
 
 	longhornDriver: {
-		priorityClass: null
+		priorityClass: string | *null
 		tolerations: [...v1.#Toleration]
 		nodeSelector: k8s.#Labels
 	}
 
 	longhornUI: {
 		replicas:      int | *2
-		priorityClass: null
+		priorityClass: string | *null
 		tolerations: [...v1.#Toleration]
 		nodeSelector: k8s.#Labels
 	}
 
 	longhornAdmissionWebhook: {
 		replicas:      int | *2
-		priorityClass: null
+		priorityClass: string | *null
 		tolerations: [...v1.#Toleration]
 		nodeSelector: k8s.#Labels
 	}
 
 	longhornRecoveryBackend: {
 		replicas:      int | *2
-		priorityClass: null
+		priorityClass: string | *null
 		tolerations: [...v1.#Toleration]
 		nodeSelector: k8s.#Labels
 	}
 
 	ingress: {
 		enabled:          bool | *false
-		ingressClassName: null
+		ingressClassName: string | *null
 		host:             "sslip.io"
 		tls:              bool | *false
 		secureBackends:   bool | *false
