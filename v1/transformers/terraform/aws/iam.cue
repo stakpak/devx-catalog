@@ -12,7 +12,7 @@ import (
 	traits.#User
 	users: [string]: {
 		username: string
-		password: name: "\(username)"
+		...
 	}
 	for _, user in users {
 		$resources: terraform: schema.#Terraform & {
