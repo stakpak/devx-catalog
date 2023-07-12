@@ -24,11 +24,49 @@ import (
 		name: workflow.name
 		on: {
 			for _, trigger in workflow.triggers {
-				if trigger.$metadata.trigger == "PushEvent" {
-					push: (triggers.#PushEvent & trigger).filters
+				if (triggers.#PushEvent & trigger) != _|_ {
+					push: {
+						if trigger.filters.branches != _|_ {
+							branches: trigger.filters.branches
+						}
+						if trigger.filters.tags != _|_ {
+							tags: trigger.filters.tags
+						}
+						if trigger.filters.paths != _|_ {
+							paths: trigger.filters.paths
+						}
+						if trigger.filters.branchesIgnore != _|_ {
+							"branches-ignore": trigger.filters.branchesIgnore
+						}
+						if trigger.filters.tagsIgnore != _|_ {
+							"tags-ignore": trigger.filters.tagsIgnore
+						}
+						if trigger.filters.pathsIgnore != _|_ {
+							"paths-ignore": trigger.filters.pathsIgnore
+						}
+					}
 				}
-				if trigger.$metadata.trigger == "PullRequestEvent" {
-					pull_request: (triggers.#PullRequestEvent & trigger).filters
+				if (triggers.#PushEvent & trigger) != _|_ {
+					pull_request: {
+						if trigger.filters.branches != _|_ {
+							branches: trigger.filters.branches
+						}
+						if trigger.filters.tags != _|_ {
+							tags: trigger.filters.tags
+						}
+						if trigger.filters.paths != _|_ {
+							paths: trigger.filters.paths
+						}
+						if trigger.filters.branchesIgnore != _|_ {
+							"branches-ignore": trigger.filters.branchesIgnore
+						}
+						if trigger.filters.tagsIgnore != _|_ {
+							"tags-ignore": trigger.filters.tagsIgnore
+						}
+						if trigger.filters.pathsIgnore != _|_ {
+							"paths-ignore": trigger.filters.pathsIgnore
+						}
+					}
 				}
 				if trigger.$metadata.trigger == "ManualEvent" {
 					workflow_dispatch: {

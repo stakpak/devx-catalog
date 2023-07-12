@@ -4,20 +4,23 @@ import (
 	"stakpak.dev/devx/v2alpha1/traits"
 )
 
+#Filters: {
+	branches?: [...string]
+	tags?: [...string]
+	paths?: [...string]
+	branchesIgnore?: [...string]
+	tagsIgnore?: [...string]
+	pathsIgnore?: [...string]
+}
+
 #PushEvent: traits.#WorkflowTrigger & {
 	$metadata: trigger: "PushEvent"
-	filters: {
-		branches: [...string]
-		...
-	}
+	filters: #Filters
 }
 
 #PullRequestEvent: traits.#WorkflowTrigger & {
 	$metadata: trigger: "PullRequestEvent"
-	filters: {
-		branches: [...string]
-		...
-	}
+	filters: #Filters
 }
 
 #ManualEvent: traits.#WorkflowTrigger & {
