@@ -8,10 +8,16 @@ import (
 
 #AddIAMUserSecret: v1.#Transformer & {
 	traits.#User
-	$metadata: _
+	$metadata:           _
+	overrideSecretName?: string
 	users: [string]: {
 		username: string
-		password: name: "\(username)"
+		if overrideSecretName == _|_ {
+			password: name: "\(username)"
+		}
+		if overrideSecretName != _|_ {
+			password: name: "\(overrideSecretName)"
+		}
 	}
 	aws: {
 		region:  string
@@ -27,7 +33,12 @@ import (
 				"\($metadata.id)_\(user.username)": {
 					metadata: {
 						namespace: k8s.namespace
-						name:      user.username
+						if overrideSecretName == _|_ {
+							name: user.username
+						}
+						if overrideSecretName != _|_ {
+							name: "\(overrideSecretName)"
+						}
 					}
 					data: {
 						accessKeyID: "${aws_iam_access_key.\(user.username).id}"
