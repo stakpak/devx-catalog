@@ -14,8 +14,9 @@ import (
 		...
 	}
 	ecrImps: {
-		name:             string
-		accessKeySecret?: string | v1.#Secret
+		name:            string
+		target:          string | *"\(name)-image-pull-secret"
+		accessKeySecret: v1.#Secret
 	}
 
 	k8sResources: "image-pull-secret-\(ecrImps.name)": {
@@ -24,11 +25,11 @@ import (
 		kind:       "ImagePullSecret"
 		metadata: name: ecrImps.name
 		spec: {
-			registry: credentials: [{
+			registry: "credentials": [{
 				namespace: k8s.namespace
-				name:      ecrImps.name
+				name:      ecrImps.accessKeySecret.name
 			}]
-			target: {
+			"target": {
 				namespaces: labels: [{
 					matchExpressions: [{
 						key:      "ignore-imps"
@@ -36,7 +37,7 @@ import (
 						values: []
 					}]
 				}]
-				secret: name: "\(ecrImps.name)-image-pull-secret"
+				secret: name: ecrImps.target
 			}
 		}
 	}
