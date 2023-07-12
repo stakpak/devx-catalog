@@ -99,7 +99,12 @@ import (
 							name: database.username
 							passwordSecretRef: {
 								name: database.password.name
-								key:  database.password.key
+								if database.password.property != _|_ {
+									key: database.password.property
+								}
+								if database.password.property == _|_ {
+									key: "value"
+								}
 							}
 							roles: []
 							scramCredentialsSecretName: "\(database.password.name)-scram"

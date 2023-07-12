@@ -113,3 +113,54 @@ import (
 		}
 	}
 }
+
+#AddRandomSecret: v1.#Transformer & {
+	traits.#Secret
+	$metadata: _
+
+	secrets: _
+	k8s: {
+		namespace: string
+		...
+	}
+	$resources: terraform: schema.#Terraform & {
+		resource: {
+			for _, secret in secrets {
+				random_password: "secret_\(secret.name)": {
+					length:  32
+					special: false
+				}
+				kubernetes_secret_v1: {
+					if secret.property != _|_ {
+						"\($metadata.id)_\(secret.name)_\(secret.property)": {
+							metadata: {
+								namespace: k8s.namespace
+								name:      secret.name
+							}
+							data: {
+								"\(secret.property)": "${random_password.secret_\(secret.name)_\(secret.property).result}"
+								...
+							}
+						}
+					}
+					if secret.property == _|_ {
+						"\($metadata.id)_\(secret.name)": {
+							metadata: {
+								namespace: k8s.namespace
+								name:      secret.name
+							}
+							data: {
+								if secret.property != _|_ {
+									"\(secret.property)": "${random_password.secret_\(secret.name).result}"
+								}
+								if secret.property == _|_ {
+									value: "${random_password.secret_\(secret.name).result}"
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}
