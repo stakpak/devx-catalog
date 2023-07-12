@@ -46,7 +46,7 @@ import (
 						}
 					}
 				}
-				if (triggers.#PushEvent & trigger) != _|_ {
+				if (triggers.#PullRequestEvent & trigger) != _|_ {
 					pull_request: {
 						if trigger.filters.branches != _|_ {
 							branches: trigger.filters.branches
