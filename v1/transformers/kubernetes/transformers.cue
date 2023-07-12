@@ -563,6 +563,28 @@ _#CronJobResource: {
 						}
 					}
 				}
+
+				if cron.concurrency.enable && !cron.concurrency.replace {
+					concurrencyPolicy: "Allow"
+				}
+				if cron.concurrency.enable && cron.concurrency.replace {
+					concurrencyPolicy: "Replace"
+				}
+				if !cron.concurrency.enable {
+					concurrencyPolicy: "Forbid"
+				}
+
+				if cron.startingDeadlineSeconds != _|_ {
+					startingDeadlineSeconds: cron.startingDeadlineSeconds
+				}
+				if cron.historyLimit != _|_ {
+					if cron.historyLimit.successful != _|_ {
+						successfulJobsHistoryLimit: cron.historyLimit.successful
+					}
+					if cron.historyLimit.failed != _|_ {
+						failedJobsHistoryLimit: cron.historyLimit.failed
+					}
+				}
 			}
 		}
 

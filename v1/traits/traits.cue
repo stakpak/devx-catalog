@@ -124,6 +124,17 @@ import (
 		// |  |  |  |  |
 		// *  *  *  *  *
 		schedule: =~"((((\\d+,)+\\d+|(\\d+(\\/|-)\\d+)|\\d+|\\*) ?){5,7})"
+
+		concurrency: {
+			enable:  bool | *true
+			replace: bool | *false
+		}
+
+		startingDeadlineSeconds?: uint
+		historyLimit?: {
+			successful?: uint
+			failed?:     uint
+		}
 	}
 }
 
