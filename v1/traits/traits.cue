@@ -395,3 +395,9 @@ import (
 		}]
 	}
 }
+
+// a component that can be horizontally scaled
+#OCIRepository: v1.#Trait & {
+	$metadata: traits: OCIRepository: null
+	oci: name: string
+}
