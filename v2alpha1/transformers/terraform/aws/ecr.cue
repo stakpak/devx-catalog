@@ -3,6 +3,7 @@ package aws
 import (
 	"encoding/json"
 	"stakpak.dev/devx/v1"
+	v1traits "stakpak.dev/devx/v1/traits"
 	"stakpak.dev/devx/v2alpha1/traits"
 	"stakpak.dev/devx/v2alpha1/workflow/tasks"
 	schema "stakpak.dev/devx/v1/transformers/terraform"
@@ -56,7 +57,7 @@ import (
 }
 
 #AddECRRepositoryOCI: v1.#Transformer & {
-	traits.#OCIRepository
+	v1traits.#OCIRepository
 	$metadata: _
 	oci:       _
 	$resources: "\($metadata.id)-ecr": schema.#Terraform & {
