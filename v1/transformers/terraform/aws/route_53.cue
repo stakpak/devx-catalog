@@ -9,19 +9,21 @@ import (
 	schema "stakpak.dev/devx/v1/transformers/terraform"
 )
 
-#AddRoute53: v1.#Transformer & {
+#AddKubernetesGatewayRoute53: v1.#Transformer & {
 	traits.#Gateway
 	gateway: _
 	k8s: {
-		ingressServiceName: string
-		namespace:          string
+		service: {
+			name:      string
+			namespace: string
+		}
 	}
 	apexDomainLength: uint | *2
 	$resources: terraform: schema.#Terraform & {
-		data: kubernetes_ingress: "\(gateway.name)":{
+		data: kubernetes_ingress: "\(gateway.name)": {
 			metadata: {
-				name:      k8s.ingressServiceName
-				namespace: k8s.namespace
+				name:      k8s.service.name
+				namespace: k8s.service.namespace
 			}
 		}
 		let _hostnames = list.SortStrings([ for address in gateway.addresses if net.FQDN(address) {address}])
