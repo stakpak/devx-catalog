@@ -20,7 +20,7 @@ import (
 	}
 	apexDomainLength: uint | *2
 	$resources: terraform: schema.#Terraform & {
-		data: kubernetes_ingress: "\(gateway.name)": {
+		data: kubernetes_ingress_v1: "\(gateway.name)": {
 			metadata: {
 				name:      k8s.service.name
 				namespace: k8s.service.namespace
@@ -32,20 +32,15 @@ import (
 			let _apexDomain = strings.Join(list.Drop(_hostnameParts, len(_hostnameParts)-apexDomainLength), ".") & net.FQDN
 			let _apexDomainName = strings.Replace(_apexDomain, ".", "_", -1)
 
-			data: aws_route53_zone: "\(_apexDomainName)": {
-				name:         _apexDomain
-				private_zone: !gateway.public
+			resource: aws_route53_zone: "\(_apexDomainName)": {
+				name: _apexDomain
 			}
+
 			resource: aws_route53_record: "\(gateway.name)_\(index)": {
-				zone_id: "${data.aws_route53_zone.\(_apexDomainName).zone_id}"
+				zone_id: "${aws_route53_zone.\(_apexDomainName).zone_id}"
 				name:    hostname
 				type:    "A"
-				alias: {
-					name:                   "${aws_lb.gateway_\(gateway.name).dns_name}"
-					zone_id:                "${aws_lb.gateway_\(gateway.name).zone_id}"
-					evaluate_target_health: true
-				}
-				records: ["${data.kubernetes_ingress.\(gateway.name).status.0.load_balancer.0.ingress.0.hostname}"]
+				records: ["${data.kubernetes_ingress_v1.\(gateway.name).status.0.load_balancer.0.ingress.0.hostname}"]
 			}
 		}
 	}
