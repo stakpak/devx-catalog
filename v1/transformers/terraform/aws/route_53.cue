@@ -32,12 +32,13 @@ import (
 			let _apexDomain = strings.Join(list.Drop(_hostnameParts, len(_hostnameParts)-apexDomainLength), ".") & net.FQDN
 			let _apexDomainName = strings.Replace(_apexDomain, ".", "_", -1)
 
-			resource: aws_route53_zone: "\(_apexDomainName)": {
-				name: _apexDomain
+			data: aws_route53_zone: "\(_apexDomainName)": {
+				name:         _apexDomain
+				private_zone: !gateway.public
 			}
 
 			resource: aws_route53_record: "\(gateway.name)_\(index)": {
-				zone_id: "${aws_route53_zone.\(_apexDomainName).zone_id}"
+				zone_id: "${data.aws_route53_zone.\(_apexDomainName).zone_id}"
 				name:    hostname
 				type:    "A"
 				records: ["${data.kubernetes_ingress_v1.\(gateway.name).status.0.load_balancer.0.ingress.0.hostname}"]
