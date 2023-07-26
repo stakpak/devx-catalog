@@ -95,3 +95,27 @@ import (
 		stream?: view: "KEYS_ONLY" | "NEW_IMAGE" | "OLD_IMAGE" | "NEW_AND_OLD_IMAGES"
 	}
 }
+
+#CloudFront: v1.#Trait & {
+	$metadata: traits: CloudFront: null
+	cloudfront: {
+		// tls: enabled: bool | *true
+		aliases: [...string]
+		origins: [...]
+		orderedCacheBehaviour: [...]
+	}
+}
+
+#SQS: v1.#Trait & {
+	$metadata: traits: SQS: null
+	sqs: {
+		name:         string
+		delaySeconds: >=0 & <=900 | *0
+		fifo: {
+			enabled:                    bool | *false
+			throughputLimit:            *"perQueue" | "perMessageGroupId"
+			contentBasedDeduplication?: bool
+		}
+		deduplicationScope: *"queue" | "messageGroup"
+	}
+}

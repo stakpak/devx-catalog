@@ -41,6 +41,7 @@ import (
 				zone_id: "${data.aws_route53_zone.\(_apexDomainName).zone_id}"
 				name:    hostname
 				type:    "A"
+				ttl:     300
 				records: ["${data.kubernetes_service_v1.gatway_\(gateway.name).status.0.load_balancer.0.ingress.0.ip}"]
 			}
 		}
