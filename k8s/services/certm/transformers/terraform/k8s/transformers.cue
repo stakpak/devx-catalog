@@ -23,7 +23,7 @@ import (
 
 	$resources: terraform: schema.#Terraform & {
 		resource: kubernetes_manifest: {
-			"\($metadata.id)": manifest: resources.#Issuer & {
+			"\($metadata.id)-cert-issuer": manifest: resources.#Issuer & {
 				metadata: {
 					name:      certIssuer.name
 					namespace: k8s.namespace
