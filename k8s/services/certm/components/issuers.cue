@@ -8,12 +8,6 @@ import (
 
 #ClusterIssuer: {
 	traits.#KubernetesResources
-
-	k8s: {
-		namespace: string
-		...
-	}
-
 	certIssuer: {
 		name:                    string | *"letsencrypt"
 		server:                  string | *"https://acme-v02.api.letsencrypt.org/directory"
@@ -24,6 +18,7 @@ import (
 		dnsSolvers: [...{
 			selector: dnsZones: [...string]
 			route53?: {
+				region:          string
 				accessKeySecret: v1.#Secret
 				role?:           string
 			}
@@ -54,15 +49,16 @@ import (
 						selector: solver.selector
 						dns01: {
 							if solver.route53 != _|_ {
-								accessKeyIDSecretRef: {
-									namespace: k8s.namespace
-									name:      solver.route53.accessKeySecret.name
-									key:       "access-key"
-								}
-								secretAccessKeySecretRef: {
-									namespace: k8s.namespace
-									name:      solver.route53.accessKeySecret.name
-									key:       "secret-access-key"
+								route53: {
+									region: solver.region
+									accessKeyIDSecretRef: {
+										name: solver.route53.accessKeySecret.name
+										key:  "access-key"
+									}
+									secretAccessKeySecretRef: {
+										name: solver.route53.accessKeySecret.name
+										key:  "secret-access-key"
+									}
 								}
 							}
 						}
