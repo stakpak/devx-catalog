@@ -444,8 +444,17 @@ _#IngressResource: {
 	http:             _
 	ingressName:      string | *$metadata.id
 	ingressClassName: string
+	tlsAnnotations:   {[string]: string} | *{"cert-manager.io/cluster-issuer": "letsencrypt"}
 	$resources: "\($metadata.id)-ingress": _#IngressResource & {
-		metadata: name: ingressName
+		metadata: {
+			name: ingressName
+			annotations: {
+				if http.gateway[http.listener].protocol == "HTTPS" {
+					tlsAnnotations
+				}
+				...
+			}
+		}
 		spec: {
 			"ingressClassName": ingressClassName
 			let routeRules = [ for rule in http.rules {
@@ -482,6 +491,14 @@ _#IngressResource: {
 					}
 				},
 			]
+			if http.gateway[http.listener].protocol == "HTTPS" {
+				tls: [
+					{
+						hosts:      http.hostnames
+						secretName: "\(ingressName)-tls-secret"
+					},
+				]
+			}
 		}
 	}
 }
