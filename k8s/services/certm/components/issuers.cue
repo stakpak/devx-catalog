@@ -5,7 +5,7 @@ import (
 	"stakpak.dev/devx/k8s/services/certm/resources"
 )
 
-#K8sClusterCertIssuer: {
+#ClusterIssuer: {
 	traits.#KubernetesResources
 
 	certIssuer: {
