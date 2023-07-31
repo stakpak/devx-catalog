@@ -5,6 +5,7 @@ package helpers
 		"get-route53-change": {
 			actions: ["route53:GetChange"]
 			resources: ["arn:aws:route53:::change/*"]
+			...
 		}
 		"update-route53-records": {
 			actions: [
@@ -12,10 +13,12 @@ package helpers
 				"route53:ListResourceRecordSets",
 			]
 			resources: ["arn:aws:route53:::hostedzone/*"]
+			...
 		}
 		"list-route53-zones": {
 			actions: "route53:ListHostedZonesByName"
 			resources: ["*"]
+			...
 		}
 	}
 }
