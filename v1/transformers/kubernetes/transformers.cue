@@ -444,13 +444,12 @@ _#IngressResource: {
 	http:             _
 	ingressName:      string | *$metadata.id
 	ingressClassName: string
-	tlsAnnotations:   {[string]: string} | *{"cert-manager.io/cluster-issuer": "letsencrypt"}
 	$resources: "\($metadata.id)-ingress": _#IngressResource & {
 		metadata: {
 			name: ingressName
 			annotations: {
 				if http.gateway[http.listener].protocol == "HTTPS" {
-					tlsAnnotations
+					"cert-manager.io/cluster-issuer": string | *"letsencrypt"
 				}
 				...
 			}
