@@ -299,14 +299,15 @@ import (
 #HTTPRoute: v1.#Trait & {
 	$metadata: traits: HTTPRoute: null
 	http: {
-		gateway: #GatewaySpec & ({
-			listeners: "\(listener)": protocol: "HTTP"
-		} | {
-			listeners: "\(listener)": {
-				protocol: "HTTPS"
-				tls: mode: "TERMINATE"
-			}
-		})
+		gateway: #GatewaySpec
+		// & ({
+		// 	listeners: "\(listener)": protocol: "HTTP"
+		// } | {
+		// 	listeners: "\(listener)": {
+		// 		protocol: "HTTPS"
+		// 		tls: mode: "TERMINATE"
+		// 	}
+		// })
 		listener: string
 
 		hostnames: [...string]
