@@ -24,7 +24,8 @@ import (
 
 	// Status of the ClusterIssuer. This is set and managed automatically.
 	// +optional
-	status: #IssuerStatus @go(Status)
+	// Manually fixed
+	status?: #IssuerStatus @go(Status)
 }
 
 // ClusterIssuerList is a list of Issuers
@@ -47,7 +48,8 @@ import (
 
 	// Status of the Issuer. This is set and managed automatically.
 	// +optional
-	status: #IssuerStatus @go(Status)
+	// Manually fixed
+	status?: #IssuerStatus @go(Status)
 }
 
 // IssuerList is a list of Issuers
