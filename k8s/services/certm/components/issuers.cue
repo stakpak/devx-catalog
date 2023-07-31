@@ -5,25 +5,20 @@ import (
 	"stakpak.dev/devx/k8s/services/certm/resources"
 )
 
-#K8sCertIssuer: {
+#K8sClusterCertIssuer: {
 	traits.#KubernetesResources
-
-	k8s: {
-		namespace: string
-		...
-	}
 
 	certIssuer: {
 		name:                    string | *"letsencrypt"
 		server:                  string | *"https://acme-v02.api.letsencrypt.org/directory"
 		email:                   string
 		privateKeySecretRefName: string | *"letsencrypt"
+        ingressClass:            string | *"nginx"
 	}
 
-	k8sResources: "cert-issuer-\(certIssuer.name)": resources.#Issuer & {
+	k8sResources: "cert-issuer-\(certIssuer.name)": resources.#ClusterIssuer & {
 		metadata: {
 			name:      certIssuer.name
-			namespace: k8s.namespace
 		}
 		spec: acme: {
 			email:  certIssuer.email
@@ -35,7 +30,7 @@ import (
 				{
 					http01: {
 						ingress: {
-							class: "nginx"
+							class: certIssuer.ingressClass
 						}
 					}
 				},
