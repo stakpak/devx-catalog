@@ -28,18 +28,18 @@ import (
 		spec: acme: {
 			email:  certIssuer.email
 			server: certIssuer.server
-            privateKeySecretRef: {
-                name: certIssuer.privateKeySecretRefName
-            }
-            solvers: [
-                {
-                    http01: {
-                        ingress: {
-                            class: "nginx"
-                        }
-                    }
-                }
-            ]
+			privateKeySecretRef: {
+				name: certIssuer.privateKeySecretRefName
+			}
+			solvers: [
+				{
+					http01: {
+						ingress: {
+							class: "nginx"
+						}
+					}
+				},
+			]
 		}
 	}
 }
