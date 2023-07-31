@@ -9,6 +9,7 @@ import (
 	traits.#KubernetesResources
 
 	certIssuer: {
+        
 		name:                    string | *"letsencrypt"
 		server:                  string | *"https://acme-v02.api.letsencrypt.org/directory"
 		email:                   string
