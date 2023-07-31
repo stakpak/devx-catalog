@@ -50,7 +50,7 @@ import (
 						dns01: {
 							if solver.route53 != _|_ {
 								route53: {
-									region: solver.region
+									region: solver.route53.region
 									accessKeyIDSecretRef: {
 										name: solver.route53.accessKeySecret.name
 										key:  "access-key"
