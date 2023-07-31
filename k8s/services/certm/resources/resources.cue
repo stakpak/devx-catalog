@@ -22,6 +22,7 @@ import (
 	v1.#ClusterIssuer
 	apiVersion: "cert-manager.io/v1"
 	kind:       "ClusterIssuer"
+	spec: acme: preferredChain: "ISRG Root X1"
 }
 
 #Issuer: {
@@ -29,6 +30,7 @@ import (
 	v1.#Issuer
 	apiVersion: "cert-manager.io/v1"
 	kind:       "Issuer"
+	spec: acme: preferredChain: "ISRG Root X1"
 }
 
 // #ClusterIssuer: v1.#Trait & {

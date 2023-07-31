@@ -12,11 +12,14 @@ import (
 		name:                    string | *"letsencrypt"
 		server:                  string | *"https://acme-v02.api.letsencrypt.org/directory"
 		email:                   string
-		privateKeySecretRefName: string | *"letsencrypt"
+		privateKeySecretRefName: string | *"letsencrypt-secret"
 		ingressClass:            string | *"nginx"
 
 		dnsSolvers: [...{
-			selector: dnsZones: [...string]
+			selector: {
+				dnsZones: [...string]
+				...
+			}
 			route53?: {
 				region:          string
 				accessKeySecret: v1.#Secret
@@ -32,9 +35,7 @@ import (
 		spec: acme: {
 			email:  certIssuer.email
 			server: certIssuer.server
-			privateKeySecretRef: {
-				name: certIssuer.privateKeySecretRefName
-			}
+			privateKeySecretRef: name: certIssuer.privateKeySecretRefName
 			solvers: [
 				{
 					http01: {
@@ -43,7 +44,6 @@ import (
 						}
 					}
 				},
-
 				for solver in certIssuer.dnsSolvers {
 					{
 						selector: solver.selector
