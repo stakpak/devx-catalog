@@ -16,7 +16,7 @@ package helpers
 			...
 		}
 		"list-route53-zones": {
-			actions: "route53:ListHostedZonesByName"
+			actions: ["route53:ListHostedZonesByName"]
 			resources: ["*"]
 			...
 		}
