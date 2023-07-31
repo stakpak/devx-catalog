@@ -9,17 +9,17 @@ import (
 	traits.#KubernetesResources
 
 	certIssuer: {
-        
+
 		name:                    string | *"letsencrypt"
 		server:                  string | *"https://acme-v02.api.letsencrypt.org/directory"
 		email:                   string
 		privateKeySecretRefName: string | *"letsencrypt"
-        ingressClass:            string | *"nginx"
+		ingressClass:            string | *"nginx"
 	}
 
 	k8sResources: "cert-issuer-\(certIssuer.name)": resources.#ClusterIssuer & {
 		metadata: {
-			name:      certIssuer.name
+			name: certIssuer.name
 		}
 		spec: acme: {
 			email:  certIssuer.email
