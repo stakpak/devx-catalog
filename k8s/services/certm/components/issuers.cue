@@ -1,6 +1,7 @@
 package components
 
 import (
+	"stakpak.dev/devx/v1"
 	"stakpak.dev/devx/v1/traits"
 	"stakpak.dev/devx/k8s/services/certm/resources"
 )
@@ -8,13 +9,25 @@ import (
 #ClusterIssuer: {
 	traits.#KubernetesResources
 
-	certIssuer: {
+	k8s: {
+		namespace: string
+		...
+	}
 
+	certIssuer: {
 		name:                    string | *"letsencrypt"
 		server:                  string | *"https://acme-v02.api.letsencrypt.org/directory"
 		email:                   string
 		privateKeySecretRefName: string | *"letsencrypt"
 		ingressClass:            string | *"nginx"
+
+		dnsSolvers: [...{
+			selector: dnsZones: [...string]
+			route53?: {
+				accessKeySecret: v1.#Secret
+				role?:           string
+			}
+		}]
 	}
 
 	k8sResources: "cert-issuer-\(certIssuer.name)": resources.#ClusterIssuer & {
@@ -32,6 +45,26 @@ import (
 					http01: {
 						ingress: {
 							class: certIssuer.ingressClass
+						}
+					}
+				},
+
+				for solver in certIssuer.dnsSolvers {
+					{
+						selector: solver.selector
+						dns01: {
+							if solver.route53 != _|_ {
+								accessKeyIDSecretRef: {
+									namespace: k8s.namespace
+									name:      solver.route53.accessKeySecret.name
+									key:       "access-key"
+								}
+								secretAccessKeySecretRef: {
+									namespace: k8s.namespace
+									name:      solver.route53.accessKeySecret.name
+									key:       "secret-access-key"
+								}
+							}
 						}
 					}
 				},
