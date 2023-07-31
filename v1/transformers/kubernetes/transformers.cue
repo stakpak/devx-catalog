@@ -448,7 +448,7 @@ _#IngressResource: {
 		metadata: {
 			name: ingressName
 			annotations: {
-				if http.gateway[http.listener].protocol == "HTTPS" {
+				if http.gateway.listeners[http.listener].protocol == "HTTPS" {
 					"cert-manager.io/cluster-issuer": string | *"letsencrypt"
 				}
 				...
@@ -490,7 +490,7 @@ _#IngressResource: {
 					}
 				},
 			]
-			if http.gateway[http.listener].protocol == "HTTPS" {
+			if http.gateway.listeners[http.listener].protocol == "HTTPS" {
 				tls: [
 					{
 						hosts:      http.hostnames
