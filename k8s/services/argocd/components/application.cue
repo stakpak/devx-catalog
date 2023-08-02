@@ -13,25 +13,28 @@ import (
 		...
 	}
 	application: {
-		name:    string | *"argocd-application"
-		server:  string | *"https://kubernetes.default.svc"
+		name: string | *"application"
 		project: string | *"default"
 		source: {
 			repoURL:         string
 			path?:           string
 			targetRevision?: string
 		}
+		destination: {
+			server:     string | *"https://kubernetes.default.svc"
+			namespace:  string | *"default"
+		}
 	}
 
-	k8sResources: "argocd-application-\(application.name)": resources.#Application & {
+	k8sResources: "argocd-\(application.name)": resources.#Application & {
 		metadata: {
 			name:      application.name
 			namespace: k8s.namespace
 		}
 		spec: {
 			destination: {
-				namespace: k8s.namespace
-				server:    application.server
+				namespace: application.destination.namespace
+				server:    application.destination.server
 			}
 			project: application.project
 			source:  v1alpha1.#ApplicationSource & {
