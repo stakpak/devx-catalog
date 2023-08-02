@@ -3,7 +3,6 @@ package components
 import (
 	"stakpak.dev/devx/v1/traits"
 	"stakpak.dev/devx/k8s/services/argocd/resources"
-	"github.com/argoproj/argo-cd/v2/pkg/apis/application/v1alpha1"
 )
 
 #ArgoCDApplication: {
@@ -13,19 +12,26 @@ import (
 		...
 	}
 	application: {
-		name: string | *"application"
+		name:    string | *"application"
 		project: string | *"default"
 		source: {
 			repoURL:         string
 			path?:           string
 			targetRevision?: string
+			chart?:          string
 		}
 		destination: {
-			server:     string | *"https://kubernetes.default.svc"
-			namespace:  string | *"default"
+			server:    string | *"https://kubernetes.default.svc"
+			namespace: string | *"default"
+		}
+		syncPolicy: {
+			automated: {
+				prune:    bool | *true
+				selfHeal: bool | *true
+			}
+			syncOptions: [...string] | *["CreateNamespace=true"]
 		}
 	}
-
 	k8sResources: "argocd-\(application.name)": resources.#Application & {
 		metadata: {
 			name:      application.name
@@ -37,10 +43,18 @@ import (
 				server:    application.destination.server
 			}
 			project: application.project
-			source:  v1alpha1.#ApplicationSource & {
+			source: {
 				repoURL:         application.source.repoURL
 				path?:           application.source.path
 				targetRevision?: application.source.targetRevision
+				chart?:          application.source.chart
+			}
+			syncPolicy: {
+				automated: {
+					prune:    application.syncPolicy.automated.prune
+					selfHeal: application.syncPolicy.automated.selfHeal
+				}
+				syncOptions: application.syncPolicy.syncOptions
 			}
 		}
 	}
