@@ -44,10 +44,16 @@ import (
 			}
 			project: application.project
 			source: {
-				repoURL:         application.source.repoURL
-				path?:           application.source.path
-				targetRevision?: application.source.targetRevision
-				chart?:          application.source.chart
+				repoURL: application.source.repoURL
+				if application.source.path != _|_ {
+					path: application.source.path
+				}
+				if application.source.targetRevision != _|_ {
+					targetRevision: application.source.targetRevision
+				}
+				if application.source.chart != _|_ {
+					chart: application.source.chart
+				}
 			}
 			syncPolicy: {
 				automated: {
