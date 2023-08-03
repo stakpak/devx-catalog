@@ -12,7 +12,7 @@ import (
 		...
 	}
 	application: {
-		name:    string | *"application"
+		name:    string
 		project: string | *"default"
 		source: {
 			repoURL:         string
