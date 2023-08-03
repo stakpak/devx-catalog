@@ -5,7 +5,6 @@ import (
 	"stakpak.dev/devx/v1"
 	"stakpak.dev/devx/k8s/services/argocd/resources"
 	eso "stakpak.dev/devx/k8s/services/eso/resources"
-	"strings"
 )
 
 #ArgoCDApplication: {
@@ -45,15 +44,6 @@ import (
 				decodingStrategy: *"None" | "Base64" | "Base64URL" | "Auto"
 			}
 		}
-	}
-
-	convertGitHubURLToSSH: {
-		input:          application.source.repoURL
-		protocol:       strings.TrimPrefix(input, "https://")
-		withoutSlashes: strings.Replace(protocol, "/", ":", 1)
-		gitURL:         "git@" + withoutSlashes
-		withoutCom:     strings.Replace(gitURL, ".com/", ".com:", 1)
-		output:         withoutCom
 	}
 
 	k8sResources: {
@@ -105,7 +95,7 @@ import (
 						stringData: {
 							name: application.name
 							type: "git"
-							url:  convertGitHubURLToSSH.output
+							url:  application.source.repoURL
 						}
 					}
 					data: [
