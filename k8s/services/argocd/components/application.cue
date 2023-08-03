@@ -35,13 +35,15 @@ import (
 		}
 		credentials: {
 			privateKey?: v1.#Secret
-			externalSecret: {
-				refreshInterval: *"1h" | string
-				storeRef: {
-					name: string
-					kind: *"ClusterSecretStore" | "SecretStore"
+			if application.credentials.privateKey != _|_ {
+				externalSecret: {
+					refreshInterval: *"1h" | string
+					storeRef: {
+						name: string
+						kind: *"ClusterSecretStore" | "SecretStore"
+					}
+					decodingStrategy: *"None" | "Base64" | "Base64URL" | "Auto"
 				}
-				decodingStrategy: *"None" | "Base64" | "Base64URL" | "Auto"
 			}
 		}
 	}
@@ -84,6 +86,7 @@ import (
 				metadata: {
 					name:      "\(application.name)-repo-secret"
 					namespace: k8s.namespace
+					labels: "argocd.argoproj.io/secret-type": "repo"
 				}
 				spec: {
 					refreshInterval: application.credentials.externalSecret.refreshInterval
@@ -91,11 +94,13 @@ import (
 						name: application.credentials.externalSecret.storeRef.name
 						kind: application.credentials.externalSecret.storeRef.kind
 					}
-					template: {
-						stringData: {
-							name: application.name
-							type: "git"
-							url:  application.source.repoURL
+					target: {
+						template: {
+							data: {
+								name: application.name
+								type: "git"
+								url:  application.source.repoURL
+							}
 						}
 					}
 					data: [
