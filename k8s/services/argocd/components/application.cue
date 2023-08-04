@@ -2,7 +2,9 @@ package components
 
 import (
 	"stakpak.dev/devx/v1/traits"
+	"stakpak.dev/devx/v1"
 	"stakpak.dev/devx/k8s/services/argocd/resources"
+	eso "stakpak.dev/devx/k8s/services/eso/resources"
 )
 
 #ArgoCDApplication: {
@@ -31,36 +33,90 @@ import (
 			}
 			syncOptions: [...string] | *["CreateNamespace=true"]
 		}
-	}
-	k8sResources: "argocd-\(application.name)": resources.#Application & {
-		metadata: {
-			name:      application.name
-			namespace: k8s.namespace
+		credentials: {
+			privateKey?: v1.#Secret
+			if application.credentials.privateKey != _|_ {
+				externalSecret: {
+					refreshInterval: *"1h" | string
+					storeRef: {
+						name: string
+						kind: *"ClusterSecretStore" | "SecretStore"
+					}
+					decodingStrategy: *"None" | "Base64" | "Base64URL" | "Auto"
+				}
+			}
 		}
-		spec: {
-			destination: {
-				namespace: application.destination.namespace
-				server:    application.destination.server
+	}
+
+	k8sResources: {
+		"argocd-\(application.name)": resources.#Application & {
+			metadata: {
+				name:      application.name
+				namespace: k8s.namespace
 			}
-			project: application.project
-			source: {
-				repoURL: application.source.repoURL
-				if application.source.path != _|_ {
-					path: application.source.path
+			spec: {
+				destination: {
+					namespace: application.destination.namespace
+					server:    application.destination.server
 				}
-				if application.source.targetRevision != _|_ {
-					targetRevision: application.source.targetRevision
+				project: application.project
+				source: {
+					repoURL: application.source.repoURL
+					if application.source.path != _|_ {
+						path: application.source.path
+					}
+					if application.source.targetRevision != _|_ {
+						targetRevision: application.source.targetRevision
+					}
+					if application.source.chart != _|_ {
+						chart: application.source.chart
+					}
 				}
-				if application.source.chart != _|_ {
-					chart: application.source.chart
+				syncPolicy: {
+					automated: {
+						prune:    application.syncPolicy.automated.prune
+						selfHeal: application.syncPolicy.automated.selfHeal
+					}
+					syncOptions: application.syncPolicy.syncOptions
 				}
 			}
-			syncPolicy: {
-				automated: {
-					prune:    application.syncPolicy.automated.prune
-					selfHeal: application.syncPolicy.automated.selfHeal
+		}
+		if application.credentials.privateKey != _|_ {
+			"argocd-\(application.name)-external-secret": eso.#ExternalSecret & {
+				metadata: {
+					name:      "\(application.name)-repo-secret"
+					namespace: k8s.namespace
+					labels: "argocd.argoproj.io/secret-type": "repo"
 				}
-				syncOptions: application.syncPolicy.syncOptions
+				spec: {
+					refreshInterval: application.credentials.externalSecret.refreshInterval
+					secretStoreRef: {
+						name: application.credentials.externalSecret.storeRef.name
+						kind: application.credentials.externalSecret.storeRef.kind
+					}
+					target: {
+						template: {
+							data: {
+								name: application.name
+								type: "git"
+								url:  application.source.repoURL
+							}
+						}
+					}
+					data: [
+						{
+							secretKey: "sshPrivateKey"
+							remoteRef: {
+								key: application.credentials.privateKey.name
+								if application.credentials.privateKey.property != _|_ {
+									property: application.credentials.privateKey.property
+								}
+								version:          application.credentials.privateKey.version | *"latest"
+								decodingStrategy: application.credentials.externalSecret.decodingStrategy
+							}
+						},
+					]
+				}
 			}
 		}
 	}
