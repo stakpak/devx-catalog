@@ -86,7 +86,6 @@ import (
 				metadata: {
 					name:      "\(application.name)-repo-secret"
 					namespace: k8s.namespace
-					labels: "argocd.argoproj.io/secret-type": "repo"
 				}
 				spec: {
 					refreshInterval: application.credentials.externalSecret.refreshInterval
@@ -96,13 +95,14 @@ import (
 					}
 					target: {
 						template: {
+							metadata: {
+								labels: "argocd.argoproj.io/secret-type": "repository"
+							}
 							data: {
 								name: application.name
 								type: "git"
 								url:  application.source.repoURL
-								sshPrivateKey: """
-									{{{ .sshPrivateKey }}}
-								"""
+								sshPrivateKey: "{{ .sshPrivateKey }}"
 							}
 						}
 					}
