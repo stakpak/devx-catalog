@@ -102,9 +102,7 @@ import (
 								name: application.name
 								type: "git"
 								url:  application.source.repoURL
-								sshPrivateKey: """
-									{{ .sshPrivateKey }}
-								"""
+								sshPrivateKey: "{{ .sshPrivateKey }}"
 							}
 						}
 					}
