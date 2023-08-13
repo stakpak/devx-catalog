@@ -1,0 +1,4 @@
+package helpers
+
+
+#Location: "West US" | "West US 2" | "West US 3" | "Central US" | "West Central US" | "South Central US" | "North Central US" | "East US" | "East US 2" | "Canada Central" | "Canada East" | "Brazil South" | "Brazil Southeast" | "UK South" | "UK West" | "North Europe" | "West Europe" | "France Central" | "France South" | "Germany North" | "Germany Northeast" | "Germany Central" | "Germany West Central" | "Switzerland North" | "Switzerland West" | "Norway East" | "Norway West" | "South Africa West" | "South Africa North" | "West India" | "Central India" | "South India" | "Southeast Asia" | "East Asia" | "China East" | "China East 2" | "China East 3" | "China North" | "China North 2" | "China North 3" | "Korea Central" | "Korea South" | "Japan East" | "Japan West" | "Australia Central" | "Australia Central 2" | "Australia East" | "Australia Southeast" | "UAE Central" | "UAE North"
