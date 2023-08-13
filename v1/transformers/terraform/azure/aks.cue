@@ -18,8 +18,10 @@ import (
 		resourceGroupName: string | *"k8s-rg"
 		aks: {
 			nodeSize:      string | *"Standard_D2_v2"
-			nodeCount:     uint | *1
+			minCount:      uint | *1
+			maxCount:      uint | *3
 			nodeAutoScale: bool | *true
+			dnsPrefix:     string | *k8s.name
 		}
 		...
 	}
@@ -36,6 +38,11 @@ import (
 				}
 			}
 		}
+		provider: {
+			"azurerm": {
+				features: {}
+			}
+		}
 		resource: {
 			azurerm_resource_group: "\(k8s.name)-resource-group": {
 				name:     azure.resourceGroupName
@@ -44,20 +51,28 @@ import (
 			azurerm_kubernetes_cluster: "\(k8s.name)": {
 				name:                k8s.name
 				location:            azure.location
-				resource_group_name: "${azurerm_resource_group.\(k8s.name).name}"
-				version:             "${data.azurerm_kubernetes_service_versions.\(k8s.name).latest_version}"
+				resource_group_name: "${azurerm_resource_group.\(k8s.name)-resource-group.name}"
+				kubernetes_version:  "${data.azurerm_kubernetes_service_versions.\(k8s.name).latest_version}"
+				identity: {
+					type: "SystemAssigned"
+				}
+				dns_prefix: azure.aks.dnsPrefix
 				default_node_pool: {
 					{
-						name:                "worker-pool-1"
+						name:                "workerpool1"
 						vm_size:             azure.aks.nodeSize
-						node_count:          azure.aks.nodeCount
+						node_count:          azure.aks.minCount
+						min_count:           azure.aks.minCount
+						max_count:           azure.aks.maxCount
 						enable_auto_scaling: azure.aks.nodeAutoScale
-						tags: [
-							"worker-pool-1",
-						]
-						temporary_name_for_rotation: "temp-worker-pool-1"
+						tags: {
+							"name": "workerpool1"
+							source: "terraform"
+						}
+						temporary_name_for_rotation: "temppool1"
 					}
 				}
+
 			}
 		}
 	}
@@ -81,6 +96,11 @@ import (
 					source:  "hashicorp/azurerm"
 					version: azure.providerVersion
 				}
+			}
+		}
+		provider: {
+			"azurerm": {
+				features: {}
 			}
 		}
 		data: azurerm_kubernetes_cluster: "\(k8s.name)": {
@@ -115,6 +135,11 @@ import (
 					source:  "hashicorp/azurerm"
 					version: azure.providerVersion
 				}
+			}
+		}
+		provider: {
+			"azurerm": {
+				features: {}
 			}
 		}
 		data: azurerm_kubernetes_cluster: "\(k8s.name)": {
