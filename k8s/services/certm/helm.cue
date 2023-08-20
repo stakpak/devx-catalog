@@ -16,7 +16,7 @@ import (
 		url:      "https://charts.jetstack.io"
 		chart:    "cert-manager"
 
-		version: string | *"1.8.0"
+		version: string | *"1.12.0"
 
 		namespace: string | *"cert-manager"
 		release:   string

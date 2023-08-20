@@ -28,7 +28,7 @@ KubernetesBasicStack: v1.#Stack & {
 		}
 		certManager: certm.#CertManagerChart & {
 			helm: {
-				version: "1.8.0"
+				version: "1.12.0"
 				release: "cert-manager"
 				values: installCRDs: true
 			}
