@@ -24,6 +24,7 @@ _#ArgoCDApplicationResource: {
 	$metadata: _
 	helm:      _
 	helm: repoType:                "git" | "oci" | "default"
+	argocd: syncWave:              uint | *0
 	$resources: "\($metadata.id)": _#ArgoCDApplicationResource & {
 		metadata: {
 			name:      helm.release
@@ -31,6 +32,7 @@ _#ArgoCDApplicationResource: {
 			finalizers: [
 				"resources-finalizer.argocd.argoproj.io",
 			]
+			annotations: "argocd.argoproj.io/sync-wave": argocd.syncWave
 		}
 		spec: {
 			source: {
