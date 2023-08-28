@@ -5,7 +5,7 @@ import (
 	"stakpak.dev/devx/v1/traits"
 )
 
-#LonghornChart: {
+#MinioChart: {
 	traits.#Helm
 	k8s: "version": (v1.getMatch & {
 		match: helm.version
