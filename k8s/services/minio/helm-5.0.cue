@@ -236,7 +236,7 @@ import (
 
 	nodeSelector: k8s.#Labels
 	tolerations: [...v1.#Toleration]
-	affinity: k8s.#Affinity
+	affinity: v1.#Affinity
 	topologySpreadConstraints: [...]
 
 	//Add stateful containers to have security context, if enabled MinIO will run as this
@@ -488,7 +488,7 @@ import (
 		}
 		nodeSelector: k8s.#Labels
 		tolerations: [...v1.#Toleration]
-		affinity: k8s.#Affinity
+		affinity: v1.#Affinity
 	}
 
 	//Use this field to add environment variables relevant to MinIO server. These fields will be passed on to MinIO container(s)
