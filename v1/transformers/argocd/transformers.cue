@@ -11,6 +11,7 @@ _#ArgoCDApplicationResource: {
 	$metadata: labels: {
 		driver: "kubernetes"
 		type:   "argoproj.io/v1alpha1/application"
+		...
 	}
 	argoapp.#Application
 	apiVersion: "argoproj.io/v1alpha1"
