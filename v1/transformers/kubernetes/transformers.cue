@@ -18,6 +18,11 @@ WorkloadTypes: ["k8s.io/apps/v1/deployment", "k8s.io/apps/v1/statefulset"]
 _#KubernetesName: =~"^[a-z0-9][-a-z0-9]{0,251}[a-z0-9]?$"
 _#KubernetesMeta: {
 	metadata?: metav1.#ObjectMeta
+	$metadata: labels: {
+		driver: "kubernetes"
+		type:   string
+		...
+	}
 	...
 }
 _#WorkloadResource: {
@@ -32,6 +37,7 @@ _#WorkloadResource: {
 	}
 }
 _#DeploymentResource: {
+	_#KubernetesMeta
 	appsv1.#Deployment
 	$metadata: labels: {
 		driver: "kubernetes"
@@ -47,6 +53,7 @@ _#DeploymentResource: {
 	}
 }
 _#ServiceAccountResource: {
+	_#KubernetesMeta
 	corev1.#ServiceAccount
 	$metadata: labels: {
 		driver: "kubernetes"
@@ -67,6 +74,7 @@ _#ServiceResource: {
 	metadata: name: _#KubernetesName
 }
 _#HPAResource: {
+	_#KubernetesMeta
 	autoscalingv2beta2.#HorizontalPodAutoscaler
 	$metadata: labels: {
 		driver: "kubernetes"
@@ -611,4 +619,9 @@ _#CronJobResource: {
 			}
 		}
 	}
+}
+
+#SetOutputSubdir: v1.#Transformer & {
+	subdir: string
+	$resources: [string]: $metadata: labels: "output-subdir": subdir
 }

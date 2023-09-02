@@ -9,6 +9,7 @@ _#AuthorizationPolicyResource: {
 	$metadata: labels: {
 		driver: "kubernetes"
 		type:   "security.istio.io/v1beta1/authorizationpolicy"
+		...
 	}
 	istiov1beta1.#AuthorizationPolicy
 	apiVersion: "security.istio.io/v1beta1"
