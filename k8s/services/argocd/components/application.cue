@@ -33,6 +33,7 @@ import (
 			}
 			syncOptions: [...string] | *["CreateNamespace=true"]
 		}
+		syncWave: string | *"0"
 		credentials: {
 			privateKey?: v1.#Secret
 			if application.credentials.privateKey != _|_ {
@@ -53,6 +54,7 @@ import (
 			metadata: {
 				name:      application.name
 				namespace: k8s.namespace
+				annotations: "argocd.argoproj.io/sync-wave": application.syncWave
 			}
 			spec: {
 				destination: {
@@ -99,9 +101,9 @@ import (
 								labels: "argocd.argoproj.io/secret-type": "repository"
 							}
 							data: {
-								name: application.name
-								type: "git"
-								url:  application.source.repoURL
+								name:          application.name
+								type:          "git"
+								url:           application.source.repoURL
 								sshPrivateKey: "{{ .sshPrivateKey }}"
 							}
 						}
