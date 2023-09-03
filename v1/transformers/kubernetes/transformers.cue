@@ -64,6 +64,7 @@ _#ServiceAccountResource: {
 	metadata: name: _#KubernetesName
 }
 _#ServiceResource: {
+	_#KubernetesMeta
 	corev1.#Service
 	$metadata: labels: {
 		driver: "kubernetes"
