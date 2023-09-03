@@ -438,6 +438,7 @@ _CreateContainers: {
 
 _#IngressResource: {
 	netv1.#Ingress
+	_#KubernetesMeta
 	$metadata: labels: {
 		driver: "kubernetes"
 		type:   "networking.k8s.io/v1/ingress"
