@@ -28,7 +28,7 @@ _#ArgoCDApplicationResource: {
 	argocd: {
 		syncWave: string | *"0"
 		destination: {
-			server: string | "https://kubernetes.default.svc"
+			server: string | *"https://kubernetes.default.svc"
 		}
 	}
 	$resources: "\($metadata.id)": _#ArgoCDApplicationResource & {
