@@ -16,7 +16,7 @@ import (
 		url:      "https://kedacore.github.io/charts"
 		chart:    "keda"
 
-		version: string | *"4.0.5"
+		version: string | *"2.12.0"
 
 		namespace: string | *"keda"
 		release:   string
