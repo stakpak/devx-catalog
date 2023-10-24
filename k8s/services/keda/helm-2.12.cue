@@ -3,6 +3,7 @@ package keda
 import (
 	"stakpak.dev/devx/k8s"
 	"k8s.io/api/core/v1"
+	appsV1 "k8s.io/api/apps/v1"
 )
 
 #KubeVersion: [=~"^2\\.12\\."]: minor: >=20
@@ -172,20 +173,29 @@ import (
 
 	updateStrategy: {
 		//   # -- Capability to configure [Deployment upgrade strategy] for operator
-		operator: v1.#DeploymentStrategy
+		operator: appsV1.#DeploymentStrategy
 		//   # -- Capability to configure [Deployment upgrade strategy] for Metrics Api Server
-		metricsApiServer: v1.#DeploymentStrategy
+		metricsApiServer: appsV1.#DeploymentStrategy
 		//   # -- Capability to configure [Deployment upgrade strategy] for Admission webhooks
-		webhooks: v1.#DeploymentStrategy
+		webhooks: appsV1.#DeploymentStrategy
 	}
 
 	podDisruptionBudget: {
 		//   # -- Capability to configure [Pod Disruption Budget]
-		operator: v1.#PodDisruptionBudgetSpec
+		operator: {
+			minAvailable:   int | *1
+			maxUnavailable: int | *1
+		} | *{}
 		//   # -- Capability to configure [Pod Disruption Budget]
-		metricServer: v1.#PodDisruptionBudgetSpec
+		metricServer: {
+			minAvailable:   int | *1
+			maxUnavailable: int | *1
+		} | *{}
 		//   # -- Capability to configure [Pod Disruption Budget]
-		webhooks: v1.#PodDisruptionBudgetSpec
+		webhooks: {
+			minAvailable:   int | *1
+			maxUnavailable: int | *1
+		} | *{}
 	}
 
 	additionalLabels:      k8s.#Labels
@@ -726,9 +736,9 @@ import (
 		}
 	}
 
-    // # -- Array of extra K8s manifests to deploy
-    extraObjects: [...]
+	// # -- Array of extra K8s manifests to deploy
+	extraObjects: [...]
 
-    // # -- Capability to turn on/off ASCII art in Helm installation notes
-    asciiArt: bool | *true
+	// # -- Capability to turn on/off ASCII art in Helm installation notes
+	asciiArt: bool | *true
 }
