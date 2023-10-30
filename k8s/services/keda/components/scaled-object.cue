@@ -25,10 +25,10 @@ import (
 		} | {
 			type: "rabbitmq"
 			metadata: {
-				queueName:        string
-				protocol?:        "amqp" | "http"
-				mode:             "QueueLength" | "MessageRate"
 				value:            string
+				queueName:        string
+				mode:             "QueueLength" | "MessageRate"
+				protocol?:        "amqp" | "http"
 				activationValue?: string
 				vhostName?:       string
 				host?:            string
@@ -57,9 +57,9 @@ import (
 				for trigger in scaler.trigger {
 					type: trigger.type
 					metadata: {
+						value: trigger.metadata.value
 						if trigger.type == "cpu" || trigger.type == "memory" {
 							metricType: trigger.metricType
-							value:      trigger.metadata.value
 							if trigger.metadata.containerName != _|_ {
 								containerName: trigger.metadata.containerName
 							}
