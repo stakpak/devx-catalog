@@ -110,6 +110,23 @@ import (
 	}
 }
 
+#Scalable: v1.#Trait & {
+	$metadata: traits: Scalable: null
+	replicas: {
+		idle: uint & <min | *0
+		min:  uint | *1
+		max:  uint & >=min | *min
+	}
+	intervals: {
+		pollingInterval: uint | *30
+		cooldownPeriod:  uint | *300
+	}
+	fallback?: {
+		failureThreshold: uint | *3
+		replicas:         uint | *replicas.min
+	}
+}
+
 // a component that can be scheduled as a cron job
 #Cronable: v1.#Trait & {
 	$metadata: traits: Cronable: null

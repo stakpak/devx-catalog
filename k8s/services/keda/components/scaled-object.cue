@@ -3,6 +3,7 @@ package components
 import (
 	k8sr "stakpak.dev/devx/k8s"
 	"stakpak.dev/devx/v1/traits"
+	"stakpak.dev/devx/k8s/services/keda/resources"
 )
 
 #ScaledObject: {
@@ -13,32 +14,22 @@ import (
 		...
 	}
 	scaler: {
-		name:           string
-		deploymentName: string
-		trigger: [...{
-			type:       "cpu" | "memory"
-			metricType: "Utilization" | "AverageValue"
-			metadata: {
-				value:          string
-				containerName?: string
-			}
-		} | {
-			type: "rabbitmq"
-			metadata: {
-				value:            string
-				queueName:        string
-				mode:             "QueueLength" | "MessageRate"
-				protocol?:        "amqp" | "http"
-				activationValue?: string
-				vhostName?:       string
-				host?:            string
-				hostFromEnv?:     string
-				authenticationRef?: {
-					name: string
-				}
-			}
-		},
-		]
+		name: string
+		target: {
+			name:       string
+			kind:       string
+			apiVersion: string
+		}
+		pollingInterval:  int | *30
+		cooldownPeriod:   int | *300
+		idleReplicaCount: int | *0
+		minReplicaCount:  int | *0
+		maxReplicaCount:  int | *100
+		fallback?: {
+			failureThreshold: uint | *3
+			replicas:         uint | *replicas.min
+		}
+		triggers: [... resources.#CPUTrigger | resources.#MemoryTrigger | resources.#RabbitMQTrigger]
 	}
 
 	k8sResources: "scaled-object-\(scaler.name)": {
@@ -51,10 +42,23 @@ import (
 		}
 		spec: {
 			scaleTargetRef: {
-				name: scaler.deploymentName
+				name:       scaler.target.name
+				kind:       scaler.target.kind
+				apiVersion: scaler.target.apiVersion
+			}
+			pollingInterval:  scaler.pollingInterval
+			cooldownPeriod:   scaler.cooldownPeriod
+			idleReplicaCount: scaler.idleReplicaCount
+			minReplicaCount:  scaler.minReplicaCount
+			maxReplicaCount:  scaler.maxReplicaCount
+			if scaler.fallback != _|_ {
+				fallback: {
+					failureThreshold: scaler.fallback.failureThreshold
+					replicas:         scaler.fallback.replicas
+				}
 			}
 			triggers: [
-				for trigger in scaler.trigger {
+				for trigger in scaler.triggers {
 					type: trigger.type
 					metadata: {
 						value: trigger.metadata.value
