@@ -3,6 +3,7 @@ package traits
 import (
 	"list"
 	"stakpak.dev/devx/v1"
+	"stakpak.dev/devx/v1/resources/keda"
 )
 
 // a component that runs containers
@@ -126,6 +127,7 @@ import (
 			failureThreshold: uint | *3
 			replicas:         uint | *replicas.min
 		}
+		triggers: [keda.#CPUTrigger | keda.#MemoryTrigger | keda.#RabbitMQTrigger ]
 	}
 }
 

@@ -13,8 +13,7 @@ import (
 
 	$metadata: _
 	scale:     _
-	triggers: [... resources.#CPUTrigger | resources.#MemoryTrigger | resources.#RabbitMQTrigger]
-	
+
 	appName: string | *$metadata.id
 	$resources: "\(appName)-scaled-object": {
 		resources.#ScaledObject
@@ -38,7 +37,7 @@ import (
 					replicas:         fallback.replicas
 				}
 			}
-			"triggers": triggers
+			triggers: scale.triggers
 		}
 	}
 }
