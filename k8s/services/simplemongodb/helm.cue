@@ -13,7 +13,7 @@ import (
 	}).result
 	helm: {
 		repoType: "oci"
-		url:      "registry-1.docker.io/bitnamicharts"
+		url:      "oci://registry-1.docker.io/bitnamicharts"
 		chart:    "mongodb"
 
 		version: string | *"13.17.1"
