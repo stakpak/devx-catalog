@@ -91,10 +91,10 @@ import (
 								for propertyName, propertyObj in obj.template.properties {
 									secretKey: propertyName
 									remoteRef: {
-										key:     propertyObj.remoteRefKey
+										key:     propertyObj.name
 										version: obj.data.version | *"latest"
-										if propertyObj.remoteRefProperty != _|_ {
-											property: propertyObj.remoteRefProperty
+										if propertyObj.property != _|_ {
+											property: propertyObj.property
 										}
 										decodingStrategy: externalSecret.decodingStrategy
 									}

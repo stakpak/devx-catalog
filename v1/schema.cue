@@ -15,8 +15,8 @@ import (
 		value: string
 		properties: {
 			[string]: {
-				remoteRefKey:       string
-				remoteRefProperty?: string
+				name:       string
+				property?: string
 			}
 		}
 	}
