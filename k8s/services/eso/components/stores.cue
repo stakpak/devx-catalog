@@ -58,3 +58,86 @@ import (
 		}
 	}
 }
+
+#KubernetesSecretStore: {
+	traits.#KubernetesResources
+
+	k8s: {
+		namespace: string
+		...
+	}
+
+	secretStore: {
+		name: string
+	}
+
+	k8sResources: {
+		"secret-store-\(secretStore.name)-role": {
+			apiVersion: "rbac.authorization.k8s.io/v1"
+			kind:       "Role"
+			metadata: {
+				name:      "secret-store-\(secretStore.name)-role"
+				namespace: k8s.namespace
+			}
+			spec: provider: "kubernetes": {
+				role: {
+					rules: [
+						{
+							apiGroups: [""]
+							resources: ["secrets"]
+							verbs: ["get", "list", "watch"]
+						}, {
+							apiGroups: ["authorization.k8s.io"]
+							resources: ["selfsubjectrulesreviews"]
+							verbs: ["create"]
+						},
+					]
+				}
+			}
+		}
+		"secret-store-\(secretStore.name)-service-account": {
+			apiVersion: "v1"
+			kind:       "ServiceAccount"
+			metadata: {
+				name:      "secret-store-\(secretStore.name)-service-account"
+				namespace: k8s.namespace
+			}
+		}
+		"secret-store-\(secretStore.name)-rolebinding": {
+			apiVersion: "rbac.authorization.k8s.io/v1"
+			kind:       "RoleBinding"
+			metadata: {
+				name: "secret-store-\(secretStore.name)-rolebinding"
+			}
+			subjects: [
+				{
+					kind:      "ServiceAccount"
+					name:      "secret-store-\(secretStore.name)-service-account"
+					namespace: k8s.namespace
+				},
+			]
+			roleRef: {
+				kind:     "Role"
+				name:     "secret-store-\(secretStore.name)-role"
+				apiGroup: "rbac.authorization.k8s.io"
+			}
+		}
+		"secret-store-\(secretStore.name)": {
+			apiVersion: "external-secrets.io/v1beta1"
+			kind:       "SecretStore"
+			metadata: {
+				name:      secretStore.name
+				namespace: k8s.namespace
+			}
+			spec: provider: "kubernetes": {
+				remoteNamespace: k8s.namespace
+				server: caProvider: {
+					type: "ConfigMap"
+					name: "kube-root-ca.crt"
+					key:  "ca.crt"
+				}
+				auth: serviceAccount: name: "secret-store-\(secretStore.name)-service-account"
+			}
+		}
+	}
+}
