@@ -107,7 +107,8 @@ import (
 			apiVersion: "rbac.authorization.k8s.io/v1"
 			kind:       "RoleBinding"
 			metadata: {
-				name: "secret-store-\(secretStore.name)-rolebinding"
+				name:      "secret-store-\(secretStore.name)-rolebinding"
+				namespace: k8s.namespace
 			}
 			subjects: [
 				{
