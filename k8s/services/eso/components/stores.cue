@@ -79,21 +79,17 @@ import (
 				name:      "secret-store-\(secretStore.name)-role"
 				namespace: k8s.namespace
 			}
-			spec: provider: "kubernetes": {
-				role: {
-					rules: [
-						{
-							apiGroups: [""]
-							resources: ["secrets"]
-							verbs: ["get", "list", "watch"]
-						}, {
-							apiGroups: ["authorization.k8s.io"]
-							resources: ["selfsubjectrulesreviews"]
-							verbs: ["create"]
-						},
-					]
-				}
-			}
+			rules: [
+				{
+					apiGroups: [""]
+					resources: ["secrets"]
+					verbs: ["get", "list", "watch"]
+				}, {
+					apiGroups: ["authorization.k8s.io"]
+					resources: ["selfsubjectrulesreviews"]
+					verbs: ["create"]
+				},
+			]
 		}
 		"secret-store-\(secretStore.name)-service-account": {
 			apiVersion: "v1"
