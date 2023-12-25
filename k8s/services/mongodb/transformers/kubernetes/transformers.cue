@@ -107,9 +107,10 @@ import (
 				if mongodb.members == 1 {
 					type: "Standalone"
 				}
-				members:  mongodb.members
-				arbiters: 1
-				version:  database.version
+				members:                     mongodb.members
+				arbiters:                    1
+				version:                     database.version
+				featureCompatibilityVersion: database.version
 				security: {
 					tls: {
 						enabled:  false
