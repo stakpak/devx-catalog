@@ -11,6 +11,7 @@ import (
 	$metadata: labels: {
 		driver: "kubernetes"
 		type:   "\(apiVersion)/\(strings.ToLower(kind))"
+		...
 	}
 	apiVersion: string
 	kind:       string

@@ -11,6 +11,15 @@ import (
 	key:       string | *name
 	version?:  string
 	property?: string
+	template?: {
+		value: string
+		properties: {
+			[string]: {
+				name:       string
+				property?: string
+			}
+		}
+	}
 }
 
 #ComponentMetadata: $metadata: {

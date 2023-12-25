@@ -11,6 +11,7 @@ _#ArgoCDApplicationResource: {
 	$metadata: labels: {
 		driver: "kubernetes"
 		type:   "argoproj.io/v1alpha1/application"
+		...
 	}
 	argoapp.#Application
 	apiVersion: "argoproj.io/v1alpha1"
@@ -23,8 +24,13 @@ _#ArgoCDApplicationResource: {
 	traits.#Helm
 	$metadata: _
 	helm:      _
-	helm: repoType:                "git" | "oci" | "default"
-	argocd: syncWave:              string | *"0"
+	helm: repoType: "git" | "oci" | "default"
+	argocd: {
+		syncWave: string | *"0"
+		destination: {
+			server: string | *"https://kubernetes.default.svc"
+		}
+	}
 	$resources: "\($metadata.id)": _#ArgoCDApplicationResource & {
 		metadata: {
 			name:      helm.release
@@ -49,6 +55,7 @@ _#ArgoCDApplicationResource: {
 			}
 			destination: {
 				namespace: helm.namespace
+				server:    argocd.destination.server
 			}
 
 			syncPolicy: argoapp.#SyncPolicy & {

@@ -11,6 +11,7 @@ import (
 	$metadata: labels: {
 		driver: "kubernetes"
 		type:   "\(apiVersion)/\(strings.ToLower(kind))"
+		...
 	}
 	apiVersion: string
 	kind:       string
@@ -44,6 +45,7 @@ import (
 						"\(secret.property)": null
 					}
 				}
+				"template": secret.template
 			}
 		}
 	}
@@ -63,25 +65,49 @@ import (
 						kind: externalSecret.storeRef.kind
 					}
 
-					if len(obj.properties) == 0 {
-						data: [{
-							secretKey: "value"
-							remoteRef: {
-								key:              secretName
-								version:          obj.data.version | *"latest"
-								decodingStrategy: externalSecret.decodingStrategy
-							}
-						}]
-					}
-
-					if len(obj.properties) > 0 {
-						data: [
-							for propertyName, _ in obj.properties {
-								secretKey: propertyName
+					if obj.template == _|_ {
+						if len(obj.properties) == 0 {
+							data: [{
+								secretKey: "value"
 								remoteRef: {
 									key:              secretName
 									version:          obj.data.version | *"latest"
-									property:         propertyName
+									decodingStrategy: externalSecret.decodingStrategy
+								}
+							}]
+						}
+
+						if len(obj.properties) > 0 {
+							data: [
+								for propertyName, _ in obj.properties {
+									secretKey: propertyName
+									remoteRef: {
+										key:              secretName
+										version:          obj.data.version | *"latest"
+										property:         propertyName
+										decodingStrategy: externalSecret.decodingStrategy
+									}
+								},
+							]
+						}
+					}
+
+					if obj.template != _|_ {
+						target: template: {
+							engineVersion: "v2"
+							data: {
+								value: obj.template.value
+							}
+						}
+						data: [
+							for propertyName, propertyObj in obj.template.properties {
+								secretKey: propertyName
+								remoteRef: {
+									key:     propertyObj.name
+									version: obj.data.version | *"latest"
+									if propertyObj.property != _|_ {
+										property: propertyObj.property
+									}
 									decodingStrategy: externalSecret.decodingStrategy
 								}
 							},

@@ -3,6 +3,7 @@ package traits
 import (
 	"list"
 	"stakpak.dev/devx/v1"
+	"stakpak.dev/devx/v1/resources/keda"
 )
 
 // a component that runs containers
@@ -107,6 +108,26 @@ import (
 	replicas: {
 		min: uint | *1
 		max: uint & >=min | *min
+	}
+}
+
+#Scalable: v1.#Trait & {
+	$metadata: traits: Scalable: null
+	scale: {
+		replicas: {
+			idle: uint & <min | *0
+			min:  uint | *1
+			max:  uint & >=min | *min
+		}
+		intervals: {
+			pollingInterval: uint | *30
+			cooldownPeriod:  uint | *300
+		}
+		fallback?: {
+			failureThreshold: uint | *3
+			replicas:         uint | *replicas.min
+		}
+		triggers: [keda.#CPUTrigger | keda.#MemoryTrigger | keda.#RabbitMQTrigger ]
 	}
 }
 

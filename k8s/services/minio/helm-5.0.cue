@@ -236,12 +236,14 @@ import (
 
 	nodeSelector: k8s.#Labels
 	tolerations: [...v1.#Toleration]
-	affinity: k8s.#Affinity
+	affinity: v1.#Affinity
 	topologySpreadConstraints: [...]
 
 	//Add stateful containers to have security context, if enabled MinIO will run as this
 	//user and group NOTE: securityContext is only enabled if persistence.enabled=true
-	securityContext: v1.#PodSecurityContext | *{
+	securityContext: v1.#SecurityContext & {
+		enabled?: bool
+	} | *{
 		enabled:             true
 		runAsUser:           1000
 		runAsGroup:          1000
@@ -488,7 +490,7 @@ import (
 		}
 		nodeSelector: k8s.#Labels
 		tolerations: [...v1.#Toleration]
-		affinity: k8s.#Affinity
+		affinity: v1.#Affinity
 	}
 
 	//Use this field to add environment variables relevant to MinIO server. These fields will be passed on to MinIO container(s)
