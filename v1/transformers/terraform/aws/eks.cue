@@ -18,6 +18,7 @@ import (
 			name: string
 			...
 		}
+
 		providerVersion: string | *"5.32.1"
 		tags: {
 			"karpenter.sh/discovery": k8s.name
