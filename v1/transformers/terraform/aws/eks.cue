@@ -187,7 +187,6 @@ import (
 }
 
 #AddKubernetesProvider: v1.#Transformer & {
-	traits.#Helm
 	k8s: {
 		name: string
 		...
