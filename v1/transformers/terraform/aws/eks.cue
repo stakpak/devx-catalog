@@ -173,7 +173,7 @@ import (
 				region: aws.region
 			}
 			helm: kubernetes: {
-				host:                   "${data.aws_eks_cluster.cluster.\(k8s.name).endpoint}"
+				host:                   "${data.aws_eks_cluster.\(k8s.name).endpoint}"
 				token:                  "${data.aws_eks_cluster_auth.\(k8s.name).token}"
 				cluster_ca_certificate: "${base64decode(data.aws_eks_cluster.\(k8s.name).certificate_authority.0.data)}"
 			}
@@ -215,7 +215,7 @@ import (
 				region: aws.region
 			}
 			kubernetes: {
-				host:                   "${data.aws_eks_cluster.cluster.\(k8s.name).endpoint}"
+				host:                   "${data.aws_eks_cluster.\(k8s.name).endpoint}"
 				token:                  "${data.aws_eks_cluster_auth.\(k8s.name).token}"
 				cluster_ca_certificate: "${base64decode(data.aws_eks_cluster.\(k8s.name).certificate_authority.0.data)}"
 			}
