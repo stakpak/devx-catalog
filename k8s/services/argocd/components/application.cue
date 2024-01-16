@@ -1,6 +1,7 @@
 package components
 
 import (
+	"encoding/yaml"
 	"stakpak.dev/devx/v1/traits"
 	"stakpak.dev/devx/v1"
 	"stakpak.dev/devx/k8s/services/argocd/resources"
@@ -21,6 +22,11 @@ import (
 			path?:           string
 			targetRevision?: string
 			chart?:          string
+			helm?: {
+				releaseName?: string
+				values?:      _
+				...
+			}
 		}
 		destination: {
 			server:    string | *"https://kubernetes.default.svc"
@@ -72,6 +78,16 @@ import (
 					}
 					if application.source.chart != _|_ {
 						chart: application.source.chart
+						if application.source.helm != _|_ {
+							helm: {
+								if application.source.helm.releaseName != _|_ {
+									releaseName: application.source.helm.releaseName
+								}
+								if application.source.helm.values != _|_ {
+									values: yaml.Marshal(application.source.helm.values)
+								}
+							}
+						}
 					}
 				}
 				syncPolicy: {
