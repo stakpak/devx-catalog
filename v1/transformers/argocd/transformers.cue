@@ -36,6 +36,7 @@ _#ArgoCDApplicationResource: {
 	$resources: "\($metadata.id)": _#ArgoCDApplicationResource & {
 		metadata: {
 			name:      helm.release
+			// If argocd.namespace is not set, use helm.namespace
 			namespace: *argocd.namespace | _
 			namespace: helm.namespace | _
 			finalizers: [
