@@ -24,6 +24,7 @@ _#ArgoCDApplicationResource: {
 	traits.#Helm
 	$metadata: _
 	helm:      _
+	argocd:    _
 	helm: repoType: "git" | "oci" | "default"
 	argocd: {
 		syncWave: string | *"0"
@@ -35,7 +36,8 @@ _#ArgoCDApplicationResource: {
 	$resources: "\($metadata.id)": _#ArgoCDApplicationResource & {
 		metadata: {
 			name:      helm.release
-			namespace: *argocd.namespace | helm.namespace
+			namespace: *argocd.namespace | _
+			namespace: helm.namespace | _
 			finalizers: [
 				"resources-finalizer.argocd.argoproj.io",
 			]
