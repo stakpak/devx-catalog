@@ -30,11 +30,12 @@ _#ArgoCDApplicationResource: {
 		destination: {
 			server: string | *"https://kubernetes.default.svc"
 		}
+		namespace?: string
 	}
 	$resources: "\($metadata.id)": _#ArgoCDApplicationResource & {
 		metadata: {
 			name:      helm.release
-			namespace: helm.namespace
+			namespace: *argocd.namespace | helm.namespace
 			finalizers: [
 				"resources-finalizer.argocd.argoproj.io",
 			]
