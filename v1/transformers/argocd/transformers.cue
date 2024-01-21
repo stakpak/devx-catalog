@@ -24,17 +24,21 @@ _#ArgoCDApplicationResource: {
 	traits.#Helm
 	$metadata: _
 	helm:      _
+	argocd:    _
 	helm: repoType: "git" | "oci" | "default"
 	argocd: {
 		syncWave: string | *"0"
 		destination: {
 			server: string | *"https://kubernetes.default.svc"
 		}
+		namespace?: string
 	}
 	$resources: "\($metadata.id)": _#ArgoCDApplicationResource & {
 		metadata: {
 			name:      helm.release
-			namespace: helm.namespace
+			// If argocd.namespace is not set, use helm.namespace
+			namespace: *argocd.namespace | _
+			namespace: helm.namespace | _
 			finalizers: [
 				"resources-finalizer.argocd.argoproj.io",
 			]
