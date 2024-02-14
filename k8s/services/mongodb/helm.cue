@@ -16,7 +16,7 @@ import (
 		url:      "https://mongodb.github.io/helm-charts"
 		chart:    "community-operator"
 
-		version: string | *"0.8.0"
+		version: string | *"0.9.0"
 
 		namespace: string | *"mongodb"
 		release:   string
@@ -39,7 +39,7 @@ import (
 		url:      "https://mongodb.github.io/helm-charts"
 		chart:    "community-operator-crds"
 
-		version: string | *"0.8.0"
+		version: string | *"0.9.0"
 
 		namespace: string | *"mongodb"
 		release:   string
