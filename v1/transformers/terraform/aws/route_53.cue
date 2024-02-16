@@ -18,9 +18,10 @@ import (
 			namespace: string
 		}
 	}
+	ingress: attribute: *'hostname' | 'ip'
 	apexDomainLength: uint | *2
 	$resources: terraform: schema.#Terraform & {
-		data: kubernetes_service_v1: "gatway_\(gateway.name)": {
+		data: kubernetes_service_v1: "gateway_\(gateway.name)": {
 			metadata: {
 				name:      k8s.service.name
 				namespace: k8s.service.namespace
@@ -42,7 +43,7 @@ import (
 				name:    hostname
 				type:    "CNAME"
 				ttl:     300
-				records: ["${data.kubernetes_service_v1.gatway_\(gateway.name).status.0.load_balancer.0.ingress.0.hostname}"]
+				records: ["${data.kubernetes_service_v1.gateway_\(gateway.name).status.0.load_balancer.0.ingress.0.\(ingress.attribute)}"]
 			}
 		}
 	}
