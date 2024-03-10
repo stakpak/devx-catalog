@@ -9,8 +9,16 @@ import (
 	$metadata: traits: Kafka: null
 	kafka: {
 		name:    string
-		version: string | *"3.3.1"
+		version: string | *"3.6.1"
 		brokers: {
+			count:  uint | *3
+			sizeGB: uint | *1
+		}
+		controllers: {
+			count:  uint | *3
+			sizeGB: uint | *1
+		}
+		replicas: {
 			count:  uint | *3
 			sizeGB: uint | *1
 		}
