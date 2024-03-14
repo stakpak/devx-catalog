@@ -127,7 +127,7 @@ import (
 			failureThreshold: uint | *3
 			replicas:         uint | *replicas.min
 		}
-		triggers: [keda.#CPUTrigger | keda.#MemoryTrigger | keda.#RabbitMQTrigger ]
+		triggers: [...keda.#CPUTrigger | keda.#MemoryTrigger | keda.#RabbitMQTrigger ]
 	}
 }
 
