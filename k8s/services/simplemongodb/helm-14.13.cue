@@ -459,6 +459,175 @@ import (
 			}
 		}
 	}
+	externalAccess: {
+		//   ## @param externalAccess.enabled Enable Kubernetes external cluster access to MongoDB(&reg;) nodes (only for replicaset architecture)
+		enabled: bool | *false
+		//   ## External IPs auto-discovery configuration
+		//   ## An init container is used to auto-detect LB IPs or node ports by querying the K8s API
+		//   ## Note: RBAC might be required
+		autoDiscovery: {
+			//     ## @param externalAccess.autoDiscovery.enabled Enable using an init container to auto-detect external IPs by querying the K8s API
+			enabled: bool | *false
+			//     ## Bitnami Kubectl image
+			//     ## ref: https://hub.docker.com/r/bitnami/kubectl/tags/
+			//     ## @param externalAccess.autoDiscovery.image.registry [default: REGISTRY_NAME] Init container auto-discovery image registry
+			//     ## @param externalAccess.autoDiscovery.image.repository [default: REPOSITORY_NAME/kubectl] Init container auto-discovery image repository
+			//     ## @skip externalAccess.autoDiscovery.image.tag Init container auto-discovery image tag (immutable tags are recommended)
+			//     ## @param externalAccess.autoDiscovery.image.digest Init container auto-discovery image digest in the way sha256:aa.... Please note this parameter, if set, will override the tag
+			//     ## @param externalAccess.autoDiscovery.image.pullPolicy Init container auto-discovery image pull policy
+			//     ## @param externalAccess.autoDiscovery.image.pullSecrets Init container auto-discovery image pull secrets
+			image: {
+				registry:   string | *"docker.io"
+				repository: string | *"bitnami/kubectl"
+				tag:        string | *"1.29.3-debian-12-r0"
+				digest:     string | *""
+				//       ## Specify a imagePullPolicy
+				//       ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
+				//       ## ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images
+				pullPolicy: string | *"IfNotPresent"
+				//       ## Optionally specify an array of imagePullSecrets (secrets must be manually created in the namespace)
+				//       ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+				//       ## Example:
+				//       ## pullSecrets:
+				//       ##   - myRegistryKeySecretName
+				pullSecrets: [...string]
+			}
+			//     ## Init Container resource requests and limits
+			//     ## ref: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/
+			//     ## We usually recommend not to specify default resources and to leave this as a conscious
+			//     ## choice for the user. This also increases chances charts run on environments with little
+			//     ## resources, such as Minikube. If you do want to specify resources, uncomment the following
+			//     ## lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+			//     ## @param externalAccess.autoDiscovery.resourcesPreset Set container resources according to one common preset (allowed values: none, nano, small, medium, large, xlarge, 2xlarge). This is ignored if externalAccess.autoDiscovery.resources is set (externalAccess.autoDiscovery.resources is recommended for production).
+			//     ## More information: https://github.com/bitnami/charts/blob/main/bitnami/common/templates/_resources.tpl#L15
+			resourcesPreset: #ResourcePresent
+			//     ## @param externalAccess.autoDiscovery.resources Set container requests and limits for different resources like CPU or memory (essential for production workloads)
+			//     ## Example:
+			//     ## resources:
+			//     ##   requests:
+			//     ##     cpu: 2
+			//     ##     memory: 512Mi
+			//     ##   limits:
+			//     ##     cpu: 3
+			//     ##     memory: 1024Mi
+			//     ##
+			resources: v1.#ResourceRequirements
+			//   ## Parameters to configure a set of Pods that connect to an existing MongoDB(&reg;) deployment that lies outside of Kubernetes.
+			//   ## @param externalAccess.externalMaster.enabled Use external master for bootstrapping
+			//   ## @param externalAccess.externalMaster.host External master host to bootstrap from
+			//   ## @param externalAccess.externalMaster.port Port for MongoDB(&reg;) service external master host
+			externalMaster: {
+				enabled: bool | *false
+				host:    string | *""
+				port:    k8s.#Port | *27017
+			}
+			//   ## Parameters to configure K8s service(s) used to externally access MongoDB(&reg;)
+			//   ## A new service per broker will be created
+			service: {
+				//     ## @param externalAccess.service.type Kubernetes Service type for external access. Allowed values: NodePort, LoadBalancer or ClusterIP
+				type: *"LoadBalancer" | "NodePort" | "ClusterIP"
+				//     ## @param externalAccess.service.portName MongoDB(&reg;) port name used for external access when service type is LoadBalancer
+				portName: string | *"mongodb"
+				//     ## @param externalAccess.service.ports.mongodb MongoDB(&reg;) port used for external access when service type is LoadBalancer
+				ports: {
+					mongodb: k8s.#Port | *27017
+				}
+				//     ## @param externalAccess.service.loadBalancerIPs Array of load balancer IPs for MongoDB(&reg;) nodes
+				loadbalancerIPs: [...string]
+				//     ## @param externalAccess.service.loadBalancerClass loadBalancerClass when service type is LoadBalancer
+				//     # ref: https://kubernetes.io/docs/concepts/services-networking/service/#load-balancer-class
+				loadBalancerClass: string | *""
+				//     ## @param externalAccess.service.loadBalancerSourceRanges Address(es) that are allowed when service is LoadBalancer
+				//     ## ref: https://kubernetes.io/docs/tasks/access-application-cluster/configure-cloud-provider-firewall/#restrict-access-for-loadbalancer-service
+				loadBalancerSourceRanges: [...string]
+				//     ## @param externalAccess.service.allocateLoadBalancerNodePorts Wheter to allocate node ports when service type is LoadBalancer
+				//     ## ref: https://kubernetes.io/docs/concepts/services-networking/service/#load-balancer-nodeport-allocation
+				allocateLoadBalancerNodePorts: bool | *true
+				//     ## @param externalAccess.service.externalTrafficPolicy MongoDB(&reg;) service external traffic policy
+				//     ## ref https://kubernetes.io/docs/tasks/access-application-cluster/create-external-load-balancer/#preserving-the-client-source-ip
+				externalTrafficPolicy: string | *"Local"
+				//     ## @param externalAccess.service.nodePorts Array of node ports used to configure MongoDB(&reg;) advertised hostname when service type is NodePort
+				//     ## Example:
+				//     ## nodePorts:
+				//     ##   - 30001
+				//     ##   - 30002
+				nodePorts: [...k8s.#Port]
+				//     ## @param externalAccess.service.domain Domain or external IP used to configure MongoDB(&reg;) advertised hostname when service type is NodePort
+				//     ## If not specified, the container will try to get the kubernetes node external IP
+				//     ## e.g:
+				//     ## domain: mydomain.com
+				domain: string | *""
+				//     ## @param externalAccess.service.extraPorts Extra ports to expose (normally used with the `sidecar` value)
+				extraPorts: [...k8s.#Port]
+				//     ## @param externalAccess.service.annotations Service annotations for external access
+				annotations: k8s.#Annotations
+				//     ## @param externalAccess.service.sessionAffinity Control where client requests go, to the same pod or round-robin
+				//     ## Values: ClientIP or None
+				//     ## ref: https://kubernetes.io/docs/concepts/services-networking/service/
+				sessionAffinity: "ClientIP" | *"None"
+				//     ## @param externalAccess.service.sessionAffinityConfig Additional settings for the sessionAffinity
+				//     ## sessionAffinityConfig:
+				//     ##   clientIP:
+				//     ##     timeoutSeconds: 300
+				sessionAffinityConfig: {...}
+			}
+			hidden: {
+				//     ## @param externalAccess.hidden.enabled Enable Kubernetes external cluster access to MongoDB(&reg;) hidden nodes
+				enabled: bool | *false
+				//     ## Parameters to configure K8s service(s) used to externally access MongoDB(&reg;)
+				//     ## A new service per broker will be created
+				service: {
+					//     ## @param externalAccess.service.type Kubernetes Service type for external access. Allowed values: NodePort, LoadBalancer or ClusterIP
+					type: *"LoadBalancer" | "NodePort" | "ClusterIP"
+					//     ## @param externalAccess.service.portName MongoDB(&reg;) port name used for external access when service type is LoadBalancer
+					portName: string | *"mongodb"
+					//     ## @param externalAccess.service.ports.mongodb MongoDB(&reg;) port used for external access when service type is LoadBalancer
+					ports: {
+						mongodb: k8s.#Port | *27017
+					}
+					//     ## @param externalAccess.service.loadBalancerIPs Array of load balancer IPs for MongoDB(&reg;) nodes
+					loadbalancerIPs: [...string]
+					//     ## @param externalAccess.service.loadBalancerClass loadBalancerClass when service type is LoadBalancer
+					//     # ref: https://kubernetes.io/docs/concepts/services-networking/service/#load-balancer-class
+					loadBalancerClass: string | *""
+					//     ## @param externalAccess.service.loadBalancerSourceRanges Address(es) that are allowed when service is LoadBalancer
+					//     ## ref: https://kubernetes.io/docs/tasks/access-application-cluster/configure-cloud-provider-firewall/#restrict-access-for-loadbalancer-service
+					loadBalancerSourceRanges: [...string]
+					//     ## @param externalAccess.service.allocateLoadBalancerNodePorts Wheter to allocate node ports when service type is LoadBalancer
+					//     ## ref: https://kubernetes.io/docs/concepts/services-networking/service/#load-balancer-nodeport-allocation
+					allocateLoadBalancerNodePorts: bool | *true
+					//     ## @param externalAccess.service.externalTrafficPolicy MongoDB(&reg;) service external traffic policy
+					//     ## ref https://kubernetes.io/docs/tasks/access-application-cluster/create-external-load-balancer/#preserving-the-client-source-ip
+					externalTrafficPolicy: string | *"Local"
+					//     ## @param externalAccess.service.nodePorts Array of node ports used to configure MongoDB(&reg;) advertised hostname when service type is NodePort
+					//     ## Example:
+					//     ## nodePorts:
+					//     ##   - 30001
+					//     ##   - 30002
+					nodePorts: [...k8s.#Port]
+					//     ## @param externalAccess.service.domain Domain or external IP used to configure MongoDB(&reg;) advertised hostname when service type is NodePort
+					//     ## If not specified, the container will try to get the kubernetes node external IP
+					//     ## e.g:
+					//     ## domain: mydomain.com
+					domain: string | *""
+					//     ## @param externalAccess.service.extraPorts Extra ports to expose (normally used with the `sidecar` value)
+					extraPorts: [...k8s.#Port]
+					//     ## @param externalAccess.service.annotations Service annotations for external access
+					annotations: k8s.#Annotations
+					//     ## @param externalAccess.service.sessionAffinity Control where client requests go, to the same pod or round-robin
+					//     ## Values: ClientIP or None
+					//     ## ref: https://kubernetes.io/docs/concepts/services-networking/service/
+					sessionAffinity: "ClientIP" | *"None"
+					//     ## @param externalAccess.service.sessionAffinityConfig Additional settings for the sessionAffinity
+					//     ## sessionAffinityConfig:
+					//     ##   clientIP:
+					//     ##     timeoutSeconds: 300
+					sessionAffinityConfig: {...}
+				}
+			}
+		}
+
+	}
 	...
 }
 
