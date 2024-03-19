@@ -158,6 +158,12 @@ import (
 	// ## @param useStatefulSet Set to true to use a StatefulSet instead of a Deployment (only when `architecture=standalone`)
 	useStatefulSet: bool | *false
 
+	// 	## @param replicaCount Number of MongoDB(&reg;) nodes
+	// ## When `mongodb.architecture=replicaset`, the number of replicas is taken in account
+	// ## When `mongodb.architecture=standalone`, the number of replicas can only be 0 or 1 (value higher then 1 will not be taken in account)
+	// ##
+	replicaCount: int | *2
+
 	// ## MongoDB(&reg;) Authentication parameters
 	auth: {
 		//   ## @param auth.enabled Enable authentication
