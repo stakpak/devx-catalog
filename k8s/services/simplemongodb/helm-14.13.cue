@@ -154,7 +154,7 @@ import (
 	// ## ref: https://kubernetes.io/docs/tasks/administer-cluster/configure-multiple-schedulers/
 	schedulerName: string | *""
 	// ## @param architecture MongoDB(&reg;) architecture (`standalone` or `replicaset`)
-	architecture: "replicaset" | *"standalone"
+	architecture: *"replicaset" | "standalone"
 	// ## @param useStatefulSet Set to true to use a StatefulSet instead of a Deployment (only when `architecture=standalone`)
 	useStatefulSet: bool | *false
 
