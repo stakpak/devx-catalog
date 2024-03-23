@@ -16,7 +16,7 @@ import (
 		url:      "oci://registry-1.docker.io/bitnamicharts"
 		chart:    "mongodb"
 
-		version: string | *"13.17.1"
+		version: string | *"14.13.0"
 
 		namespace: string | *"mongodb"
 		release:   string
