@@ -5,6 +5,7 @@ import (
 	"stakpak.dev/devx/v1"
 	"stakpak.dev/devx/v1/traits"
 	argoapp "github.com/argoproj/argo-cd/v2/pkg/apis/application/v1alpha1"
+	"strings"
 )
 
 _#ArgoCDApplicationResource: {
@@ -49,7 +50,14 @@ _#ArgoCDApplicationResource: {
 
 				chart: helm.chart
 
-				repoURL:        helm.url
+				if helm.repoType == "oci" {
+					repoURL: strings.TrimPrefix(helm.url, "oci://")
+				}
+
+				if helm.repoType != "oci" {
+					repoURL: helm.url
+				}      
+
 				targetRevision: helm.version
 
 				"helm": {
