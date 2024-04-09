@@ -16,7 +16,7 @@ import (
 		url:      "https://external-secrets.io"
 		chart:    "external-secrets"
 
-		version: string | *"0.6.0"
+		version: string | *"0.9.14"
 
 		namespace: string | *"external-secrets"
 		release:   string
