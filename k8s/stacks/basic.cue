@@ -12,7 +12,7 @@ KubernetesBasicStack: v1.#Stack & {
 	components: {
 		externalSecretsOperator: eso.#ExternalSecretsOperatorChart & {
 			helm: {
-				version: "0.6.1"
+				version: "0.9.14" | *"0.6.1"
 				release: "external-secrets"
 				values: {
 					scopedNamespace:              ""
