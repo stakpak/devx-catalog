@@ -76,8 +76,8 @@ import (
 			replicas: int
 			storage: {
 				type:        string
-				size:        string
-				deleteClaim: bool
+				size?:        string
+				deleteClaim?: bool
 			}
 
 		}
