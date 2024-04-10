@@ -28,6 +28,7 @@ import (
 		...
 	}
 	config: {
+		standaloneControllers: bool | *false
 		storage: {
 			type:        *"jbod" | "ephemeral"
 			deleteClaim: bool | *false
@@ -35,6 +36,65 @@ import (
 	}
 
 	$resources: {
+		if config.standaloneControllers {
+			"\($metadata.id)-controllers-node-pool": resources.#KafkaNodePool & {
+				#KubernetesResource
+				metadata: {
+					name:      "\($metadata.id)-controllers"
+					namespace: k8s.namespace
+					labels: {
+						"strimzi.io/cluster": $metadata.id
+					}
+				}
+				spec: {
+					replicas: kafka.controllers.count
+					roles: ["controller"]
+					storage: {
+						type: config.storage.type
+						volumes: [
+							{
+								id:          0
+								type:        "persistent-claim"
+								size:        "\(kafka.controllers.sizeGB)Gi"
+								deleteClaim: config.storage.deleteClaim
+							},
+						]
+					}
+				}
+			}
+		}
+		"\($metadata.id)-node-pool": resources.#KafkaNodePool & {
+			#KubernetesResource
+			metadata: {
+				name:      "\($metadata.id)-brokers"
+				namespace: k8s.namespace
+				labels: {
+					"strimzi.io/cluster": $metadata.id
+				}
+			}
+			spec: {
+				replicas: kafka.brokers.count
+				if config.standaloneControllers {
+					roles: ["broker"]
+				}
+				if !config.standaloneControllers {
+					roles: ["controller", "broker"]
+				}
+				storage: {
+					type: config.storage.type
+					if config.storage.type == "jbod" {
+						volumes: [
+							{
+								id:          0
+								type:        "persistent-claim"
+								size:        "\(kafka.replicas.sizeGB)Gi"
+								deleteClaim: config.storage.deleteClaim
+							},
+						]
+					}
+				}
+			}
+		}
 		"\($metadata.id)-cluster": resources.#KafkaCluster & {
 			#KubernetesResource
 			metadata: {
@@ -43,8 +103,9 @@ import (
 			}
 			spec: {
 				"kafka": {
-					replicas: kafka.replicas.count
-					version:  kafka.version
+					replicas:        kafka.replicas.count
+					version:         kafka.version
+					metadataVersion: "3.7-IV4"
 					listeners: [
 						{
 							name: "plain"
@@ -65,40 +126,11 @@ import (
 						"transaction.state.log.min.isr":            kafka.replicas.count - 1
 						"default.replication.factor":               kafka.replicas.count
 						"min.insync.replicas":                      kafka.replicas.count - 1
-						"inter.broker.protocol.version":            kafka.version
 					}
-					storage: {
-						type: config.storage.type
-						if config.storage.type == "jbod" {
-							volumes: [
-								{
-									id:          0
-									type:        "persistent-claim"
-									size:        "\(kafka.replicas.sizeGB)Gi"
-									deleteClaim: config.storage.deleteClaim
-								},
-							]
-						}
-					}
-				}
-				zookeeper: {
-					replicas: 3
-					if config.storage.type == "jbod" {
-						storage: {
-							type:        "persistent-claim"
-							size:        "5Gi"
-							deleteClaim: true
-						}
-					}
-					if config.storage.type == "ephemeral" {
-						storage: {
-							type: "ephemeral"
-						}
-					}
-
 				}
 				entityOperator: {
 					userOperator: {}
+					topicOperator: {}
 				}
 			}
 
