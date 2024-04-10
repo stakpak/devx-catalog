@@ -5,9 +5,9 @@ import (
 	"k8s.io/api/core/v1"
 )
 
-#KubeVersion: [=~"^0\\.39\\."]: minor: >=21
+#KubeVersion: [=~"^0\\.40\\."]: minor: >=21
 
-#Values: [=~"^0\\.39\\."]: {
+#Values: [=~"^0\\.40\\."]: {
 	// # Default values for strimzi-kafka-operator.
 	// # Default replicas for the cluster operator
 	replicas: uint | *1
@@ -19,7 +19,7 @@ import (
 
 	defaultImageRegistry:   string | *"quay.io"
 	defaultImageRepository: string | *"strimzi"
-	defaultImageTag:        string | *"0.39.0"
+	defaultImageTag:        string | *"0.40.0"
 
 	image: {
 		registry:   string | *""
@@ -36,7 +36,7 @@ import (
 	fullReconciliationIntervalMs: uint | *120000
 	operationTimeoutMs:           uint | *300000
 	kubernetesServiceDnsDomain:   string | *"cluster.local"
-	featureGates:                 string | *"+UseKRaft"
+	featureGates:                 string | *""
 	tmpDirSizeLimit:              string | *"1Mi"
 
 	// Additional environment variables
@@ -140,7 +140,7 @@ import (
 			registry:   string | *""
 			repository: string | *""
 			name:       string | *"kafka-bridge"
-			tag:        string | *"0.27.0"
+			tag:        string | *"0.28.0"
 		}
 	}
 	kafkaExporter: {
@@ -194,10 +194,19 @@ import (
 		}
 	}
 
+	livenessProbe: v1.#Probe | *{
+		initialDelaySeconds: int | *10
+		periodSeconds:       int | *30
+	}
+	readinessProbe: v1.#Probe | *{
+		initialDelaySeconds: int | *10
+		periodSeconds:       int | *30
+	}
+
 	createGlobalResources: bool | *true
 	// # Create clusterroles that extend existing clusterroles to interact with strimzi crds
 	// # Ref: https://kubernetes.io/docs/reference/access-authn-authz/rbac/#aggregated-clusterroles
-	createAggregateRoles: bool | *true
+	createAggregateRoles: bool | *false
 	// # Override the exclude pattern for exclude some labels
 	labelsExclusionPattern: string | *""
 	// # Controls whether Strimzi generates network policy resources (By default true)
