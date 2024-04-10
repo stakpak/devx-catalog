@@ -45,7 +45,6 @@ import (
 	spec: {
 		kafka: {
 			version:         string
-			metadataVersion: string
 			replicas:        int
 			listeners: [...{
 				name: string
@@ -59,6 +58,7 @@ import (
 				"transaction.state.log.min.isr":            uint
 				"default.replication.factor":               uint
 				"min.insync.replicas":                      uint
+				"inter.broker.protocol.version":            string
 			}
 			storage: {
 				type: "jbod" | "ephemeral"

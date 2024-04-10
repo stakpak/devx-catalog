@@ -16,7 +16,7 @@ import (
 		url:      "oci://quay.io/strimzi-helm"
 		chart:    "strimzi-kafka-operator"
 
-		version: string | *"0.39.0"
+		version: string | *"0.40.0"
 
 		namespace: string | *"kafka"
 		release:   string
