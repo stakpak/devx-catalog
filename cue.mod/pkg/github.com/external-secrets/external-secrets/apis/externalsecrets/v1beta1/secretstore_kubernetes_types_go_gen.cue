@@ -32,7 +32,7 @@ import esmeta "github.com/external-secrets/external-secrets/apis/meta/v1"
 	// Remote namespace to fetch the secrets from
 	// +kubebuilder:default= default
 	// +optional
-	remoteNamespace: string @go(RemoteNamespace)
+	remoteNamespace?: string @go(RemoteNamespace)
 }
 
 // +kubebuilder:validation:MinProperties=1

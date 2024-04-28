@@ -8,7 +8,11 @@ import esmeta "github.com/external-secrets/external-secrets/apis/meta/v1"
 
 // AlibabaAuth contains a secretRef for credentials.
 #AlibabaAuth: {
-	secretRef: #AlibabaAuthSecretRef @go(SecretRef)
+	// +optional
+	secretRef?: null | #AlibabaAuthSecretRef @go(SecretRef,*AlibabaAuthSecretRef)
+
+	// +optional
+	rrsa?: null | #AlibabaRRSAAuth @go(RRSAAuth,*AlibabaRRSAAuth)
 }
 
 // AlibabaAuthSecretRef holds secret references for Alibaba credentials.
@@ -20,12 +24,17 @@ import esmeta "github.com/external-secrets/external-secrets/apis/meta/v1"
 	accessKeySecretSecretRef: esmeta.#SecretKeySelector @go(AccessKeySecret)
 }
 
+// Authenticate against Alibaba using RRSA.
+#AlibabaRRSAAuth: {
+	oidcProviderArn:   string @go(OIDCProviderARN)
+	oidcTokenFilePath: string @go(OIDCTokenFilePath)
+	roleArn:           string @go(RoleARN)
+	sessionName:       string @go(SessionName)
+}
+
 // AlibabaProvider configures a store to sync secrets using the Alibaba Secret Manager provider.
 #AlibabaProvider: {
-	auth?: null | #AlibabaAuth @go(Auth,*AlibabaAuth)
-
-	// +optional
-	endpoint: string @go(Endpoint)
+	auth: #AlibabaAuth @go(Auth)
 
 	// Alibaba Region to be used for the provider
 	regionID: string @go(RegionID)

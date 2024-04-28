@@ -82,11 +82,19 @@ import (
 // we can not use native corev1.Secret, it will have empty ObjectMeta values: https://github.com/kubernetes-sigs/controller-tools/issues/448
 #ExternalSecretTemplate: {
 	// +optional
-	type?:          corev1.#SecretType     @go(Type)
+	type?: corev1.#SecretType @go(Type)
+
+	// EngineVersion specifies the template engine version
+	// that should be used to compile/execute the
+	// template specified in .data and .templateFrom[].
+	// +kubebuilder:default="v2"
 	engineVersion?: #TemplateEngineVersion @go(EngineVersion)
 
 	// +optional
 	metadata?: #ExternalSecretTemplateMetadata @go(Metadata)
+
+	// +kubebuilder:default="Replace"
+	mergePolicy?: #TemplateMergePolicy @go(MergePolicy)
 
 	// +optional
 	data?: {[string]: string} @go(Data,map[string]string)
@@ -95,6 +103,17 @@ import (
 	templateFrom?: [...#TemplateFrom] @go(TemplateFrom,[]TemplateFrom)
 }
 
+// +kubebuilder:validation:Enum=Replace;Merge
+#TemplateMergePolicy: string // #enumTemplateMergePolicy
+
+#enumTemplateMergePolicy:
+	#MergePolicyReplace |
+	#MergePolicyMerge
+
+#MergePolicyReplace: #TemplateMergePolicy & "Replace"
+#MergePolicyMerge:   #TemplateMergePolicy & "Merge"
+
+// +kubebuilder:validation:Enum=v1;v2
 #TemplateEngineVersion: string // #enumTemplateEngineVersion
 
 #enumTemplateEngineVersion:
@@ -117,6 +136,7 @@ import (
 	literal?: null | string @go(Literal,*string)
 }
 
+// +kubebuilder:validation:Enum=Values;KeysAndValues
 #TemplateScope: string // #enumTemplateScope
 
 #enumTemplateScope:
@@ -126,6 +146,7 @@ import (
 #TemplateScopeValues:        #TemplateScope & "Values"
 #TemplateScopeKeysAndValues: #TemplateScope & "KeysAndValues"
 
+// +kubebuilder:validation:Enum=Data;Annotations;Labels
 #TemplateTarget: string // #enumTemplateTarget
 
 #enumTemplateTarget:
@@ -191,7 +212,7 @@ import (
 
 	// SourceRef allows you to override the source
 	// from which the value will pulled from.
-	sourceRef?: null | #SourceRef @go(SourceRef,*SourceRef)
+	sourceRef?: null | #StoreSourceRef @go(SourceRef,*StoreSourceRef)
 }
 
 // ExternalSecretDataRemoteRef defines Provider data location.
@@ -201,6 +222,7 @@ import (
 
 	// +optional
 	// Policy for fetching tags/labels from provider secrets, possible options are Fetch, None. Defaults to None
+	// +kubebuilder:default="None"
 	metadataPolicy?: #ExternalSecretMetadataPolicy @go(MetadataPolicy)
 
 	// +optional
@@ -222,6 +244,7 @@ import (
 	decodingStrategy?: #ExternalSecretDecodingStrategy @go(DecodingStrategy)
 }
 
+// +kubebuilder:validation:Enum=None;Fetch
 #ExternalSecretMetadataPolicy: string // #enumExternalSecretMetadataPolicy
 
 #enumExternalSecretMetadataPolicy:
@@ -231,6 +254,7 @@ import (
 #ExternalSecretMetadataPolicyNone:  #ExternalSecretMetadataPolicy & "None"
 #ExternalSecretMetadataPolicyFetch: #ExternalSecretMetadataPolicy & "Fetch"
 
+// +kubebuilder:validation:Enum=Default;Unicode
 #ExternalSecretConversionStrategy: string // #enumExternalSecretConversionStrategy
 
 #enumExternalSecretConversionStrategy:
@@ -240,6 +264,7 @@ import (
 #ExternalSecretConversionDefault: #ExternalSecretConversionStrategy & "Default"
 #ExternalSecretConversionUnicode: #ExternalSecretConversionStrategy & "Unicode"
 
+// +kubebuilder:validation:Enum=Auto;Base64;Base64URL;None
 #ExternalSecretDecodingStrategy: string // #enumExternalSecretDecodingStrategy
 
 #enumExternalSecretDecodingStrategy:
@@ -275,7 +300,7 @@ import (
 	// a specific SecretStore.
 	// When sourceRef points to a generator Extract or Find is not supported.
 	// The generator returns a static map of values
-	sourceRef?: null | #SourceRef @go(SourceRef,*SourceRef)
+	sourceRef?: null | #StoreGeneratorSourceRef @go(SourceRef,*StoreGeneratorSourceRef)
 }
 
 #ExternalSecretRewrite: {
@@ -283,6 +308,11 @@ import (
 	// The resulting key will be the output of a regexp.ReplaceAll operation.
 	// +optional
 	regexp?: null | #ExternalSecretRewriteRegexp @go(Regexp,*ExternalSecretRewriteRegexp)
+
+	// Used to apply string transformation on the secrets.
+	// The resulting key will be the output of the template applied by the operation.
+	// +optional
+	transform?: null | #ExternalSecretRewriteTransform @go(Transform,*ExternalSecretRewriteTransform)
 }
 
 #ExternalSecretRewriteRegexp: {
@@ -291,6 +321,12 @@ import (
 
 	// Used to define the target pattern of a ReplaceAll operation.
 	target: string @go(Target)
+}
+
+#ExternalSecretRewriteTransform: {
+	// Used to define the template to apply on the secret name.
+	// `.value ` will specify the secret name in the template.
+	template: string @go(Template)
 }
 
 #ExternalSecretFind: {
@@ -326,7 +362,7 @@ import (
 // ExternalSecretSpec defines the desired state of ExternalSecret.
 #ExternalSecretSpec: {
 	// +optional
-	secretStoreRef: #SecretStoreRef @go(SecretStoreRef)
+	secretStoreRef?: #SecretStoreRef @go(SecretStoreRef)
 
 	// +kubebuilder:default={creationPolicy:Owner,deletionPolicy:Retain}
 	// +optional
@@ -348,15 +384,30 @@ import (
 	dataFrom?: [...#ExternalSecretDataFromRemoteRef] @go(DataFrom,[]ExternalSecretDataFromRemoteRef)
 }
 
-// SourceRef allows you to override the source
+// StoreSourceRef allows you to override the SecretStore source
 // from which the secret will be pulled from.
 // You can define at maximum one property.
 // +kubebuilder:validation:MaxProperties=1
-#SourceRef: {
+#StoreSourceRef: {
+	// +optional
+	storeRef?: #SecretStoreRef @go(SecretStoreRef)
+
+	// GeneratorRef points to a generator custom resource.
+	//
+	// Deprecated: The generatorRef is not implemented in .data[].
+	// this will be removed with v1.
+	generatorRef?: null | #GeneratorRef @go(GeneratorRef,*GeneratorRef)
+}
+
+// StoreGeneratorSourceRef allows you to override the source
+// from which the secret will be pulled from.
+// You can define at maximum one property.
+// +kubebuilder:validation:MaxProperties=1
+#StoreGeneratorSourceRef: {
 	// +optional
 	storeRef?: null | #SecretStoreRef @go(SecretStoreRef,*SecretStoreRef)
 
-	// GeneratorRef points to a generator custom resource in
+	// GeneratorRef points to a generator custom resource.
 	// +optional
 	generatorRef?: null | #GeneratorRef @go(GeneratorRef,*GeneratorRef)
 }
@@ -424,6 +475,9 @@ import (
 
 	// +optional
 	conditions?: [...#ExternalSecretStatusCondition] @go(Conditions,[]ExternalSecretStatusCondition)
+
+	// Binding represents a servicebinding.io Provisioned Service reference to the secret
+	binding?: corev1.#LocalObjectReference @go(Binding)
 }
 
 // +kubebuilder:object:root=true
@@ -444,6 +498,10 @@ import (
 
 // AnnotationDataHash is used to ensure consistency.
 #AnnotationDataHash: "reconcile.external-secrets.io/data-hash"
+
+// LabelOwner points to the owning ExternalSecret resource
+//  and is used to manage the lifecycle of a Secret
+#LabelOwner: "reconcile.external-secrets.io/created-by"
 
 // ExternalSecretList contains a list of ExternalSecret resources.
 #ExternalSecretList: {

@@ -29,7 +29,7 @@ import esmeta "github.com/external-secrets/external-secrets/apis/meta/v1"
 	// Reference to a Secret that contains the details
 	// to authenticate with Akeyless.
 	// +optional
-	secretRef: #AkeylessAuthSecretRef @go(SecretRef)
+	secretRef?: #AkeylessAuthSecretRef @go(SecretRef)
 
 	// Kubernetes authenticates with Akeyless by passing the ServiceAccount
 	// token stored in the named Secret resource.
