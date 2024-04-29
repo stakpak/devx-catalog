@@ -3,6 +3,8 @@ package resources
 import (
 	"stakpak.dev/devx/k8s"
 	"github.com/external-secrets/external-secrets/apis/externalsecrets/v1beta1"
+	"github.com/external-secrets/external-secrets/apis/generators/v1alpha1"
+
 )
 
 #ClusterSecretStore: {
@@ -38,5 +40,13 @@ import (
 	v1beta1.#ExternalSecret
 	apiVersion: "external-secrets.io/v1beta1"
 	kind:       "ExternalSecret"
+	metadata: namespace!: string
+}
+
+#ECRAuthorizationToken: {
+	k8s.#KubernetesResource
+	v1alpha1.#ECRAuthorizationToken
+	apiVersion: "generators.external-secrets.io/v1alpha1"
+	kind:       "ECRAuthorizationToken"
 	metadata: namespace!: string
 }

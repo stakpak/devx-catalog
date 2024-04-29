@@ -127,7 +127,7 @@ import (
 			failureThreshold: uint | *3
 			replicas:         uint | *replicas.min
 		}
-		triggers: [...keda.#CPUTrigger | keda.#MemoryTrigger | keda.#RabbitMQTrigger ]
+		triggers: [...keda.#CPUTrigger | keda.#MemoryTrigger | keda.#RabbitMQTrigger]
 	}
 }
 
@@ -262,6 +262,16 @@ import (
 	secrets: [string]: v1.#Secret
 }
 
+#ImagePullSecret: v1.#Trait & {
+	$metadata: traits: ImagePullSecret: null
+	secret: {
+		provider:        "aws"
+		region:          string
+		accessKey:       v1.#Secret
+		secretAccessKey: v1.#Secret
+	}
+}
+
 // a network ingress for web traffic
 #Gateway: v1.#Trait & {
 	$metadata: traits: Gateway: null
@@ -281,7 +291,7 @@ import (
 				}
 			}
 		}
-		_validate: [ for _, l in listeners {"\(l.port)/\(l.protocol)"}] & list.UniqueItems()
+		_validate: [for _, l in listeners {"\(l.port)/\(l.protocol)"}] & list.UniqueItems()
 	}
 }
 
@@ -301,7 +311,7 @@ import (
 			}
 		}
 	}
-	_validate: [ for _, l in listeners {"\(l.port)/\(l.protocol)"}] & list.UniqueItems()
+	_validate: [for _, l in listeners {"\(l.port)/\(l.protocol)"}] & list.UniqueItems()
 }
 
 #BackendSpec: {

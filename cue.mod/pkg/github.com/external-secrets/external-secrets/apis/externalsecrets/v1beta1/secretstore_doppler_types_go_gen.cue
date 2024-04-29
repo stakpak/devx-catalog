@@ -32,7 +32,7 @@ import esmeta "github.com/external-secrets/external-secrets/apis/meta/v1"
 	config?: string @go(Config)
 
 	// Environment variable compatible name transforms that change secret names to a different format
-	// +kubebuilder:validation:Enum=upper-camel;camel;lower-snake;tf-var;dotnet-env
+	// +kubebuilder:validation:Enum=upper-camel;camel;lower-snake;tf-var;dotnet-env;lower-kebab
 	// +optional
 	nameTransformer?: string @go(NameTransformer)
 

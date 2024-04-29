@@ -6,6 +6,23 @@ package v1beta1
 
 import esmeta "github.com/external-secrets/external-secrets/apis/meta/v1"
 
+// +kubebuilder:validation:Enum="";UserPrincipal;InstancePrincipal;Workload
+#OraclePrincipalType: string // #enumOraclePrincipalType
+
+#enumOraclePrincipalType:
+	#UserPrincipal |
+	#InstancePrincipal |
+	#WorkloadPrincipal
+
+// UserPrincipal represents a user principal.
+#UserPrincipal: #OraclePrincipalType & "UserPrincipal"
+
+// InstancePrincipal represents a instance principal.
+#InstancePrincipal: #OraclePrincipalType & "InstancePrincipal"
+
+// WorkloadPrincipal represents a workload principal.
+#WorkloadPrincipal: #OraclePrincipalType & "Workload"
+
 // Configures an store to sync secrets using a Oracle Vault
 // backend.
 #OracleProvider: {
@@ -15,10 +32,31 @@ import esmeta "github.com/external-secrets/external-secrets/apis/meta/v1"
 	// Vault is the vault's OCID of the specific vault where secret is located.
 	vault: string @go(Vault)
 
+	// Compartment is the vault compartment OCID.
+	// Required for PushSecret
+	// +optional
+	compartment?: string @go(Compartment)
+
+	// EncryptionKey is the OCID of the encryption key within the vault.
+	// Required for PushSecret
+	// +optional
+	encryptionKey?: string @go(EncryptionKey)
+
+	// The type of principal to use for authentication. If left blank, the Auth struct will
+	// determine the principal type. This optional field must be specified if using
+	// workload identity.
+	// +optional
+	principalType?: #OraclePrincipalType @go(PrincipalType)
+
 	// Auth configures how secret-manager authenticates with the Oracle Vault.
 	// If empty, use the instance principal, otherwise the user credentials specified in Auth.
 	// +optional
 	auth?: null | #OracleAuth @go(Auth,*OracleAuth)
+
+	// ServiceAccountRef specified the service account
+	// that should be used when authenticating with WorkloadIdentity.
+	// +optional
+	serviceAccountRef?: null | esmeta.#ServiceAccountSelector @go(ServiceAccountRef,*esmeta.ServiceAccountSelector)
 }
 
 #OracleAuth: {

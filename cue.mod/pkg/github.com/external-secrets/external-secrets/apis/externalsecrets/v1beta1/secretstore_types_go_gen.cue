@@ -11,10 +11,10 @@ import (
 
 // SecretStoreSpec defines the desired state of SecretStore.
 #SecretStoreSpec: {
-	// Used to select the correct KES controller (think: ingress.ingressClassName)
-	// The KES controller is instantiated with a specific controller name and filters ES based on this property
+	// Used to select the correct ESO controller (think: ingress.ingressClassName)
+	// The ESO controller is instantiated with a specific controller name and filters ES based on this property
 	// +optional
-	controller: string @go(Controller)
+	controller?: string @go(Controller)
 
 	// Used to configure the provider. Only one provider may be set
 	provider?: null | #SecretStoreProvider @go(Provider,*SecretStoreProvider)
@@ -25,7 +25,7 @@ import (
 
 	// Used to configure store refresh interval in seconds. Empty or 0 will default to the controller config.
 	// +optional
-	refreshInterval: int @go(RefreshInterval)
+	refreshInterval?: int @go(RefreshInterval)
 
 	// Used to constraint a ClusterSecretStore to specific namespaces. Relevant only to ClusterSecretStore
 	// +optional
@@ -83,7 +83,7 @@ import (
 	// +optional
 	yandexlockbox?: null | #YandexLockboxProvider @go(YandexLockbox,*YandexLockboxProvider)
 
-	// Gitlab configures this store to sync secrets using Gitlab Variables provider
+	// GitLab configures this store to sync secrets using GitLab Variables provider
 	// +optional
 	gitlab?: null | #GitlabProvider @go(Gitlab,*GitlabProvider)
 
@@ -119,9 +119,40 @@ import (
 	// +optional
 	doppler?: null | #DopplerProvider @go(Doppler,*DopplerProvider)
 
+	// Onboardbase configures this store to sync secrets using the Onboardbase provider
+	// +optional
+	onboardbase?: null | #OnboardbaseProvider @go(Onboardbase,*OnboardbaseProvider)
+
 	// KeeperSecurity configures this store to sync secrets using the KeeperSecurity provider
 	// +optional
 	keepersecurity?: null | #KeeperSecurityProvider @go(KeeperSecurity,*KeeperSecurityProvider)
+
+	// Conjur configures this store to sync secrets using conjur provider
+	// +optional
+	conjur?: null | #ConjurProvider @go(Conjur,*ConjurProvider)
+
+	// Delinea DevOps Secrets Vault
+	// https://docs.delinea.com/online-help/products/devops-secrets-vault/current
+	// +optional
+	delinea?: null | #DelineaProvider @go(Delinea,*DelineaProvider)
+
+	// Chef configures this store to sync secrets with chef server
+	// +optional
+	chef?: null | #ChefProvider @go(Chef,*ChefProvider)
+
+	// Pulumi configures this store to sync secrets using the Pulumi provider
+	// +optional
+	pulumi?: null | #PulumiProvider @go(Pulumi,*PulumiProvider)
+
+	// Fortanix configures this store to sync secrets using the Fortanix provider
+	// +optional
+	fortanix?: null | #FortanixProvider @go(Fortanix,*FortanixProvider)
+
+	// +optional
+	passworddepot?: null | #PasswordDepotProvider @go(PasswordDepot,*PasswordDepotProvider)
+
+	// +optional
+	passbolt?: null | #PassboltProvider @go(Passbolt,*PassboltProvider)
 }
 
 #CAProviderType: string // #enumCAProviderType
@@ -199,10 +230,10 @@ import (
 // SecretStoreStatus defines the observed state of the SecretStore.
 #SecretStoreStatus: {
 	// +optional
-	conditions: [...#SecretStoreStatusCondition] @go(Conditions,[]SecretStoreStatusCondition)
+	conditions?: [...#SecretStoreStatusCondition] @go(Conditions,[]SecretStoreStatusCondition)
 
 	// +optional
-	capabilities: #SecretStoreCapabilities @go(Capabilities)
+	capabilities?: #SecretStoreCapabilities @go(Capabilities)
 }
 
 // SecretStore represents a secure external location for storing secrets, which can be referenced as part of `storeRef` fields.

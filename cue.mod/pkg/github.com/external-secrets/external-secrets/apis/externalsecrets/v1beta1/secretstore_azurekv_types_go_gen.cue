@@ -58,7 +58,7 @@ import smmeta "github.com/external-secrets/external-secrets/apis/meta/v1"
 	// Vault Url from which the secrets to be fetched from.
 	vaultUrl?: null | string @go(VaultURL,*string)
 
-	// TenantID configures the Azure Tenant to send requests to. Required for ServicePrincipal auth type.
+	// TenantID configures the Azure Tenant to send requests to. Required for ServicePrincipal auth type. Optional for WorkloadIdentity.
 	// +optional
 	tenantId?: null | string @go(TenantID,*string)
 
@@ -69,7 +69,7 @@ import smmeta "github.com/external-secrets/external-secrets/apis/meta/v1"
 	// +kubebuilder:default=PublicCloud
 	environmentType?: #AzureEnvironmentType @go(EnvironmentType)
 
-	// Auth configures how the operator authenticates with Azure. Required for ServicePrincipal auth type.
+	// Auth configures how the operator authenticates with Azure. Required for ServicePrincipal auth type. Optional for WorkloadIdentity.
 	// +optional
 	authSecretRef?: null | #AzureKVAuth @go(AuthSecretRef,*AzureKVAuth)
 
@@ -85,9 +85,13 @@ import smmeta "github.com/external-secrets/external-secrets/apis/meta/v1"
 
 // Configuration used to authenticate with Azure.
 #AzureKVAuth: {
-	// The Azure clientId of the service principle used for authentication.
+	// The Azure clientId of the service principle or managed identity used for authentication.
 	// +optional
 	clientId?: null | smmeta.#SecretKeySelector @go(ClientID,*smmeta.SecretKeySelector)
+
+	// The Azure tenantId of the managed identity used for authentication.
+	// +optional
+	tenantId?: null | smmeta.#SecretKeySelector @go(TenantID,*smmeta.SecretKeySelector)
 
 	// The Azure ClientSecret of the service principle used for authentication.
 	// +optional

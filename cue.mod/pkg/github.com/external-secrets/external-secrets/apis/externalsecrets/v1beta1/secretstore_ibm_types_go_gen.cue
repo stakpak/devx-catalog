@@ -19,8 +19,8 @@ import esmeta "github.com/external-secrets/external-secrets/apis/meta/v1"
 // +kubebuilder:validation:MinProperties=1
 // +kubebuilder:validation:MaxProperties=1
 #IBMAuth: {
-	secretRef?:     #IBMAuthSecretRef     @go(SecretRef)
-	containerAuth?: #IBMAuthContainerAuth @go(ContainerAuth)
+	secretRef?:     null | #IBMAuthSecretRef     @go(SecretRef,*IBMAuthSecretRef)
+	containerAuth?: null | #IBMAuthContainerAuth @go(ContainerAuth,*IBMAuthContainerAuth)
 }
 
 #IBMAuthSecretRef: {

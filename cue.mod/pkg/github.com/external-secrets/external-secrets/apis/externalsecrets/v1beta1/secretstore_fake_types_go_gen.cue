@@ -12,6 +12,8 @@ package v1beta1
 #FakeProviderData: {
 	key:    string @go(Key)
 	value?: string @go(Value)
+
+	// Deprecated: ValueMap is deprecated and is intended to be removed in the future, use the `value` field instead.
 	valueMap?: {[string]: string} @go(ValueMap,map[string]string)
 	version?: string @go(Version)
 }
