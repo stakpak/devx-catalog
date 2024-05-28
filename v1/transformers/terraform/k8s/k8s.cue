@@ -12,12 +12,18 @@ import (
 	k8sResources: _
 	$resources: terraform: schema.#Terraform & {
 		for name, resource in k8sResources {
-			"resource": kubernetes_manifest: "\($metadata.id)_\(name)": manifest: {
-				resource
+			"resource": kubernetes_manifest: "\($metadata.id)_\(name)": {
+				manifest: {
+					resource
+				}
+				if $metadata.labels.force_conflicts != _|_ {
+					field_manager: force_conflicts: true
+				}
 			}
 		}
 	}
 }
+
 
 #AddKubernetesCronJob: v1.Transformer & {
 	traits.#Cronable
