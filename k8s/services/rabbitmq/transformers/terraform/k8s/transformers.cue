@@ -35,6 +35,9 @@ import (
 					image:    "rabbitmq:\(rabbitmq.version)"
 				}
 			}
+			if $metadata.labels.force_conflicts != _|_ {
+				field_manager: force_conflicts: true
+			}
 		}
 	}
 }

@@ -43,64 +43,69 @@ import (
 	$resources: terraform: schema.#Terraform & {
 		resource: kubernetes_manifest: {
 			for secretName, obj in secretObjs {
-				"\(secretName)_external_secret": manifest: resources.#ExternalSecret & {
-					metadata: {
-						name:      secretName
-						namespace: k8s.namespace
-					}
-					spec: {
-						refreshInterval: externalSecret.refreshInterval
-						secretStoreRef: {
-							name: externalSecret.storeRef.name
-							kind: externalSecret.storeRef.kind
+				"\(secretName)_external_secret": {
+					manifest: resources.#ExternalSecret & {
+						metadata: {
+							name:      secretName
+							namespace: k8s.namespace
 						}
-
-						if obj.template == _|_ {
-							if len(obj.properties) == 0 {
-								data: [{
-									secretKey: "value"
-									remoteRef: {
-										key:              secretName
-										version:          obj.data.version | *"latest"
-										decodingStrategy: externalSecret.decodingStrategy
-									}
-								}]
+						spec: {
+							refreshInterval: externalSecret.refreshInterval
+							secretStoreRef: {
+								name: externalSecret.storeRef.name
+								kind: externalSecret.storeRef.kind
 							}
-							if len(obj.properties) > 0 {
-								data: [
-									for propertyName, _ in obj.properties {
-										secretKey: propertyName
+
+							if obj.template == _|_ {
+								if len(obj.properties) == 0 {
+									data: [{
+										secretKey: "value"
 										remoteRef: {
 											key:              secretName
 											version:          obj.data.version | *"latest"
-											property:         propertyName
+											decodingStrategy: externalSecret.decodingStrategy
+										}
+									}]
+								}
+								if len(obj.properties) > 0 {
+									data: [
+										for propertyName, _ in obj.properties {
+											secretKey: propertyName
+											remoteRef: {
+												key:              secretName
+												version:          obj.data.version | *"latest"
+												property:         propertyName
+												decodingStrategy: externalSecret.decodingStrategy
+											}
+										},
+									]
+								}
+							}
+							if obj.template != _|_ {
+								target: template: {
+									engineVersion: "v2"
+									data: [{
+										value: obj.template.value
+									}]
+								}
+								data: [
+									for propertyName, propertyObj in obj.template.properties {
+										secretKey: propertyName
+										remoteRef: {
+											key:     propertyObj.name
+											version: obj.data.version | *"latest"
+											if propertyObj.property != _|_ {
+												property: propertyObj.property
+											}
 											decodingStrategy: externalSecret.decodingStrategy
 										}
 									},
 								]
 							}
 						}
-						if obj.template != _|_ {
-							target: template: {
-								engineVersion: "v2"
-								data: [{
-									value: obj.template.value
-								}]
-							}
-							data: [
-								for propertyName, propertyObj in obj.template.properties {
-									secretKey: propertyName
-									remoteRef: {
-										key:     propertyObj.name
-										version: obj.data.version | *"latest"
-										if propertyObj.property != _|_ {
-											property: propertyObj.property
-										}
-										decodingStrategy: externalSecret.decodingStrategy
-									}
-								},
-							]
-						}
+					}
+					if $metadata.labels.force_conflicts != _|_ {
+						field_manager: force_conflicts: true
 					}
 				}
 			}
