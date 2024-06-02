@@ -388,6 +388,14 @@ _CreateContainers: {
 									}
 								}
 							}
+							if volume.local != _|_ {
+								{
+									name: volume.local.name
+									persistentVolumeClaim: {
+										claimName: "pvc-\(volume.local.name)"
+									}
+								}
+							}
 						},
 					]
 					"containers": [
@@ -397,6 +405,9 @@ _CreateContainers: {
 									{
 										if mount.volume.ephemeral != _|_ {
 											name: mount.volume.ephemeral
+										}
+										if mount.volume.local != _|_ {
+											name: mount.volume.local
 										}
 										if mount.volume.secret != _|_ {
 											name: mount.volume.secret.name
@@ -408,6 +419,82 @@ _CreateContainers: {
 							]
 						},
 					]
+				}
+			}
+		}
+	}
+}
+
+#AddWorkloadLocalVolumes: v1.#Transformer & {
+	v1.#Component
+	traits.#Volume
+
+	volumes: _
+
+	$resources: {
+		for _, volume in volumes {
+			if volume.local != _|_ {
+				"local-pv-\(volume.local.name)": {
+					_#KubernetesMeta
+					$metadata: labels: {
+						driver: "kubernetes"
+						type:   "k8s.io/api/v1/PersistentVolume"
+					}
+					apiVersion: "v1"
+					kind:       "PersistentVolume"
+					metadata: {
+						name: "local-pv-\(volume.local.name)"
+					}
+					spec: {
+						capacity: {
+							storage: volume.local.storage
+						}
+						accessModes:                   volume.local.accessModes
+						persistentVolumeReclaimPolicy: "Retain"
+						storageClassName:              "local-storage"
+						local: {
+							path: volume.local.path
+						}
+						nodeAffinity: {
+							required: {
+								nodeSelectorTerms: [
+									{
+										matchExpressions: [
+											{
+												key:      "kubernetes.io/hostname"
+												operator: "In"
+												values: [
+													volume.local.node,
+												]
+											},
+										]
+									},
+								]
+							}
+						}
+					}
+				}
+				"pvc-\(volume.local.name)": {
+					_#KubernetesMeta
+					$metadata: labels: {
+						driver: "kubernetes"
+						type:   "k8s.io/api/v1/PersistentVolumeClaim"
+					}
+					apiVersion: "v1"
+					kind:       "PersistentVolumeClaim"
+					metadata: {
+						name: "pvc-\(volume.local.name)"
+					}
+					spec: {
+						accessModes:       volume.local.accessModes
+						storageClassName:  "local-storage"
+						resources: {
+							requests: {
+								storage: volume.local.storage
+							}
+						}
+						volumeName: "local-pv-\(volume.local.name)"
+					}
 				}
 			}
 		}
@@ -466,7 +553,7 @@ _#IngressResource: {
 		}
 		spec: {
 			"ingressClassName": ingressClassName
-			let routeRules = [ for rule in http.rules {
+			let routeRules = [for rule in http.rules {
 				http: {
 					paths: [{
 						if strings.HasSuffix(rule.match.path, "*") {
