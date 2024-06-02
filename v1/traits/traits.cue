@@ -199,7 +199,14 @@ import (
 
 // work around ambiguous disjunctions by disallowing fields
 #VolumeSpec: {
-	local:       string
+	local: {
+		name:       string
+		storage:    string
+		volumeMode: string | *"Filesystem"
+		accessModes: [string] | *["ReadWriteOnce"]
+		path: string
+		node: string
+	} | string
 	secret?:     _|_
 	ephemeral?:  _|_
 	persistent?: _|_
@@ -225,7 +232,14 @@ import (
 	$metadata: traits: Volume: null
 
 	volumes: [string]: #VolumeSpec & {
-		local:       string
+		local: {
+			name:       string
+			storage:    string
+			volumeMode: string | *"Filesystem"
+			accessModes: [string] | *["ReadWriteOnce"]
+			path: string
+			node: string
+		} | string
 		secret?:     _|_
 		ephemeral?:  _|_
 		persistent?: _|_
