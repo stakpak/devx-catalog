@@ -239,7 +239,7 @@ import (
 			accessModes: [string] | *["ReadWriteOnce"]
 			path: string
 			node: string
-		}
+		} | string
 		secret?:     _|_
 		ephemeral?:  _|_
 		persistent?: _|_
