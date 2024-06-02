@@ -379,6 +379,15 @@ _CreateContainers: {
 									emptyDir: {}
 								}
 							}
+							if volume.hostPath != _|_ {
+								{
+									name: volume.hostPath.name
+									hostPath: {
+										path: volume.hostPath.path
+										type?: volume.hostPath.type
+									}
+								}
+							}
 							if volume.secret != _|_ {
 								{
 									name: volume.secret.name
@@ -466,7 +475,7 @@ _#IngressResource: {
 		}
 		spec: {
 			"ingressClassName": ingressClassName
-			let routeRules = [ for rule in http.rules {
+			let routeRules = [for rule in http.rules {
 				http: {
 					paths: [{
 						if strings.HasSuffix(rule.match.path, "*") {

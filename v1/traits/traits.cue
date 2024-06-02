@@ -200,21 +200,35 @@ import (
 // work around ambiguous disjunctions by disallowing fields
 #VolumeSpec: {
 	local:       string
+	hostPath?:   _|_
 	secret?:     _|_
 	ephemeral?:  _|_
 	persistent?: _|_
 } | {
 	ephemeral:   string
+	hostPath?:   _|_
 	local?:      _|_
 	secret?:     _|_
 	persistent?: _|_
 } | {
 	persistent: string
+	hostPath?:  _|_
 	ephemeral?: _|_
 	local?:     _|_
 	secret?:    _|_
 } | {
 	secret:      v1.#Secret
+	hostPath?:   _|_
+	ephemeral?:  _|_
+	local?:      _|_
+	persistent?: _|_
+} | {
+	hostPath: {
+		name:  string
+		path:  string
+		type?: "DirectoryOrCreate" | "Directory" | "FileOrCreate" | "File" | "Socket" | "CharDevice" | "BlockDevice"
+	}
+	secret?:     _|_
 	ephemeral?:  _|_
 	local?:      _|_
 	persistent?: _|_
@@ -226,21 +240,36 @@ import (
 
 	volumes: [string]: #VolumeSpec & {
 		local:       string
+		hostPath?:   _|_
 		secret?:     _|_
 		ephemeral?:  _|_
 		persistent?: _|_
 	} | {
-		ephemeral:   string
+		ephemeral: string
+		hostPath?: _|_
+
 		local?:      _|_
 		secret?:     _|_
 		persistent?: _|_
 	} | {
 		persistent: string
+		hostPath?:  _|_
 		ephemeral?: _|_
 		local?:     _|_
 		secret?:    _|_
 	} | {
 		secret:      v1.#Secret
+		hostPath?:   _|_
+		ephemeral?:  _|_
+		local?:      _|_
+		persistent?: _|_
+	} | {
+		hostPath: {
+			name:  string
+			path:  string
+			type?: "DirectoryOrCreate" | "Directory" | "FileOrCreate" | "File" | "Socket" | "CharDevice" | "BlockDevice"
+		}
+		secret?:     _|_
 		ephemeral?:  _|_
 		local?:      _|_
 		persistent?: _|_
