@@ -11,9 +11,9 @@ import (
 	traits.#KubernetesCluster
 	k8s: _
 	k8s: version: major: 1
-	k8s: version: minor: <=26 & >=24
+	k8s: version: minor: <=29 & >=27
 	azure: {
-		providerVersion:   string | *"3.69.0"
+		providerVersion:   string | *"3.106.1"
 		location:          helpers.#Location
 		resourceGroupName: string | *"k8s-rg"
 		aks: {
@@ -85,7 +85,7 @@ import (
 		...
 	}
 	azure: {
-		providerVersion:   string | *"3.69.0"
+		providerVersion:   string | *"3.106.1"
 		resourceGroupName: string | *"k8s-rg"
 		...
 	}
@@ -124,7 +124,7 @@ import (
 		...
 	}
 	azure: {
-		providerVersion:   string | *"3.69.0"
+		providerVersion:   string | *"3.106.1"
 		resourceGroupName: string | *"k8s-rg"
 		...
 	}
