@@ -111,6 +111,12 @@ import (
 	}
 }
 
+_#ScalingPolicy: {
+	type:          "Pods" | "Percent"
+	value:         uint
+	periodSeconds: uint
+}
+
 #Scalable: v1.#Trait & {
 	$metadata: traits: Scalable: null
 	scale: {
@@ -127,7 +133,12 @@ import (
 			failureThreshold: uint | *3
 			replicas:         uint | *replicas.min
 		}
+		down?: {
+			stabilizationWindowSeconds?: uint
+			policies?: [..._#ScalingPolicy]
+		}
 		triggers: [...keda.#CPUTrigger | keda.#MemoryTrigger | keda.#RabbitMQTrigger]
+
 	}
 }
 
