@@ -37,6 +37,19 @@ import (
 					replicas:         fallback.replicas
 				}
 			}
+			if scale.down != _|_ {
+				advanced: horizontalPodAutoscalerConfig: behavior: {
+					scaleDown: {
+						if scale.down.stabilizationWindowSeconds != _|_ {
+							stabilizationWindowSeconds: scale.down.stabilizationWindowSeconds
+						}
+						if scale.down.policies != _|_ {
+							policies: scale.down.policies
+						}
+					}
+				}
+			}
+
 			triggers: scale.triggers
 		}
 	}
