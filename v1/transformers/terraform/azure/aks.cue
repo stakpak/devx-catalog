@@ -59,11 +59,15 @@ import (
 				dns_prefix: azure.aks.dnsPrefix
 				default_node_pool: {
 					{
-						name:                "workerpool1"
-						vm_size:             azure.aks.nodeSize
-						node_count:          azure.aks.minCount
-						min_count:           azure.aks.minCount
-						max_count:           azure.aks.maxCount
+						name:    "workerpool1"
+						vm_size: azure.aks.nodeSize
+						if !azure.aks.nodeAutoScale {
+							node_count: azure.aks.minCount
+						}
+						if azure.aks.nodeAutoScale {
+							min_count: azure.aks.minCount
+							max_count: azure.aks.maxCount
+						}
 						enable_auto_scaling: azure.aks.nodeAutoScale
 						tags: {
 							"name": "workerpool1"
