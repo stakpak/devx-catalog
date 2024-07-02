@@ -486,8 +486,8 @@ _CreateContainers: {
 						name: "pvc-\(volume.local.name)"
 					}
 					spec: {
-						accessModes:       volume.local.accessModes
-						storageClassName:  "local-storage"
+						accessModes:      volume.local.accessModes
+						storageClassName: "local-storage"
 						resources: {
 							requests: {
 								storage: volume.local.storage
@@ -541,6 +541,7 @@ _#IngressResource: {
 	http:             _
 	ingressName:      string | *$metadata.id
 	ingressClassName: string
+	tlsSecretName:    string | *"\(ingressName)-tls-secret"
 	$resources: "\($metadata.id)-ingress": _#IngressResource & {
 		metadata: {
 			name: ingressName
@@ -591,7 +592,7 @@ _#IngressResource: {
 				tls: [
 					{
 						hosts:      http.hostnames
-						secretName: "\(ingressName)-tls-secret"
+						secretName: tlsSecretName
 					},
 				]
 			}
