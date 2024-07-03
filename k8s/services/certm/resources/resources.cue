@@ -33,6 +33,14 @@ import (
 	spec: acme: preferredChain: "ISRG Root X1"
 }
 
+#SelfSignedClusterIssuer: {
+	k8s.#KubernetesResource
+	v1.#ClusterIssuer
+	apiVersion: "cert-manager.io/v1"
+	kind:       "ClusterIssuer"
+	spec: selfSigned: {}
+}
+
 // #ClusterIssuer: v1.#Trait & {
 // 	$metadata: traits: ClusterIssuer: null
 // 	cert: {

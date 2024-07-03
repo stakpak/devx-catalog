@@ -68,3 +68,17 @@ import (
 		}
 	}
 }
+
+#SelfSignedClusterIssuer: {
+	traits.#KubernetesResources
+	certIssuer: {
+		name: string | *"selfsigned-issuer"
+	}
+	k8sResources: {
+		"cert-self-issuer-\(certIssuer.name)": resources.#SelfSignedClusterIssuer & {
+			metadata: {
+				name: certIssuer.name
+			}
+		}
+	}
+}
