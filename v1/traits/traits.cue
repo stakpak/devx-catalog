@@ -121,7 +121,7 @@ _#ScalingPolicy: {
 	$metadata: traits: Scalable: null
 	scale: {
 		replicas: {
-			idle: uint & <min | *0
+			idle: uint & <=min | *0
 			min:  uint | *1
 			max:  uint & >=min | *min
 		}
