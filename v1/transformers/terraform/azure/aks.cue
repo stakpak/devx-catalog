@@ -64,6 +64,7 @@ import (
 						if !azure.aks.nodeAutoScale {
 							node_count: azure.aks.minCount
 						}
+						orchestrator_version: "${data.azurerm_kubernetes_service_versions.\(k8s.name).latest_version}"
 						if azure.aks.nodeAutoScale {
 							min_count: azure.aks.minCount
 							max_count: azure.aks.maxCount
