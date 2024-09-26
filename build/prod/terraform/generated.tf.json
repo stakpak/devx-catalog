@@ -27,12 +27,47 @@
         "location": "East US"
       }
     },
+    "azurerm_kubernetes_cluster": {
+      "demo": {
+        "name": "demo",
+        "location": "East US",
+        "resource_group_name": "${azurerm_resource_group.demo-resource-group.name}",
+        "kubernetes_version": "${data.azurerm_kubernetes_service_versions.demo.latest_version}",
+        "identity": {
+          "type": "SystemAssigned"
+        },
+        "dns_prefix": "demo",
+        "default_node_pool": {
+          "name": "workerpool1",
+          "vm_size": "Standard_D8s_v3",
+          "orchestrator_version": "${data.azurerm_kubernetes_service_versions.demo.latest_version}",
+          "enable_auto_scaling": true,
+          "tags": {
+            "name": "workerpool1",
+            "source": "terraform"
+          },
+          "min_count": 3,
+          "temporary_name_for_rotation": "temppool1",
+          "max_count": 8
+        }
+      }
+    },
     "azurerm_subnet": {
+      "demo_aks_subnet": {
+        "name": "demo-aks-subnet",
+        "resource_group_name": "resource",
+        "virtual_network_name": "AKS-FW-Vnet",
+        "address_prefixes": [
+          "10.0.1.0/24"
+        ]
+      },
       "demo_firewall_subnet": {
         "name": "AzureFirewallSubnet",
         "resource_group_name": "resource",
-        "virtual_network_name": "fwvnet",
-        "address_prefixes": []
+        "virtual_network_name": "AKS-FW-Vnet",
+        "address_prefixes": [
+          "10.0.2.0/24"
+        ]
       }
     },
     "azurerm_public_ip": {
@@ -65,31 +100,6 @@
         "location": "East US"
       }
     },
-    "azurerm_kubernetes_cluster": {
-      "demo": {
-        "name": "demo",
-        "location": "East US",
-        "resource_group_name": "${azurerm_resource_group.demo-resource-group.name}",
-        "kubernetes_version": "${data.azurerm_kubernetes_service_versions.demo.latest_version}",
-        "identity": {
-          "type": "SystemAssigned"
-        },
-        "dns_prefix": "demo",
-        "default_node_pool": {
-          "name": "workerpool1",
-          "vm_size": "Standard_D8s_v3",
-          "orchestrator_version": "${data.azurerm_kubernetes_service_versions.demo.latest_version}",
-          "enable_auto_scaling": true,
-          "tags": {
-            "name": "workerpool1",
-            "source": "terraform"
-          },
-          "min_count": 3,
-          "temporary_name_for_rotation": "temppool1",
-          "max_count": 8
-        }
-      }
-    },
     "azurerm_firewall_policy_rule_collection_group": {
       "demo_firewall_rule_collection": {
         "name": "demo-firewall-rule-collection",
@@ -118,6 +128,43 @@
             ]
           }
         }
+      }
+    },
+    "azurerm_route_table": {
+      "demo_aks_route_table": {
+        "name": "demo-aks-route-table",
+        "location": "East US",
+        "resource_group_name": "resource"
+      }
+    },
+    "data": {
+      "azurerm_subnet": {
+        "demo_aks_subnet": {
+          "name": "demo-aks-subnet",
+          "resource_group_name": "resource"
+        }
+      },
+      "azurerm_route_table": {
+        "demo_aks_route_table": {
+          "name": "demo-aks-route-table",
+          "resource_group_name": "resource"
+        }
+      }
+    },
+    "azurerm_subnet_route_table_association": {
+      "demo_aks_route_table_assoc": {
+        "subnet_id": "${data.azurerm_subnet.demo_aks_subnet.id}",
+        "route_table_id": "${data.azurerm_route_table.demo_aks_route_table.id}"
+      }
+    },
+    "azurerm_route": {
+      "demo_route_through_firewall": {
+        "name": "demo_firewall-route",
+        "address_prefix": "0.0.0.0/0",
+        "next_hop_type": "VirtualAppliance",
+        "next_hop_in_ip_address": "azurerm_firewall.demo_firewall.ip_configuration[0].private_ip_address",
+        "route_table_name": "${data.azurerm_route_table.demo_aks_route_table.name}",
+        "resource_group_name": "resource"
       }
     }
   }

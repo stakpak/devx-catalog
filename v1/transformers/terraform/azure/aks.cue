@@ -1,6 +1,7 @@
 package azure
 
 import (
+	"net"
 	"stakpak.dev/devx/v1"
 	"stakpak.dev/devx/v1/traits"
 	schema "stakpak.dev/devx/v1/transformers/terraform"
@@ -16,6 +17,10 @@ import (
 		providerVersion:   string | *"3.106.1"
 		location:          helpers.#Location
 		resourceGroupName: string | *"k8s-rg"
+		//
+		addressAKS: [... string & net.IPCIDR]  
+		vnetName: string
+		//
 		aks: {
 			nodeSize:      string | *"Standard_D2_v2"
 			minCount:      uint | *1
@@ -81,6 +86,21 @@ import (
 					}
 				}
 
+			}
+
+			// Create Subnet For AKS
+			azurerm_subnet: "\(k8s.name)_aks_subnet": {
+			  name                 : "\(k8s.name)-aks-subnet"
+			  resource_group_name  : azure.resourceGroupName
+			  virtual_network_name : azure.vnetName
+			  address_prefixes     : azure.addressAKS
+			}
+
+			// Route Table For AKS 
+			azurerm_route_table: "\(k8s.name)_aks_route_table": {
+			  name                 : "\(k8s.name)-aks-route-table"
+			  location            : azure.location
+			  resource_group_name  : azure.resourceGroupName
 			}
 		}
 	}

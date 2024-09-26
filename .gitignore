@@ -1,2 +1,4 @@
 builders.cue
 stack.cue
+test.stack.cue
+test.builder.cue

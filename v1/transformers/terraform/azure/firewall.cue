@@ -27,7 +27,8 @@ import (
 	azure: {
 		location:          helpers.#Location  // Fetch the location using a helper transformer.
 		resourceGroupName: string             // The name of the Azure resource group (provided as input).
-        vnetName: string                      // The name of the Azure virtual network (provided as input).
+        // vnetName: string                      // The name of the Azure virtual network (provided as input).
+		addressFirewall: [... string & net.IPCIDR]  
 		... 			// added three dots to firwall transformer to which allow fields not defined
 	}
 
@@ -48,7 +49,7 @@ import (
 			protocols: ["UDP", "TCP"]          // Protocols allowed: UDP and TCP.
 		}
 	}
-	addressFirewall: [... string & net.IPCIDR]  
+	
 
     // Define the resources section, which generates the necessary Terraform resources.
 	$resources: terraform: schema.#Terraform & {
@@ -58,7 +59,7 @@ import (
 				name:                 "AzureFirewallSubnet"        // Name of the subnet.
 				resource_group_name:  azure.resourceGroupName      // Resource group name for the subnet.
 				virtual_network_name: azure.vnetName               // Virtual network name where the subnet resides.
-				address_prefixes: addressFirewall                  // CIDR block for the subnet.
+				address_prefixes: azure.addressFirewall                  // CIDR block for the subnet.
 			}
 			
 			// Define the public IP address resource for the firewall.
@@ -112,6 +113,30 @@ import (
 					}
 				}
 			}
+			// 
+			data: azurerm_subnet: "\(k8s.name)_aks_subnet": {
+				name                 : "\(k8s.name)-aks-subnet"
+				resource_group_name  : azure.resourceGroupName
+		}
+			data: azurerm_route_table: "\(k8s.name)_aks_route_table": {
+				name                 : "\(k8s.name)-aks-route-table"
+				resource_group_name  : azure.resourceGroupName
+		}
+			// Associate Route Table with AKS Subnet
+			azurerm_subnet_route_table_association: "\(k8s.name)_aks_route_table_assoc": {
+			  subnet_id      : "${data.azurerm_subnet.\(k8s.name)_aks_subnet.id}"   // Correct reference to the AKS subnet
+			  route_table_id : "${data.azurerm_route_table.\(k8s.name)_aks_route_table.id}" // Correct reference to the AKS route table
+			}
+			// Route through Azure Firewall
+			azurerm_route: "\(k8s.name)_route_through_firewall": {
+			  name                   : "\(k8s.name)_firewall-route"
+			  address_prefix         : "0.0.0.0/0"
+			  next_hop_type          : "VirtualAppliance"
+			  next_hop_in_ip_address : "azurerm_firewall.\(k8s.name)_firewall.ip_configuration[0].private_ip_address"
+			  route_table_name : "${data.azurerm_route_table.\(k8s.name)_aks_route_table.name}" 
+			  resource_group_name    : azure.resourceGroupName
+			}
+
 		}
 	}
 }
