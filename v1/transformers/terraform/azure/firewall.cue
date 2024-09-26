@@ -28,6 +28,7 @@ import (
 		location:          helpers.#Location  // Fetch the location using a helper transformer.
 		resourceGroupName: string             // The name of the Azure resource group (provided as input).
         vnetName: string                      // The name of the Azure virtual network (provided as input).
+		...
 	}
 
     // Define firewall policy structure (removing the previously open field `policy: _`).
@@ -47,6 +48,7 @@ import (
 			protocols: ["UDP", "TCP"]          // Protocols allowed: UDP and TCP.
 		}
 	}
+	addressFirewall: [... string & net.IPCIDR]  
 
     // Define the resources section, which generates the necessary Terraform resources.
 	$resources: terraform: schema.#Terraform & {
@@ -56,7 +58,7 @@ import (
 				name:                 "AzureFirewallSubnet"        // Name of the subnet.
 				resource_group_name:  azure.resourceGroupName      // Resource group name for the subnet.
 				virtual_network_name: azure.vnetName               // Virtual network name where the subnet resides.
-				address_prefixes: ["10.0.2.0/24"]                  // CIDR block for the subnet.
+				address_prefixes: addressFirewall                  // CIDR block for the subnet.
 			}
 			
 			// Define the public IP address resource for the firewall.

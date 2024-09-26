@@ -25,7 +25,10 @@ import (
 		}
 		...
 	}
+
 	$resources: terraform: schema.#Terraform & {
+		
+
 		data: "azurerm_kubernetes_service_versions": "\(k8s.name)": {
 			version_prefix: "\(k8s.version.major).\(k8s.version.minor)."
 			location:       azure.location
