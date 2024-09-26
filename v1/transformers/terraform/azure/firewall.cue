@@ -30,6 +30,7 @@ import (
         // vnetName: string                      // The name of the Azure virtual network (provided as input).
 		addressFirewall: [... string & net.IPCIDR]  
 		... 			// added three dots to firwall transformer to which allow fields not defined
+		addressSourceFW: [...net.IP] 	// Add Source Ips for Firewall
 	}
 
     // Define firewall policy structure (removing the previously open field `policy: _`).
@@ -130,7 +131,8 @@ import (
 			// Route through Azure Firewall
 			azurerm_route: "\(k8s.name)_route_through_firewall": {
 			  name                   : "\(k8s.name)_firewall-route"
-			  address_prefix         : "0.0.0.0/0"
+			//   address_prefix         : "0.0.0.0/0"
+			  address_prefix         : azure.addressSourceFW
 			  next_hop_type          : "VirtualAppliance"
 			  next_hop_in_ip_address : "azurerm_firewall.\(k8s.name)_firewall.ip_configuration[0].private_ip_address"
 			  route_table_name : "${data.azurerm_route_table.\(k8s.name)_aks_route_table.name}" 
