@@ -8,6 +8,7 @@ import (
 
 builders: v2alpha1.#Environments & {
 	prod: {
+		// add azureConfig to shared between both transformers
 		let azureConfig = {
 					resourceGroupName: "resource"
 					location:          "East US"

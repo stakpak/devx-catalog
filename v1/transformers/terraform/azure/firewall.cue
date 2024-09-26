@@ -28,7 +28,7 @@ import (
 		location:          helpers.#Location  // Fetch the location using a helper transformer.
 		resourceGroupName: string             // The name of the Azure resource group (provided as input).
         vnetName: string                      // The name of the Azure virtual network (provided as input).
-		...
+		... 			// added three dots to firwall transformer to which allow fields not defined
 	}
 
     // Define firewall policy structure (removing the previously open field `policy: _`).
