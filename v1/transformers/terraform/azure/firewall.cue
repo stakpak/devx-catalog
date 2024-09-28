@@ -19,35 +19,49 @@ import (
 
     // Define version constraints for the Kubernetes cluster.
 	k8s: version: {
-        major: 1                    // Major version must be 1.
-        minor: <=29 & >=27          // Minor version must be between 27 and 29 (inclusive).
+        major: 1                    
+        minor: <=29 & >=27          
     }
+
+	traits.#AzureAKSPolicyFirewall
+	policyFirewall: _
 
     // Define Azure-related variables such as location, resource group, and virtual network name.
 	azure: {
-		location:          helpers.#Location  // Fetch the location using a helper transformer.
-		resourceGroupName: string             // The name of the Azure resource group (provided as input).
-        // vnetName: string                      // The name of the Azure virtual network (provided as input).
+		location:          helpers.#Location  
+		resourceGroupName: string             
 		addressFirewall: [... string & net.IPCIDR]  
-		... 			// added three dots to firwall transformer to which allow fields not defined
 		addressSourceFW: [...net.IP] 	// Add Source Ips for Firewall
+		... 			// added three dots to firwall transformer to which allow fields not defined
 	}
 
     // Define firewall policy structure (removing the previously open field `policy: _`).
  	policy: {
-		priority: uint                       // Priority for the firewall policy (unsigned integer).
+		// priority: uint                     
+		// collection: {
+		// 	priority: uint                  
+		// 	name:     string                
+		// 	action:   "Allow" | "Deny"      
+	// }
+		priority: policyFirewall.policy.priority 
 		collection: {
-			priority: uint                   // Priority for the rule collection.
-			name:     string                 // Name of the rule collection (string).
-			action:   "Allow" | "Deny"       // Action: Either "Allow" or "Deny".
+			priority: policyFirewall.policy.collection.priority
+			name:    policyFirewall.policy.collection.name 
+			action: policyFirewall.policy.collection.action
 		}
 		rule: {
-			name:        string               // Name of the rule (string).
-			description: string | *""          // Optional description with a default value of an empty string.
-			source_addresses: [...net.IP] | ["*"]  // List of source IPs or wildcard "*" for all IPs.
-			destination_addresses:  [...net.IP] | ["*"]  // List of destination IPs or wildcard "*".
-			destination_ports: [...uint]       // List of destination ports (unsigned integers).
-			protocols: ["UDP", "TCP"]          // Protocols allowed: UDP and TCP.
+			// name:        string               
+			// description: string | *""          
+			// source_addresses: [...net.IP] | ["*"]  
+			// destination_addresses:  [...net.IP] | ["*"]  
+			// destination_ports: [...uint]      
+			// protocols: ["UDP", "TCP"]         
+			name: policyFirewall.policy.rule.name
+			description:  policyFirewall.policy.rule.description
+			source_addresses:  policyFirewall.policy.rule.source_addresses
+			destination_addresses:  policyFirewall.policy.rule.destination_addresses
+			destination_ports: policyFirewall.policy.rule.destination_ports
+			protocols: policyFirewall.policy.rule.protocols
 		}
 	}
 	
@@ -57,60 +71,60 @@ import (
 		resource: {
 			// Define the Azure subnet for the firewall.
 			azurerm_subnet: "\(k8s.name)_firewall_subnet": {
-				name:                 "AzureFirewallSubnet"        // Name of the subnet.
-				resource_group_name:  azure.resourceGroupName      // Resource group name for the subnet.
-				virtual_network_name: azure.vnetName               // Virtual network name where the subnet resides.
-				address_prefixes: azure.addressFirewall                  // CIDR block for the subnet.
+				name:                 "AzureFirewallSubnet"       
+				resource_group_name:  azure.resourceGroupName      
+				virtual_network_name: azure.vnetName              
+				address_prefixes: azure.addressFirewall               
 			}
 			
 			// Define the public IP address resource for the firewall.
 			azurerm_public_ip: "\(k8s.name)_firewall_public_ip": {
-				name:                "\(k8s.name)-firewall-public-ip"  // Name of the public IP.
-				location:            azure.location                   // Location (from input).
-				resource_group_name: azure.resourceGroupName          // Resource group name for the public IP.
-				allocation_method:   "Static"                         // Static IP allocation method.
-				sku:                 "Standard"                       // IP SKU (Standard tier).
+				name:                "\(k8s.name)-firewall-public-ip" 
+				location:            azure.location                   
+				resource_group_name: azure.resourceGroupName          
+				allocation_method:   "Static"                         
+				sku:                 "Standard"                       
 			}
 			
 			// Define the Azure firewall resource.
 			azurerm_firewall: "\(k8s.name)_firewall": {
-				name:                "\(k8s.name)-firewall"           // Name of the firewall.
-				location:            azure.location                   // Location (from input).
-				resource_group_name: azure.resourceGroupName          // Resource group name for the firewall.
-				sku_name:            "AZFW_VNet"                      // Firewall SKU name (Virtual Network SKU).
-				sku_tier:            "Standard"                       // Firewall SKU tier (Standard tier).
+				name:                "\(k8s.name)-firewall"           
+				location:            azure.location                   
+				resource_group_name: azure.resourceGroupName          
+				sku_name:            "AZFW_VNet"                      
+				sku_tier:            "Standard"                       
 				ip_configuration: {
-					name:                 "firewall-ip-config"          // IP configuration name.
-					public_ip_address_id: "azurerm_public_ip.\(k8s.name)_firewall_public_ip.id" // Reference to public IP.
-					subnet_id:            "azurerm_subnet.\(k8s.name)_firewall_subnet.id"      // Reference to subnet.
+					name:                 "firewall-ip-config"         
+					public_ip_address_id: "azurerm_public_ip.\(k8s.name)_firewall_public_ip.id"
+					subnet_id:            "azurerm_subnet.\(k8s.name)_firewall_subnet.id"     
 				}
 			}
 			
 			// Define the Azure firewall policy resource.
 			azurerm_firewall_policy: "\(k8s.name)_firewall_policy": {
-				name:                "\(k8s.name)-firewall-policy"    // Name of the firewall policy.
-				resource_group_name: azure.resourceGroupName          // Resource group name for the firewall policy.
-				location:            azure.location                   // Location (from input).
+				name:                "\(k8s.name)-firewall-policy"    
+				resource_group_name: azure.resourceGroupName          
+				location:            azure.location                   
 			}
 			
 			// Define the Azure firewall policy rule collection group.
 			azurerm_firewall_policy_rule_collection_group: "\(k8s.name)_firewall_rule_collection": {
-				name:               "\(k8s.name)-firewall-rule-collection" // Name of the rule collection group.
-				firewall_policy_id: "azurerm_firewall_policy.\(k8s.name)_firewall_policy.id" // Reference to firewall policy.
-				priority:           policy.priority                      // Priority for the rule collection group.
+				name:               "\(k8s.name)-firewall-rule-collection"
+				firewall_policy_id: "azurerm_firewall_policy.\(k8s.name)_firewall_policy.id" 
+				priority:           policy.priority                     
 				network_rule_collection: {
-					name:     policy.collection.name                     // Name of the network rule collection.
-					priority: policy.collection.priority                 // Priority of the network rule collection.
-					action:   policy.collection.action                   // Action for the rule collection ("Allow" or "Deny").
+					name:     policy.collection.name                      
+					priority: policy.collection.priority                 
+					action:   policy.collection.action                   
 					
 					// Define individual rules for the firewall network rule collection.
 					rule: {
-						name:         policy.rule.name                   // Name of the rule.
-						description:  policy.rule.description            // Description of the rule.
-						source_addresses: policy.rule.source_addresses   // Source addresses for the rule.
-						destination_addresses:  policy.rule.destination_addresses // Destination addresses for the rule.
-						destination_ports:  policy.rule.destination_ports // Destination ports for the rule.
-						protocols:  policy.rule.protocols                // Allowed protocols for the rule (TCP, UDP).
+						name:         policy.rule.name                  
+						description:  policy.rule.description            
+						source_addresses: policy.rule.source_addresses   
+						destination_addresses:  policy.rule.destination_addresses 
+						destination_ports:  policy.rule.destination_ports 
+						protocols:  policy.rule.protocols              
 					}
 				}
 			}
@@ -125,8 +139,8 @@ import (
 		}
 			// Associate Route Table with AKS Subnet
 			azurerm_subnet_route_table_association: "\(k8s.name)_aks_route_table_assoc": {
-			  subnet_id      : "${data.azurerm_subnet.\(k8s.name)_aks_subnet.id}"   // Correct reference to the AKS subnet
-			  route_table_id : "${data.azurerm_route_table.\(k8s.name)_aks_route_table.id}" // Correct reference to the AKS route table
+			  subnet_id      : "${data.azurerm_subnet.\(k8s.name)_aks_subnet.id}"  
+			  route_table_id : "${data.azurerm_route_table.\(k8s.name)_aks_route_table.id}" 
 			}
 			// Route through Azure Firewall
 			azurerm_route: "\(k8s.name)_route_through_firewall": {
