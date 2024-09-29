@@ -24,7 +24,6 @@ import (
 				destination_ports: [...uint]      
 				protocols: ["UDP", "TCP"]   
 				}
-		
 		}
 	}
 }	

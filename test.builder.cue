@@ -6,7 +6,6 @@ import (
 	// "stakpak.dev/devx/v1/traits"
 )
 
-
 builders: v2alpha1.#Environments & {
 	prod: {
 		// add azureConfig to shared between both transformers
@@ -36,6 +35,7 @@ builders: v2alpha1.#Environments & {
 						addressFirewall: ["10.0.2.0/24"]
 						addressSourceFW: ["0.0.0.0"]
 					},
+
 					// policy: {
 					// 	priority: 100
 					// 	collection: {
@@ -45,7 +45,7 @@ builders: v2alpha1.#Environments & {
 					// 	}
 					// 	rule: {
 					// 		name: "fwtesting"
-					// 		source_addresses: ["*"]
+					// 		s#ource_addresses: ["*"]
 					// 		destination_addresses: ["*"]
 					// 		destination_ports: [8080, 9090]
 

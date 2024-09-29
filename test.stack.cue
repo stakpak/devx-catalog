@@ -17,8 +17,9 @@ stack: v1.#Stack & {
                 }
             }
 		},
-        policyFirewall: traits.#AzureAKSPolicyFirewall & {
+        // policyFirewall: traits.#AzureAKSPolicyFirewall & {
         policy: {
+            traits.#AzureAKSPolicyFirewall
 			priority: 100
 			collection: {
 				priority: 100
@@ -34,4 +35,4 @@ stack: v1.#Stack & {
 		    }
 	    }
     }
-}
+// }
