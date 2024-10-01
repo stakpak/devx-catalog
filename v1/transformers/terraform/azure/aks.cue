@@ -88,14 +88,14 @@ import (
 
 			}
 			// Create subnet for AKS
-			azurerm_subnet: { 
-				if azure.vnetName != _|_ && azure.addresses != _|_ {
-				"\(k8s.name)_aks_subnet": {
-					name:                 "\(k8s.name)-aks-subnet"
-					resource_group_name:  azure.resourceGroupName
-					virtual_network_name: azure.vnetName
-					address_prefixes:     azure.addresses
-				}
+			if azure.vnetName != _|_ && azure.addresses != _|_ {
+			    azurerm_subnet: { 
+					"\(k8s.name)_aks_subnet": {
+						name:                 "\(k8s.name)-aks-subnet"
+						resource_group_name:  azure.resourceGroupName
+						virtual_network_name: azure.vnetName
+						address_prefixes:     azure.addresses
+					}
 				}
 			}
 			// Route Table For AKS 
