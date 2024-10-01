@@ -18,8 +18,8 @@ import (
 		location:          helpers.#Location
 		resourceGroupName: string | *"k8s-rg"
 		//
-		addressAKS: [... string & net.IPCIDR]  
-		vnetName: string
+		addresses?: [... string & net.IPCIDR]  
+		vnetName?: string
 		//
 		aks: {
 			nodeSize:      string | *"Standard_D2_v2"
@@ -87,20 +87,22 @@ import (
 				}
 
 			}
-
-			// Create Subnet For AKS
-			azurerm_subnet: "\(k8s.name)_aks_subnet": {
-			  name                 : "\(k8s.name)-aks-subnet"
-			  resource_group_name  : azure.resourceGroupName
-			  virtual_network_name : azure.vnetName
-			  address_prefixes     : azure.addressAKS
+			// Create subnet for AKS
+			azurerm_subnet: { 
+				if azure.vnetName != _|_ && azure.addresses != _|_ {
+				"\(k8s.name)_aks_subnet": {
+					name:                 "\(k8s.name)-aks-subnet"
+					resource_group_name:  azure.resourceGroupName
+					virtual_network_name: azure.vnetName
+					address_prefixes:     azure.addresses
+				}
+				}
 			}
-
 			// Route Table For AKS 
 			azurerm_route_table: "\(k8s.name)_aks_route_table": {
-			  name                 : "\(k8s.name)-aks-route-table"
-			  location            : azure.location
-			  resource_group_name  : azure.resourceGroupName
+			 name                 : "\(k8s.name)-aks-route-table"
+			 location            : azure.location
+			 resource_group_name  : azure.resourceGroupName
 			}
 		}
 	}
