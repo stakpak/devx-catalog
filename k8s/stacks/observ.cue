@@ -8,7 +8,7 @@ import (
 ObservabilityStack: v1.#Stack & {
 	$metadata: stack: "ObservabilityStack"
 	components: {
-        grafana: grafana.#Grafana & {
+        grafana: grafana.#GrafanaChart & {
 			helm: {
 				version: "8.5.2"
 				release: "grafana"
