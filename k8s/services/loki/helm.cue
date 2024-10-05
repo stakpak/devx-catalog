@@ -1,11 +1,11 @@
-package grafana
+package loki
 
 import (
 	"stakpak.dev/devx/v1"
 	"stakpak.dev/devx/v1/traits"
 )
 
-#GrafanaChart: {
+#LokiChart: {
 	traits.#Helm
 	k8s: "version": (v1.getMatch & {
 		match: helm.version
@@ -14,11 +14,11 @@ import (
 	helm: {
 		repoType: "default"
 		url:      "https://grafana.github.io/helm-charts"
-		chart:    "grafana"
+		chart:    "loki"  
 
-		version: string | *"8.5.2"
+		version: string | *"2.10.2"  
 
-		namespace: string | *"monitoring"
+		namespace: string | *"monitoring" 
 		release:   string
 
 		values: (v1.getMatch & {
