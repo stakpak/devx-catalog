@@ -16,7 +16,7 @@ import (
 		url:      "https://grafana.github.io/helm-charts"
 		chart:    "grafana"
 
-		version: string | *"6.22.0"
+		version: string | *"8.5.2"
 
 		namespace: string | *"monitoring"
 		release:   string
