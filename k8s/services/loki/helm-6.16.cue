@@ -1,7 +1,7 @@
 package loki
 
-#KubeVersion: [=~"^2\\.10\\.2"]: minor: >=21
-#Values: [=~"^2\\.10\\.2"]: {
+#KubeVersion: [=~"^6\\.16\\.0"]: minor: >=21
+#Values: [=~"^6\\.16\\.0"]: {
 
     // Loki settings
     loki: {
@@ -37,34 +37,6 @@ package loki
         // clients: [{
         //   url: string | *"http://{{ .Release.Name }}:3100/loki/api/v1/push"
         // }]
-      }
-    }
-
-    // Grafana settings
-    grafana: {
-      enabled: bool | *true
-      sidecar: {
-        datasources: {
-          label: string | *""
-          labelValue: string | *""
-          enabled: bool | *true
-          maxLines: int | *1000
-        }
-      }
-      image: {
-        tag: string | *"10.3.3"
-      }
-      adminUser: string | *"grafana"
-      adminPassword: string | *"grafana"
-    }
-
-    // Prometheus settings
-    prometheus: {
-      enabled: bool | *true
-      isDefault: bool | *true
-      // url: string | *"http://{{ include \"prometheus.fullname\" .}}:{{ .Values.prometheus.server.service.servicePort }}{{ .Values.prometheus.server.prefixURL }}"
-      datasource: {
-        jsonData: string | *"{}"
       }
     }
 }

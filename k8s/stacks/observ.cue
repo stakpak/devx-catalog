@@ -12,7 +12,7 @@ ObservabilityStack: v1.#Stack & {
 	components: {
         "loki": loki.#LokiChart & {
 			helm: {
-				version: "2.10.2"
+				version: "6.16.0"
 				release: "loki"
 				values: {}
             }

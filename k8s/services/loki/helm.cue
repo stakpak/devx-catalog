@@ -16,7 +16,7 @@ import (
 		url:      "https://grafana.github.io/helm-charts"
 		chart:    "loki"  
 
-		version: string | *"2.10.2"  
+		version: string | *"6.16.0"  
 
 		namespace: string | *"monitoring" 
 		release:   string
