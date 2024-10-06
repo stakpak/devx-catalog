@@ -4,6 +4,7 @@ import (
 	"stakpak.dev/devx/v1"
 	"stakpak.dev/devx/k8s/services/loki"
 	"stakpak.dev/devx/k8s/services/grafana"
+	"stakpak.dev/devx/k8s/services/prometheus"
 )
 
 ObservabilityStack: v1.#Stack & {
@@ -20,6 +21,13 @@ ObservabilityStack: v1.#Stack & {
 			helm: {
 				version: "8.5.1"
 				release: "grafana"
+				values: {}
+            }
+        }
+        "prometheus": prometheus.#PrometheusChart & {
+			helm: {
+				version: "25.26.0"
+				release: "prometheus"
 				values: {}
             }
         }
