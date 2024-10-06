@@ -5,8 +5,8 @@ import (
 	"stakpak.dev/devx/k8s"
 )
 
-#KubeVersion: [=~"^8\\.5\\.2"]: minor: >=21
-#Values: [=~"^8\\.5\\.2"]: {
+#KubeVersion: [=~"^8\\.5\\.1"]: minor: >=21
+#Values: [=~"^8\\.5\\.1"]: {
 
     // Default values for deploying Grafana using Helm
 

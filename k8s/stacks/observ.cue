@@ -18,7 +18,7 @@ ObservabilityStack: v1.#Stack & {
         }
         "grafana": grafana.#GrafanaChart & {
 			helm: {
-				version: "8.5.2"
+				version: "8.5.1"
 				release: "grafana"
 				values: {}
             }
