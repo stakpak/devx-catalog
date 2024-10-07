@@ -32,7 +32,7 @@ package prometheus
   		name: string | *"configmap-reload"
   		image: {
   			repository: string | *"quay.io/prometheus-operator/prometheus-config-reloader"
-  			tag: string | *"v0.76.0"
+  			tag: string | *"latest"
   			digest: string | *""
   			pullPolicy: string | *"IfNotPresent"
   		}
