@@ -115,11 +115,11 @@ package prometheus
   	ingress: {
   		enabled: bool | *false
   		annotations: [string]: string
-  		hosts: [string]
+  		hosts: [...string]
   		path: string | *"/"
   		tls: [...{
   			secretName: string
-  			hosts: [string]
+  			hosts: [...string]
   		}]
   	}
   	persistentVolume: {

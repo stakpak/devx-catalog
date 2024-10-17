@@ -19,7 +19,7 @@ import (
 		version: string | *"25.26.0"
 
 		namespace: string | *"monitoring"
-		release:   string
+		release:   string 
 
 		values: (v1.getMatch & {
 			match: version
