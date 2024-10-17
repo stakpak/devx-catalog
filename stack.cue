@@ -37,23 +37,23 @@ stack: v1.#Stack & {
         }
     // Kubernetes Basic Stack
 	stacks.ObservabilityStack.components
-        loki: {
-            helm: {
-				version: "6.16.0"
-				release: "loki"
-            }
-        }
-        grafana: {
-    		helm: {
-				version: "8.5.1"
-				release: "grafana"
-            }
-        }
-		prometheus: {
-			helm: {
-				version: "25.26.0"
-				release: "prometheus"
-            }
-		}
+        // loki: {
+        //     helm: {
+		// 		version: "6.16.0"
+		// 		release: "loki"
+        //     }
+        // }
+        // grafana: {
+    	// 	helm: {
+		// 		version: "8.5.1"
+		// 		release: "grafana"
+        //     }
+        // }
+		// prometheus: {
+		// 	helm: {
+		// 		version: "25.26.0"
+		// 		release: "prometheus"
+        //     }
+		// }
     }
 }
