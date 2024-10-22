@@ -35,29 +35,10 @@ stack: v1.#Stack & {
                 public:        true
             }
         }
-    // Add Stacks
-		// stacks.KubernetesBasicStack.components
-		// certManager: k8s:             cluster.k8s
-		// ingressNginx: k8s:            cluster.k8s
-		// externalSecretsOperator: k8s: cluster.k8s
+        // Add Observability Stack
 		stacks.ObservabilityStack.components
-        loki: {
-            helm: {
-	 			version: "6.16.0"
-	 			release: "loki"
-            }
-        }
-        grafana: {
-    		helm: {
-	 			version: "8.5.1"
-	 			release: "grafana"
-            }
-        }
-	 	prometheus: {
-	 		helm: {
-	 			version: "25.26.0"
-	 			release: "prometheus"
-            }
-	 	}
+        grafana:    k8s: cluster.k8s
+        prometheus: k8s: cluster.k8s
+        loki:       k8s: cluster.k8s
     }
 }

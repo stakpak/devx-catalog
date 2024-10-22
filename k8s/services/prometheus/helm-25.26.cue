@@ -2,6 +2,7 @@ package prometheus
 
 import (
 	"k8s.io/api/core/v1"
+	"stakpak.dev/devx/k8s"
 )
 
 #KubeVersion: [=~"^25\\.26\\.0"]: minor: >=21
@@ -21,7 +22,7 @@ import (
 		// Specifies whether a service account should be created.
 		create: bool | *true
 		// Annotations for the service account.
-		annotations: [string]: string
+		annotations: k8s.Annotations | *null 
 		// Extra labels for the service account.
 		extraLabels: [string]: string
 		// Name of the service account to use.
@@ -135,7 +136,8 @@ import (
 		// Ingress configuration
 		ingress: {
 			enabled: bool | *false
-			annotations: [string]: string
+			// annotations: [string]: string
+			annotations: k8s.Annotations | *null 
 			hosts: [...string]
 			path: string | *"/"
 			tls: [...{

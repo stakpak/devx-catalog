@@ -2,7 +2,7 @@ package grafana
 
 import (
 	"k8s.io/api/core/v1"
-	// "stakpak.dev/devx/k8s"
+	"stakpak.dev/devx/k8s"
 )
 
 #KubeVersion: [=~"^8\\.5\\.1"]: minor: >=21
@@ -129,7 +129,7 @@ import (
 		loadBalancerSourceRanges: [...string] | *[]
 		port: int | *80
 		targetPort: int | *3000
-		annotations: {} | *{}
+		annotations:      k8s.#Annotations | *null
 		labels: {} | *{}
 		portName: string | *"service"
 		appProtocol: string | *""
@@ -150,7 +150,7 @@ import (
 	hostAliases: [...{}] | *[]
 	ingress: {
 		enabled: bool | *false
-		annotations: {} | *{}
+		annotations:      k8s.#Annotations | *null
 		labels: {} | *{}
 		path: string | *"/"
 		pathType: string | *"Prefix"
