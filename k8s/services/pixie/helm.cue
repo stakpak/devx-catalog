@@ -14,7 +14,7 @@ import (
 	helm: {
 		repoType: "default"
 		url:      "https://helm-charts.newrelic.com"
-		chart:    "pixie"
+		chart:    "newrelic-pixie"
 
 		version: string | *"2.1.6"
 

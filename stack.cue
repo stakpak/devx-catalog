@@ -11,10 +11,8 @@ stack: v1.#Stack & {
         // EKS Cluster Configuration
         cluster: {
             traits.#KubernetesCluster
-            k8s: {
-                name: "demo"
-                version: minor: 26
-            }
+            k8s: name: "demo"
+            k8s: version: minor: 27
             aws: {
                 region: "us-east-1"
                 vpc: {
@@ -22,14 +20,14 @@ stack: v1.#Stack & {
                     cidr: "10.0.0.0/16"
                     subnets: {
                         private: [
-                            "10.0.1.0/24", // Subnet for AZ1
-                            "10.0.2.0/24", // Subnet for AZ2
-                            "10.0.3.0/24"  // Subnet for AZ3
+                            "10.0.1.0/24",
+                            "10.0.2.0/24",
+                            "10.0.3.0/24" 
                         ]
                         public:  [
-                            "10.0.101.0/24", // Subnet for AZ1
-                            "10.0.102.0/24", // Subnet for AZ2
-                            "10.0.103.0/24"  // Subnet for AZ3
+                            "10.0.101.0/24",
+                            "10.0.102.0/24",
+                            "10.0.103.0/24" 
                         ]
                     }
                 }
@@ -42,12 +40,13 @@ stack: v1.#Stack & {
                 desiredSize:   2
                 public:        true
             }
-        }
+         }
         // Add Observability Stack
 		stacks.ObservabilityStack.components
         grafana:    k8s: cluster.k8s
         prometheus: k8s: cluster.k8s
         loki:       k8s: cluster.k8s
-        pixie:       k8s: cluster.k8s
+        pixie:      k8s: cluster.k8s
     }
 }
+
