@@ -31,8 +31,8 @@ import (
         }
     }
 
-    podAnnotations: {}
-    podLabels: {}
+    podAnnotations: k8s.#Annotations
+    podLabels: k8s.#Labels
 
     job: {
         annotations: {}
@@ -41,11 +41,11 @@ import (
 
     proxy: {}
 
-    nodeSelector: {}
+    nodeSelector:   k8s.#Labels
 
-    tolerations: []
+    tolerations: [...v1.#Toleration]
 
-    affinity: {}
+    affinity: v1.#Affinity
 
     customScripts: {}
 
