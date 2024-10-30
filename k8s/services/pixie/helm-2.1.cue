@@ -2,7 +2,7 @@ package pixie
 
 import (
 	"k8s.io/api/core/v1"
-	// "stakpak.dev/devx/k8s"
+	"stakpak.dev/devx/k8s"
 )
 
 #KubeVersion: [=~"^2\\.1\\.6"]: minor: >=21
