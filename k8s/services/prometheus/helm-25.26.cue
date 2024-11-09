@@ -51,15 +51,15 @@ import (
 			name: string | *"configmap-reload"
 			image: {
 				repository: string | *"quay.io/prometheus-operator/prometheus-config-reloader"
-				tag: string | *"latest"
+				tag: string | *"v0.77.2"
 				digest: string | *""
 				pullPolicy: string | *"IfNotPresent"
 			}
 			containerPort: int | *8080
 			containerPortName: string | *"metrics"
 			extraArgs: [string]: string
-			extraVolumeDirs: [string]: string
-			extraVolumeMounts: [string]: string
+			extraVolumeDirs: []
+			extraVolumeMounts: []
 			extraConfigmapMounts: [...{
 				name: string
 				mountPath: string

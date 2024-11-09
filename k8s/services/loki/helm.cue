@@ -14,9 +14,9 @@ import (
 	helm: {
 		repoType: "default"
 		url:      "https://grafana.github.io/helm-charts"
-		chart:    "loki"  
+		chart:    "loki-stack"  
 
-		version: string | *"6.16.0"  
+		version: string | *"2.10.2"  
 
 		namespace: string | *"monitoring" 
 		release:   string

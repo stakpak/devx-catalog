@@ -13,13 +13,13 @@ import (
 	}).result
 	helm: {
 		repoType: "default"
-		url:      "https://helm-charts.newrelic.com"
-		chart:    "newrelic-pixie"
+		url:      "https://pixie-operator-charts.storage.googleapis.com"
+		chart:    "pixie-operator-chart"
 
-		version: string | *"2.1.6"
+		version: string | *"0.1.6"
 
-		namespace: string | *"monitoring"
-		release:   string
+		namespace: "pl"
+		release:   string | *"pixie"
 
 		values: (v1.getMatch & {
 			match: version
