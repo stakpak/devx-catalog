@@ -21,15 +21,13 @@ import (
     // Vizier configuration
     vizier: {
       name:           *"pixie" | string // Name of the Vizier instance
-      clusterName:    string // Cluster name for Vizier monitoring
+      clusterName:    string | *"ObservTest" // Cluster name for Vizier monitoring
       version:        *"" | string // Operator deploys the latest version if empty
-      deployKey:      string // Deployment key for Vizier
-      customDeployKeySecret: *"" | string // Custom deploy key secret in Pixie namespace
-
+      deployKey:      string | *"px-dep-7f20ab42-b199-418f-872b-f5a84378152f" // Deployment key for Vizier
       disableAutoUpdate:    *false | bool // Disable auto-updates if true
       useEtcdOperator:      *false | bool // Use etcd for in-memory storage if true
       cloudAddr:            *"withpixie.ai:443" | string // Pixie cloud instance address
-      devCloudNamespace:    *"" | string // Namespace for dev Pixie cloud, if used
+      devCloudNamespace:    *"plc" | string // Namespace for dev Pixie cloud, if used
 
       pemMemoryLimit:       *"" | string // PEM pod memory limit (defaults to 2Gi if empty)
       pemMemoryRequest:     *"" | string // PEM pod memory request (defaults to pemMemoryLimit if empty)
@@ -41,12 +39,12 @@ import (
         resources:   { 
 
           limits: {
-            cpu: "500m" | string
-            memory: "2Gi" | string
+            cpu: *"500m" | string
+            memory: *"2Gi" | string
           }
           requests: {
-            cpu: "100m" | string
-            memory: "1Gi" | string
+            cpu: *"100m" | string
+            memory: *"1Gi" | string
           }
         }
 

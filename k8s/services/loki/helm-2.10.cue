@@ -1,144 +1,69 @@
 package loki
 
-import (
-	"k8s.io/api/core/v1"
-	// "stakpak.dev/devx/k8s"
-)
-
 #KubeVersion: [=~"^2\\.10\\.2"]: minor: >=21
 #Values: [=~"^2\\.10\\.2"]: {
-{
-    test_pod: {
-        enabled: true
-        image: "bats/bats:1.8.2"
-        pullPolicy: v1.#imagePullPolicy | *"IfNotPresent"
-    }
 
     loki: {
-        enabled: true
-        isDefault: true
-        url: "http://{{(include \"loki.serviceName\" .)}}:{{ .Values.loki.service.port }}"
-        readinessProbe: {
-            httpGet: {
-                path: "/ready"
-                port: "http-metrics"
+        env: [
+            {
+                name: "AWS_ACCESS_KEY_ID"
+                valueFrom: {
+                    secretKeyRef: {
+                        name: *"iam-loki-s3" | string
+                        key:  *"AWS_ACCESS_KEY_ID" | string
+                    }
+                }
+            },
+            {
+                name: "AWS_SECRET_ACCESS_KEY"
+                valueFrom: {
+                    secretKeyRef: {
+                        name: *"iam-loki-s3" | string
+                        key:  *"AWS_SECRET_ACCESS_KEY" | string
+                    }
+                }
             }
-            initialDelaySeconds: 45
-        }
-        livenessProbe: {
-            httpGet: {
-                path: "/ready"
-                port: "http-metrics"
+        ]
+
+        config: {
+            schema_config: {
+                configs: [{
+                    from:         *"2021-05-12" | string
+                    store:        *"boltdb-shipper" | string
+                    object_store: *"s3" | string
+                    schema:       *"v11" | string
+                    index: {
+                        prefix: *"loki_index_" | string
+                        period: *"24h" | string
+                    }
+                }]
             }
-            initialDelaySeconds: 45
-        }
-        datasource: {
-            jsonData: "{}"
-            uid: ""
+
+            storage_config: {
+                aws: {
+                    s3:               *"s3://us-east-1/observtest" | string
+                    s3forcepathstyle: *true | bool
+                    bucketnames:      *"observtest" | string
+                    region:           *"us-east-1" | string
+                    insecure:         *false | bool
+                    sse_encryption:   *false | bool
+                }
+                boltdb_shipper: {
+                    shared_store: *"s3" | string
+                    cache_ttl:    *"24h" | string
+                }
+            }
         }
     }
 
+
     promtail: {
-        enabled: true
+        enabled: *true | bool
         config: {
-            logLevel: "info"
-            serverPort: 3101
             clients: [{
-                url: "http://{{ .Release.Name }}:3100/loki/api/v1/push"
+                url: *"http://loki.monitoring.svc.cluster.local:3100/loki/api/v1/push" | string
             }]
         }
     }
 
-    fluent_bit: {
-        enabled: false
-    }
-
-    grafana: {
-        enabled: false
-        sidecar: {
-            datasources: {
-                label: ""
-                labelValue: ""
-                enabled: true
-                maxLines: 1000
-            }
-        }
-        image: {
-            tag: "10.3.3"
-        }
-    }
-
-    prometheus: {
-        enabled: false
-        isDefault: false
-        url: "http://{{ include \"prometheus.fullname\" .}}:{{ .Values.prometheus.server.service.servicePort }}{{ .Values.prometheus.server.prefixURL }}"
-        datasource: {
-            jsonData: "{}"
-        }
-    }
-
-    filebeat: {
-        enabled: false
-        filebeatConfig: {
-            "filebeat.yml": '''
-                # logging.level: debug
-                filebeat.inputs:
-                - type: container
-                  paths:
-                    - /var/log/containers/*.log
-                  processors:
-                  - add_kubernetes_metadata:
-                      host: ${NODE_NAME}
-                      matchers:
-                      - logs_path:
-                          logs_path: "/var/log/containers/"
-                output.logstash:
-                  hosts: ["logstash-loki:5044"]
-            '''
-        }
-    }
-
-    logstash: {
-        enabled: false
-        image: "grafana/logstash-output-loki"
-        imageTag: "1.0.1"
-        filters: {
-            main: '''
-                filter {
-                    if [kubernetes] {
-                        mutate {
-                            add_field => {
-                                "container_name" => "%{[kubernetes][container][name]}"
-                                "namespace" => "%{[kubernetes][namespace]}"
-                                "pod" => "%{[kubernetes][pod][name]}"
-                            }
-                            replace => { "host" => "%{[kubernetes][node][name]}" }
-                        }
-                    }
-                    mutate {
-                        remove_field => ["tags"]
-                    }
-                }
-            '''
-        }
-        outputs: {
-            main: '''
-                output {
-                    loki {
-                        url => "http://loki:3100/loki/api/v1/push"
-                        #username => "test"
-                        #password => "test"
-                    }
-                    # stdout { codec => rubydebug }
-                }
-            '''
-        }
-    }
-
-    proxy: {
-        http_proxy: ""
-        https_proxy: ""
-        no_proxy: ""
-    }
-}
 }
