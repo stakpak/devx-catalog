@@ -5,8 +5,8 @@ import (
 	"stakpak.dev/devx/k8s"
 )
 
-#KubeVersion: [=~"^25\\.26\\.0"]: minor: >=21
-#Values: [=~"^25\\.26\\.0"]: {
+#KubeVersion: [=~"^25\\.26\\."]: minor: >=21
+#Values: [=~"^25\\.26\\."]: {
 
 	// RBAC settings
 	rbac: create: bool | *true
