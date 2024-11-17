@@ -6,9 +6,9 @@ import (
 )
 
 // Define Helm chart settings
-#KubeVersion: [=~"^8\\.5\\.1"]: minor: >=21
+#KubeVersion: [=~"^8\\.5\\.0"]: minor: >=21
 
-#Values: [=~"^8\\.5\\.1"]: {
+#Values: [=~"^8\\.5\\.0"]: {
 
     global: {
         imageRegistry: string | *null

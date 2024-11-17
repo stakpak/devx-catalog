@@ -5,8 +5,8 @@ import (
 	"stakpak.dev/devx/k8s"
 )
 
-#KubeVersion: [=~"^0\\.1\\.6"]: minor: >=21
-#Values: [=~"^0\\.1\\.6"]: {
+#KubeVersion: [=~"^0\\.1\\."]: minor: >=21
+#Values: [=~"^0\\.1\\."]: {
     // OLM configuration
     deployOLM:        *"" | string // Optional; defaults to whether OLM is present in the cluster.
     olmNamespace:     *"olm" | string
