@@ -20,12 +20,14 @@ FullObservabilityStack: v1.#Stack & {
         "grafana": grafana.#GrafanaChart & {
 			helm: {
 				release: "grafana"
-				values: {}
+				values: {
+				}
             }
         }
         "prometheus": prometheus.#PrometheusChart & {
 			helm: {
 				release: "prometheus"
+				namespace: "monitoring"
 				values: {}
             }
         }

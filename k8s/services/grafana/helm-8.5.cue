@@ -80,27 +80,27 @@ import (
     }
 
     // Datasources for Grafana
-    datasources: {
-        "datasources.yaml": {
-            apiVersion: 1
-            datasources: [
-                {
-                    name:      "Prometheus"
-                    type:      "prometheus"
-                    url:       "http://prometheus-server.monitoring.svc.cluster.local:80"
-                    access:    "proxy"
-                    isDefault: true
-                },
-                {
-                    name:      "Loki"
-                    type:      "loki"
-                    url:       "http://loki.monitoring.svc.cluster.local:3100"
-                    access:    "proxy"
-                    isDefault: false
-                },
-            ]
-        }
-    }
+    // datasources: {
+    //     "datasources.yaml": {
+    //         apiVersion: 1
+    //         datasources: [
+    //             {
+    //                 name:      "Prometheus"
+    //                 type:      "prometheus"
+    //                 url:       string | *"http://prometheus-server.monitoring.svc.cluster.local:80"
+    //                 access:    "proxy"
+    //                 isDefault: true
+    //             },
+    //             {
+    //                 name:      "Loki"
+    //                 type:      "loki"
+    //                 url:       string | *"http://loki.monitoring.svc.cluster.local:3100"
+    //                 access:    "proxy"
+    //                 isDefault: false
+    //             },
+    //         ]
+    //     }
+    // }
 
     // Service account and RBAC
     serviceAccount: {
