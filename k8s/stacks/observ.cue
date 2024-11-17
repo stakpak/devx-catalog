@@ -12,21 +12,18 @@ ObservabilityStack: v1.#Stack & {
 	components: {
         "loki": loki.#LokiChart & {
 			helm: {
-				version: string | *"2.10.2"
 				release: "loki"
 				values: {}
             }
         }
         "grafana": grafana.#GrafanaChart & {
 			helm: {
-				version: string | *"8.5.11"
 				release: "grafana"
 				values: {}
             }
         }
         "prometheus": prometheus.#PrometheusChart & {
 			helm: {
-				version: string | *"25.26.0"
 				release: "prometheus"
 				values: {}
             }
