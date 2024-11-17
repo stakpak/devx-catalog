@@ -1,7 +1,7 @@
 package loki
 
-#KubeVersion: [=~"^2\\.10\\.0"]: minor: >=21
-#Values: [=~"^2\\.10\\.0"]: {
+#KubeVersion: [=~"^2\\.10\\."]: minor: >=21
+#Values: [=~"^2\\.10\\."]: {
 
     loki: {
         env: [
