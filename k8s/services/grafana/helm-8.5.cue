@@ -98,13 +98,6 @@ import (
                     access:    "proxy"
                     isDefault: false
                 },
-                // {
-                //     name:      "AlertManager"
-                //     type:      "alertmanager"
-                //     url:       "http://prometheus-alertmanager.monitoring.svc.cluster.local:9093"
-                //     access:    "proxy"
-                //     isDefault: false
-                // }
             ]
         }
     }

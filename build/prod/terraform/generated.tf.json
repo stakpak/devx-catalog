@@ -72,6 +72,20 @@
         ],
         "depends_on": []
       },
+      "pixie": {
+        "name": "pixie",
+        "namespace": "pl",
+        "repository": "https://pixie-operator-charts.storage.googleapis.com",
+        "chart": "pixie-operator-chart",
+        "version": "0.1.6",
+        "timeout": 600,
+        "atomic": true,
+        "create_namespace": true,
+        "values": [
+          "deployOLM: \"\"\nclusterName: ObservTest\nolmNamespace: olm\nolmOperatorNamespace: px-operator\nolmBundleChannel: stable\nolmCatalogSource:\n  annotations: {}\n  labels: {}\nvizier:\n  name: pixie\n  clusterName: ObservTest\n  version: \"\"\n  deployKey: px-dep-7f20ab42-b199-418f-872b-f5a84378152f\n  disableAutoUpdate: false\n  useEtcdOperator: false\n  cloudAddr: withpixie.ai:443\n  devCloudNamespace: plc\n  pemMemoryLimit: \"\"\n  pemMemoryRequest: \"\"\n  dataAccess: Full\n  pod:\n    annotations: {}\n    labels: {}\n    resources:\n      limits:\n        cpu: 500m\n        memory: 2Gi\n      requests:\n        cpu: 100m\n        memory: 1Gi\n    nodeSelector: {}\n    tolerations: []\n"
+        ],
+        "depends_on": []
+      },
       "loki": {
         "name": "loki",
         "namespace": "monitoring",

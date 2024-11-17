@@ -23,7 +23,8 @@ import (
       name:           *"pixie" | string // Name of the Vizier instance
       clusterName:    string | *"ObservTest" // Cluster name for Vizier monitoring
       version:        *"" | string // Operator deploys the latest version if empty
-      deployKey:      string | *"px-dep-7f20ab42-b199-418f-872b-f5a84378152f" // Deployment key for Vizier
+      // deployKey:      string | *"px-dep-7f20ab42-b199-418f-872b-f5a84378152f" // Deployment key for Vizier
+      deployKey:      string // Deployment key for Vizier
       disableAutoUpdate:    *false | bool // Disable auto-updates if true
       useEtcdOperator:      *false | bool // Use etcd for in-memory storage if true
       cloudAddr:            *"withpixie.ai:443" | string // Pixie cloud instance address

@@ -31,15 +31,5 @@ ObservabilityStack: v1.#Stack & {
 				values: {}
             }
         }
-        // "pixie": pixie.#PixieChart & {
-		// 	helm: {
-		// 		version: "0.1.6"
-		// 		release: "pixie"
-		// 		values: {
-		// 			clusterName: "ObservTest"
-		// 			deployKey: "px-dep-7f20ab42-b199-418f-872b-f5a84378152f"
-		// 		}
-        //     }
-        // }
     }
 }
