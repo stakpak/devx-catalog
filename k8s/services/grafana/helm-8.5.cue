@@ -78,7 +78,6 @@ import (
         tolerations:  [...v1.#Toleration]
         affinity:     v1.#Affinity
     }
-
     // Datasources for Grafana
     // datasources: {
     //     "datasources.yaml": {
@@ -101,7 +100,6 @@ import (
     //         ]
     //     }
     // }
-
     // Service account and RBAC
     serviceAccount: {
         create: bool | *true
