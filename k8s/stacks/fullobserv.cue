@@ -5,10 +5,11 @@ import (
 	"stakpak.dev/devx/k8s/services/loki"
 	"stakpak.dev/devx/k8s/services/grafana"
 	"stakpak.dev/devx/k8s/services/prometheus"
+	"stakpak.dev/devx/k8s/services/pixie"
 )
 
-ObservabilityStack: v1.#Stack & {
-	$metadata: stack: "ObservabilityStack"
+FullObservabilityStack: v1.#Stack & {
+	$metadata: stack: "FullObservabilityStack"
 	components: {
         "loki": loki.#LokiChart & {
 			helm: {
@@ -28,5 +29,11 @@ ObservabilityStack: v1.#Stack & {
 				values: {}
             }
         }
+		"pixie": pixie.#PixieChart & {
+			helm: {
+				release: "pixie"
+				values: {}
+			}
+		}
     }
 }
