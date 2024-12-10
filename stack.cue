@@ -290,6 +290,7 @@ stack: v1.#Stack & {
 			secret: {
 				secretTokenGenerator: "ecr-token"
 				targetsecret: "ecr-user-image-token-secret"
+				accessKeySecret: users.default.password
 			}
 		}
 	}
