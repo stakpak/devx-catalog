@@ -38,3 +38,24 @@ package helpers
 		...
 	}
 }
+
+#ECRAWSIAMPolicy: {
+	aws!: {
+		region:  string
+		account: string
+		...
+	}
+	policy: {
+		actions: [
+			"ecr:GetAuthorizationToken",
+			"ecr:BatchCheckLayerAvailability",
+			"ecr:GetDownloadUrlForLayer",
+			"ecr:BatchGetImage",
+			"ecr:DescribeRepositories"
+		]
+		resources: [
+			"arn:aws:ecr:\(aws.region):\(aws.account):repository/*",
+		]
+		...
+	}
+}

@@ -6,6 +6,81 @@ import (
 	"stakpak.dev/devx/k8s/services/eso/resources"
 )
 
+#ElasticContainerRegistry: {
+	traits.#KubernetesResources
+
+	k8s: {
+		namespace: string
+		...
+	}
+
+	aws: {
+		region: string
+		account: string
+		...
+	}
+
+	secret: {
+		secretTokenGenerator: string
+		localsecret: string
+		accessKeySecret?: string | v1.#Secret
+	}
+
+	k8sResources: {
+		// Creates a token for accessing ECR
+		ecrAuthorizationToken: {
+			apiVersion: "generators.external-secrets.io/v1alpha1"
+			kind:       "ECRAuthorizationToken"
+			metadata: {
+				name:      secret.secretTokenGenerator
+				namespace: k8s.namespace
+			}
+			spec: {
+				region: aws.region
+				auth: {
+					secretRef: {
+						accessKeyIDSecretRef: {
+							name: string
+							key: string
+							name: secret.accessKeySecret.name 
+							key: "access-key"
+						}
+						secretAccessKeySecretRef: {
+							name: string
+							key: string
+							name: secret.accessKeySecret.name 
+							key:  "secret-access-key"
+						}
+					}
+				}
+			}
+		}
+		// Secret contains the ECR credentials needed to authenticate ECR 
+		ecrCredentialsSpec: {
+			apiVersion: "external-secrets.io/v1beta1"
+			kind:       "ExternalSecret"
+			metadata: {
+				name:      secret.localsecret
+				namespace: k8s.namespace
+			}
+			spec: {
+				refreshInterval: string | *"1h"
+				target: name: secret.localsecret 
+				dataFrom: [{
+					sourceRef: {
+						generatorRef: {
+							apiVersion: "generators.external-secrets.io/v1alpha1"
+							kind:       "ECRAuthorizationToken"
+							name:       secret.secretTokenGenerator
+						}
+					}
+				}]
+			}
+		}
+	}
+}
+
+
 #AWSSecretStore: {
 	traits.#KubernetesResources
 
