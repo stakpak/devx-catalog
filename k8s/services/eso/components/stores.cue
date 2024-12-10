@@ -22,8 +22,8 @@ import (
 
 	secret: {
 		secretTokenGenerator: string
-		localsecret: string
-		accessKeySecret?: string | v1.#Secret
+		targetsecret: string
+		accessKeySecret: string | v1.#Secret
 	}
 
 	k8sResources: {
@@ -56,12 +56,12 @@ import (
 			apiVersion: "external-secrets.io/v1beta1"
 			kind:       "ExternalSecret"
 			metadata: {
-				name:      secret.localsecret
+				name:      secret.targetsecret
 				namespace: k8s.namespace
 			}
 			spec: {
 				refreshInterval: string | *"1h"
-				target: name: secret.localsecret 
+				target: name: secret.targetsecret 
 				dataFrom: [{
 					sourceRef: {
 						generatorRef: {

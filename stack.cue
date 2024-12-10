@@ -267,7 +267,7 @@ stack: v1.#Stack & {
 			}
 		}
 
-		esoElsaticContainerRegistry: {
+		esoElsaticContainerRegistry: esc.#ElasticContainerRegistry & {
 			$metadata: labels: "k8s-secret": "ecr"
 			traits.#User
 			users: default: username: string
