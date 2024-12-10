@@ -266,32 +266,27 @@ stack: v1.#Stack & {
 				}
 			}
 		}
-
-		esoElsaticContainerRegistry: esc.#ElasticContainerRegistry & {
-			$metadata: labels: "k8s-secret": "ecr"
-			traits.#User
-			users: default: username: string
-			policies: "ecr-access": (esh.#ECRAWSIAMPolicy & {
-				aws: {
-					region: "eu-west-1"
-					account: "777833595077"
+		pullECRSecret: {
+			traits.#ImagePullSecret 
+			secret: {
+				provider:       "aws"
+				region: 		"eu-west-1"
+				accessKey:{
+					name:		"ecr-credintails"
+					key: 		"access-key"
+				}	
+				secretAccessKey:{ 
+					name: 		"ecr-credintails"
+					key: 		"secret-access-key"
 				}
-			}).policy
+			}
 			k8s: {
 				cluster.k8s
-				namespace: "external-secrets" 
+				namespace: "external-secrets"
 			}
-
-			aws: {
-				region: "eu-west-1"
-				account: "777833595077"
-			}
-
-			secret: {
-				secretTokenGenerator: "ecr-token"
-				targetsecret: "ecr-user-image-token-secret"
-				accessKeySecret: users.default.password
-			}
+			externalSecret: {
+				refreshInterval: "1h"
+			} 
 		}
 	}
 }
