@@ -114,12 +114,9 @@ import (
 }
 
 #AddECRToken: v1.#Transformer & {
+	traits.#EsoWithEcr
+	secret: _
 	$metadata:	_
-	secret: { 
-		accesskey: string
-		token: string | *"ecr-gen"
-		secretstore: string | *"ecr-secret"
-	}
 
 	k8s: {
 		namespace: string

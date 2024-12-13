@@ -306,9 +306,7 @@ stack: v1.#Stack & {
 			}
 		}
 		pullECRSecret: {
-			secret: {
-				accesskey: "ecr-credentials"
-			}
+			traits.#EsoWithEcr
 			k8s: {
 				namespace: "external-secrets"
 			}
