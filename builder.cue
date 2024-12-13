@@ -9,6 +9,8 @@ import (
 	"stakpak.dev/devx/v2alpha1"
 	rabbitmq "stakpak.dev/devx/k8s/services/rabbitmq/transformers/terraform/k8s"
 	mongodb "stakpak.dev/devx/k8s/services/mongodb/transformers/terraform/k8s"
+	eso "stakpak.dev/devx/k8s/services/eso/transformers/terraform/k8s"
+
 )
 
 builders: v2alpha1.#Environments & {
@@ -89,6 +91,16 @@ builders: v2alpha1.#Environments & {
 				},
 			]
 		}
+		"terraform/pullecrtoken":{
+			match: labels: "k8s-secret": "ecr"
+			pipeline: [
+				terraformResourcesLayer,
+				eso.AddECRToken,
+				k8s.#AddLocalKubernetesProvider & {
+					kubeconfig: path: config.kubeconfig
+				},
+			]
+		}
 		"terraform/rabbit-mq": {
 			pipeline: [
 				terraformResourcesLayer,
@@ -122,7 +134,7 @@ builders: v2alpha1.#Environments & {
 				kubeconfig: path: config.kubeconfig
 			},
 		]
-		"ignore-gateway": pipeline: [{traits.#Gateway}]
+		"ignore-gateway": pipeline: [{traits.#Gateway}],
 	}
 
 	taskfile: tasks: {

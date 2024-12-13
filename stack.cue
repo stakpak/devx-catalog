@@ -6,12 +6,16 @@ import (
 	"stakpak.dev/devx/k8s/stacks"
 	esc "stakpak.dev/devx/k8s/services/eso/components"
 	esh "stakpak.dev/devx/k8s/services/eso/helpers"
+	// eso "stakpak.dev/devx/k8s/services/eso/transformers/terraform/k8s"
 	rabbitmq "stakpak.dev/devx/k8s/services/rabbitmq"
 	redisk8s "stakpak.dev/devx/k8s/services/redis"
 	argocd "stakpak.dev/devx/k8s/services/argocd"
 	argoapp "stakpak.dev/devx/k8s/services/argocd/components"
 	kedac "stakpak.dev/devx/k8s/services/keda"
 	simplemongodb "stakpak.dev/devx/k8s/services/simplemongodb"
+	// imp "stakpak.dev/devx/k8s/services/imagepullsecrets"
+	// impc "stakpak.dev/devx/k8s/services/imagepullsecrets/components"
+	// imph "stakpak.dev/devx/k8s/services/imagepullsecrets/helpers"
 )
 
 stack: v1.#Stack & {
@@ -149,10 +153,45 @@ stack: v1.#Stack & {
 				}
 			}
 		}
+	// 	imps: imp.#ImagePullSecretsChart & {
+	// 		k8s: cluster.k8s
+	// 		helm: {
+	// 			version: "0.3.12"
+	// 			release: "imagepullsecrets"
+	// 			values: {
+	// 				defaultSecret: enabled: false
+	// 				defaultConfig: enabled: false
+	// 			}
+	// 		}
+	// 	}
+	// 	// custom resources
+	// 	ecrImagePullSecret: {
+	// 		$metadata: labels: "k8s-secret": "imps"
+	// 		traits.#User
+	// 		impc.#ECRImagePullSecret
+	// 		users: default: username: string
+	// 		policies: "ecr-access": (imph.#ECRAWSIAMPolicy & {
+	// 			aws: {
+	// 				region:  "eu-west-1"
+	// 				account: "777833595077"
+	// 			}
+	// 		}).policy
+	// 		k8s: {
+	// 			cluster.k8s
+	// 			namespace: imps.helm.namespace
+	// 		}
+	// 		aws: {
+	// 			region:  "eu-west-1"
+	// 			account: "777833595077"
+	// 		}
+	// 		ecrImps: {
+	// 			name:            users.default.username
+	// 			target:          "ecr-user-image-pull-secret"
+	// 			accessKeySecret: users.default.password
+	// 		}
+	// 	}
 	}
 }
-
-
 
 #EdgeBuilder: {
 	config: name: string
@@ -267,26 +306,15 @@ stack: v1.#Stack & {
 			}
 		}
 		pullECRSecret: {
-			traits.#ImagePullSecret 
 			secret: {
-				provider:       "aws"
-				region: 		"eu-west-1"
-				accessKey:{
-					name:		"ecr-credintails"
-					key: 		"access-key"
-				}	
-				secretAccessKey:{ 
-					name: 		"ecr-credintails"
-					key: 		"secret-access-key"
-				}
+				accesskey: "ecr-credentials"
 			}
 			k8s: {
-				cluster.k8s
 				namespace: "external-secrets"
 			}
-			externalSecret: {
-				refreshInterval: "1h"
-			} 
+			aws: {
+				region: "eu-west-1"
+			}
 		}
 	}
 }
