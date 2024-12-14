@@ -155,6 +155,7 @@ stack: v1.#Stack & {
 		}
 		pullecrsecret: {
 			traits.#ImagePullSecret
+			// $metadata: labels: "k8s-secret": "ecr-credentials"
 			secret: {
 				provider:        "aws"
 				region:          "eu-west-1"
@@ -287,24 +288,5 @@ stack: v1.#Stack & {
 				}
 			}
 		}
-	// 	pullecrsecret: {
-	// 		traits.#ImagePullSecret
-	// 		secret: {
-	// 			provider:        "aws"
-	// 			region:          "eu-west-1"
-	// 			accessKey: { 
-	// 				name: "ecr-credentials"
-	// 				key:  "access-key"
-	// 			}
-	// 			secretAccessKey: {
-	// 				name: "ecr-credentials"
-	// 				key:  "secret-access-key"
-	// 			}
-	// 		}
-	// 		k8s: {
-	// 			cluster.k8s
-	// 			namespace: "external-secrets"
-	// 	}
-	// }
 	}
 }

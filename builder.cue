@@ -9,9 +9,7 @@ import (
 	"stakpak.dev/devx/v2alpha1"
 	rabbitmq "stakpak.dev/devx/k8s/services/rabbitmq/transformers/terraform/k8s"
 	mongodb "stakpak.dev/devx/k8s/services/mongodb/transformers/terraform/k8s"
-	// eso "stakpak.dev/devx/k8s/services/eso/transformers/terraform/k8s"
 	eso "stakpak.dev/devx/k8s/services/eso/transformers/kubernetes"
-    // "stakpak.dev/devx/v1/transformers/kubernetes"
 
 )
 
@@ -29,11 +27,6 @@ builders: v2alpha1.#Environments & {
 		}
 	}
 
-	"qiz": #EdgeBuilder & {
-		config: {
-			kubeconfig: "~/.kube/qiz"
-		}
-	}
 }
 
 #EdgeBuilder: v2alpha1.#StackBuilder & {
@@ -43,8 +36,8 @@ builders: v2alpha1.#Environments & {
 		kubeconfig: string
 	}
 	drivers: { 
-		terraform: output: dir: ["deploy", "customers", config.name]
-		kubernetes: output: dir: ["deploy", "customers", config.name]
+		terraform: output: dir: ["deploy", "customers", config.name, "terraform"]
+		kubernetes: output: dir: ["deploy", "customers", config.name , "kubernetes"]
 	} 
 
 	let KubernetesLayer = terraform.#SetOutputSubdir & {
