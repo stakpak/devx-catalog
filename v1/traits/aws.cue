@@ -124,8 +124,8 @@ import (
 #EsoWithEcr: v1.#Trait & {
 	$metadata: traits: EsoWithEcr: null
 	secret: {
-		accesskey: string | *"ecr-credentials"
-		token: string | *"ecr-gen"
+		accesskey: 	 string | *"ecr-credentials"
+		token: 		 string | *"ecr-gen"
 		secretstore: string | *"ecr-secret"
 	}
 }
