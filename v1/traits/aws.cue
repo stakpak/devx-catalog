@@ -121,11 +121,11 @@ import (
 }
 
 // ESO With  ECR
-#EsoWithEcr: v1.#Trait & {
-	$metadata: traits: EsoWithEcr: null
-	secret: {
-		accesskey: 	 string | *"ecr-credentials"
-		token: 		 string | *"ecr-gen"
-		secretstore: string | *"ecr-secret"
-	}
-}
+// #EsoWithEcr: v1.#Trait & {
+// 	$metadata: traits: EsoWithEcr: null
+// 	secret: {
+// 		accesskey: 	 string | *"ecr-credentials"
+// 		token: 		 string | *"ecr-gen"
+// 		secretstore: string | *"ecr-secret"
+// 	}
+// }

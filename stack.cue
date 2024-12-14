@@ -153,6 +153,19 @@ stack: v1.#Stack & {
 				}
 			}
 		}
+		pullECRSecret: {
+			secret: { 
+				accessKeySecret: { 
+					name: "ecr-credentials"
+				}
+			}
+			k8s: {
+				namespace: "external-secrets"
+			}
+			aws: {
+				region: "eu-west-1"
+			}
+		}
 	// 	imps: imp.#ImagePullSecretsChart & {
 	// 		k8s: cluster.k8s
 	// 		helm: {
@@ -305,14 +318,14 @@ stack: v1.#Stack & {
 				}
 			}
 		}
-		pullECRSecret: {
-			traits.#EsoWithEcr
-			k8s: {
-				namespace: "external-secrets"
-			}
-			aws: {
-				region: "eu-west-1"
-			}
-		}
+		// pullECRSecret: {
+		// 	traits.#EsoWithEcr
+		// 	k8s: {
+		// 		namespace: "external-secrets"
+		// 	}
+		// 	aws: {
+		// 		region: "eu-west-1"
+		// 	}
+		// }
 	}
 }

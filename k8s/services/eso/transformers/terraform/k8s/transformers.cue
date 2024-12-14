@@ -114,74 +114,75 @@ import (
 }
 
 #AddECRToken: v1.#Transformer & {
-	traits.#EsoWithEcr
-	secret: _
-	$metadata:	_
+    secret: {
+        token:          string | *"ecr-gen"
+        secretstore:    string | *"ecr-secret"
+		accessKeySecret:  v1.#Secret
+    }
+    k8s: {
+        namespace:      string
+        ...
+    }
 
-	k8s: {
-		namespace: string
-		...
-	}
+    aws: {
+        region:         string
+        ...
+    }
 
-	aws: {
-		region: string
-		...
-	}
-	externalSecret: {
-		refreshInterval: *"1h" | string
-	}
+    externalSecret: {
+        refreshInterval: *"1h" | string
+    }
 
-
-	$resources: terraform: schema.#Terraform & {
-		resource: kubernetes_manifest: {
-				"ecr_token": {
-					manifest: resources.#ECRAuthorizationToken & {
-						metadata: {
-							name: "ecr-gen"
-							namespace: k8s.namespace
-						}
-					spec: {
-						region: aws.region
-						auth: { 
-		    				secretRef: { 
-		    				  accessKeyIDSecretRef: {
-		    				    name: secret.accesskey 
-		    				    key: "access-key" 
-							  }
-		    				  secretAccessKeySecretRef:{ 
-		    				    name: secret.accesskey 
-		    				    key: "secret-access-key" 
-							  }
-							}
-						}
-					}
-					}
-				}
-				"ecr-target": {
-					manifest: resources.#ExternalSecret & {
-						metadata: {
-							name: 	secret.secretstore
-							namespace: k8s.namespace
-						}
-					spec: {
-						refreshInterval: externalSecret.refreshInterval
-						target: {
-							name: 	secret.secretstore
-						}
-				        dataFrom: [
-				          {
-				            sourceRef: {
-				              generatorRef  : {
-				                apiVersion  : "generators.external-secrets.io/v1alpha1"
-				                kind        : "ECRAuthorizationToken"
-				                name        : secret.token
-				              }
-				            }
-				          }
-				        ]
-				      }
-				    }
-				}
-			}
-		}
+    $resources: terraform: schema.#Terraform & {
+        resource: kubernetes_manifest: {
+            "ecr_token": {
+                manifest: resources.#ECRAuthorizationToken & {
+                    metadata: {
+                        name:       "ecr-gen"
+                        namespace:  k8s.namespace
+                    }
+                    spec: {
+                        region: aws.region
+                        auth: {
+                            secretRef: {
+                                accessKeyIDSecretRef: {
+									name: secret.accessKeySecret.name
+									key: "access-key"
+								}
+                                secretAccessKeySecretRef: { 
+									name: secret.accessKeySecret.name
+									key: "secret-access-key"
+								}
+                            }
+                        }
+                    }
+                }
+            }
+            "ecr-target": {
+                manifest: resources.#ExternalSecret & {
+                    metadata: {
+                        name:       secret.secretstore
+                        namespace:  k8s.namespace
+                    }
+                    spec: {
+                        refreshInterval: externalSecret.refreshInterval
+                        target: {
+                            name:   secret.secretstore
+                        }
+                        dataFrom: [
+                            {
+                                sourceRef: {
+                                    generatorRef: {
+                                        apiVersion:    "generators.external-secrets.io/v1alpha1"
+                                        kind:          "ECRAuthorizationToken"
+                                        name:          secret.token
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                }
+            }
+        }
+    }
 }
