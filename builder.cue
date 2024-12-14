@@ -9,7 +9,9 @@ import (
 	"stakpak.dev/devx/v2alpha1"
 	rabbitmq "stakpak.dev/devx/k8s/services/rabbitmq/transformers/terraform/k8s"
 	mongodb "stakpak.dev/devx/k8s/services/mongodb/transformers/terraform/k8s"
-	eso "stakpak.dev/devx/k8s/services/eso/transformers/terraform/k8s"
+	// eso "stakpak.dev/devx/k8s/services/eso/transformers/terraform/k8s"
+	eso "stakpak.dev/devx/k8s/services/eso/transformers/kubernetes"
+    // "stakpak.dev/devx/v1/transformers/kubernetes"
 
 )
 
@@ -40,7 +42,20 @@ builders: v2alpha1.#Environments & {
 		name:       string | *environment
 		kubeconfig: string
 	}
-	drivers: terraform: output: dir: ["deploy", "customers", config.name]
+	drivers: { 
+		terraform: output: dir: ["deploy", "customers", config.name]
+		kubernetes: output: dir: ["deploy", config.name, "k8s"]
+	} 
+
+	let KubernetesLayer = terraform.#SetOutputSubdir & {
+		subdir: "k8s"
+	} & terraform.#SetS3Backend & {
+		s3: {
+			region: "eu-west-1"
+			bucket: "garment-io-terraform-state-prod"
+			key:    "garment.io/customers/\(config.name)/infrastructure/k8s"
+		}
+	}
 
 	let terraformPlatformLayer = terraform.#SetOutputSubdir & {
 		subdir: "platform"
@@ -91,11 +106,11 @@ builders: v2alpha1.#Environments & {
 				},
 			]
 		}
-		"terraform/pullecrtoken":{
-			match: labels: "k8s-secret": "ecr"
+		"terraform/pullecrsecret":{
+			match: labels: "k8s-secret": "ecr-secret"
 			pipeline: [
-				terraformResourcesLayer,
-				eso.AddECRToken,
+				KubernetesLayer,
+				eso.#AddImagePullSecret,
 				k8s.#AddLocalKubernetesProvider & {
 					kubeconfig: path: config.kubeconfig
 				},
