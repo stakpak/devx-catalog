@@ -44,7 +44,7 @@ builders: v2alpha1.#Environments & {
 	}
 	drivers: { 
 		terraform: output: dir: ["deploy", "customers", config.name]
-		kubernetes: output: dir: ["deploy", config.name, "k8s"]
+		kubernetes: output: dir: ["deploy", "customers", config.name]
 	} 
 
 	let KubernetesLayer = terraform.#SetOutputSubdir & {
