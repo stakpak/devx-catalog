@@ -6,6 +6,7 @@ import (
 	"stakpak.dev/devx/k8s/services/eso/resources"
 )
 
+
 #AWSSecretStore: {
 	traits.#KubernetesResources
 
