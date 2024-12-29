@@ -112,3 +112,76 @@ import (
 		}
 	}
 }
+
+#AddImagePullSecret: v1.#Transformer & {
+	traits.#ImagePullSecret
+	$metadata: _
+	secret:    _
+
+	k8s: {
+		namespace: string
+		...
+	}
+	externalSecret: {
+		refreshInterval: *"1h" | string
+	}
+
+	$resources: terraform: schema.#Terraform & {
+		if secret.provider == "aws" {
+			resource: kubernetes_manifest: {
+				"\($metadata.id)_authorization_token": {
+					manifest: resources.#ECRAuthorizationToken & {
+						metadata: {
+							name:      "\($metadata.id)-authorization-token"
+							namespace: k8s.namespace
+						}
+						spec: {
+							region: secret.region
+							auth: secretRef: {
+								accessKeyIDSecretRef: {
+									name: secret.accessKey.name
+									key:  secret.accessKey.key
+								}
+								secretAccessKeySecretRef: {
+									name: secret.secretAccessKey.name
+									key:  secret.secretAccessKey.key
+								}
+							}
+						}
+					}
+				}
+
+				"\($metadata.id)_image_pull_secret": {
+					manifest: resources.#ExternalSecret & {
+						metadata: {
+							name:      "\($metadata.id)-image-pull-secret"
+							namespace: k8s.namespace
+						}
+						spec: {
+							refreshInterval: externalSecret.refreshInterval
+							target: {
+								template: {
+									type: "kubernetes.io/dockerconfigjson"
+									data: ".dockerconfigjson": #"{"auths":{"{{ .proxy_endpoint }}":{"username":"{{ .username }}","password":"{{ .password }}","auth":"{{ printf "%s:%s" .username .password | b64enc }}"}}}"#
+								}
+								name:           "\($metadata.id)-image-pull-secret"
+								creationPolicy: "Owner"
+							}
+							dataFrom: [
+								{
+									sourceRef: generatorRef: {
+										apiVersion: "generators.external-secrets.io/v1alpha1"
+										name:       "\($metadata.id)-authorization-token"
+										kind:       "ECRAuthorizationToken"
+									}
+								},
+							]
+						}
+					}
+				}
+
+			}
+		}
+	}
+
+}
